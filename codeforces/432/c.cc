@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -8,6 +9,7 @@ int pr[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 
 vector<pair<int,int>> ops;
 vector<int> a;
 vector<int> pos;
+vector<int> primes;
 
 void swap(int l, int d) {
     if (d == 0) return;
@@ -20,12 +22,15 @@ void swap(int l, int d) {
     pos[a[r]] = r;
 }
 
+bool is_prime(int a) {
+    return binary_search(primes.begin(), primes.end(), a);
+}
+
 int main() {
     int n;
     cin >> n;
     a.resize(n);
     pos.resize(n + 1);
-    vector<int> primes;
     for (int i = 0; i < 66; i++) {
         primes.push_back(pr[i]);
     }
@@ -49,45 +54,35 @@ int main() {
         int p = pos[x];
         int d = p - x + 2;
         if (d == 1) continue;
-        bool found = false;
-        int d1 = 0, d2 = 0;
-        for (int i = 0; i < primes.size(); i++) {
-            if (d < primes[i]) break;
-            if (d > primes[i]) continue;
+        if (is_prime(d)) {
             swap(x - 1, d);
-            found = true;
+            continue;
         }
-        if (!found) {
-            d++;
-            if (d % 2 == 0) {
-                for (int i = 0; i < primes.size() && !found; i++)
-                for (int j = i; j < primes.size() && !found; j++) {
-                    if (d > primes[i] + primes[j]) continue;
-                    if (d < primes[i] + primes[j]) break;
-                    swap(p - primes[i] + 1, primes[i]);
-                    swap(x-1, primes[j]);
-                    // printf("%d = %d + %d\n", d, primes[i], primes[j]);
-                    found = true;
-                }
-            } else {
-                d--;
-                swap(p - 1, 2);
-                p--;
-                for (int i = 0; i < primes.size() && !found; i++)
-                for (int j = i; j < primes.size() && !found; j++) {
-                    if (d > primes[i] + primes[j]) continue;
-                    if (d < primes[i] + primes[j]) break;
-                    swap(p - primes[i] + 1, primes[i]);
-                    swap(x-1, primes[j]);
-                    // printf("%d = 2 + %d + %d\n", d + 2, primes[i], primes[j]);
-                    found = true;
-                }
+        d++;
+        if (d % 2 == 0) {
+            for (int i = 0; i < primes.size(); i++) {
+                int t = primes[i];
+                if (!is_prime(d - t)) continue;
+                swap(p - t + 1, t);
+                swap(x-1, d - t);
+                break;
             }
+            continue;
         }
-
+        d++;
+        swap(p - 1, 2);
+        d -= 2;
+        p--;
+        for (int i = 0; i < primes.size(); i++) {
+            int t = primes[i];
+            if (!is_prime(d - t)) continue;
+            swap(p - t + 1, t);
+            swap(x - 1, d - t);
+            break;
+        }
     }
     cout << ops.size() << endl;
     for (auto p : ops) {
-        cout << p.first << " " << p.second << endl;
+        printf("%d %d\n", p.first, p.second);
     }
 }
