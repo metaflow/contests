@@ -72,10 +72,20 @@ int main() {
                     + upto * (sorted_tubes[upto]->v - sorted_tubes[upto - 1]->v);
             }
 
-            int i;
-            for (i = 0; i <= upto; i++) {
-                if (v <= sorted_tubes[i]->t) break;
+            int l = 0;
+            int r = upto + 1;
+            while (l != r) {
+                int m = (l + r) / 2;
+                if (v > sorted_tubes[m]->t) {
+                    l = m + 1;
+                } else {
+                    r = m;
+                }
             }
+            int i = l;
+            // for (i = 0; i <= upto; i++) {
+            //     if (v <= sorted_tubes[i]->t) break;
+            // }
             ll delta = v - sorted_tubes[i - 1]->t;
             double relation = (1.0 * delta / i) + sorted_tubes[i - 1]->v;
             printf("%.5f\n", relation);
