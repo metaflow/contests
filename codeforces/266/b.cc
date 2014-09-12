@@ -29,8 +29,8 @@ int main() {
   cin >> n >> a >> b;
   n *= 6;
   ll m = numeric_limits<ll>::max();
-  ll x = 0, y;
-  while (a * b <= n || x == 0) {
+  ll x, y;
+  while (a * b <= n) {
     ll d = n / b;
     if (n % b) ++d;
     d = max(d, a);
@@ -49,6 +49,11 @@ int main() {
     }
     ++a;
     ++b;
+  }
+  if (m > a * b) {
+    x = a;
+    y = b;
+    m = b * a;
   }
   printf("%llu\n%llu %llu\n", m, x, y);
 }
