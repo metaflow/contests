@@ -38,7 +38,7 @@ ll ways(int i, int p) {
       r += ways(i - 1, p) + ways(i - 1, p - 1);
     }
     if (p == v[i] - 1) {
-      r += ways(i - 1, p) + ways(i - 1, p + 1);
+      r += ways(i - 1, p) * 2 + ways(i - 1, p + 1) ;
     }
     r %= D;
   }
@@ -52,6 +52,6 @@ int main() {
   memo[0][0] = 1;
   v[0] = 0;
   for (int i = 1; i <= n; ++i) cin >> v[i];
-  for (int i = 1; i <= n; ++i) v[i] = h - v[i];
+  for (int i = 0; i <= n; ++i) v[i] = h - v[i];
   printf("%lld\n", ways(n, 0));
 }
