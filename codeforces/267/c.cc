@@ -38,7 +38,7 @@ ll best(int n, int m, int k) {
   if (k == 0) return 0;
   ll &r = memo[n][k];
   if (r == -1) {
-    int s = 0;
+    ll s = 0;
     for (int i = 0; i < m; ++i) {
       s += v[n - i - 1];
     }

@@ -86,7 +86,7 @@ int main() {
     walk(i);
   }
 
-  int count = 0, size = 0;
+  ll count = 0, size = 0;
   for (auto i : v) {
     count += values[i].first;
     size += values[i].second;
