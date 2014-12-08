@@ -5,6 +5,8 @@
 !**.jnlp
 !**.cpp
 !**.cc
+!**.java
+!**.jar
 !**.in
 !**.sample_out
 !*/
