@@ -38,11 +38,21 @@ public:
     return fold1(r);
   }
 
-  bool v_sym(rect a) {
-    int k = a.x2 - a.x1;
-    for (int i = 0; i < a.x2 - a.x1; i++) {
+  bool vertical(rect a) {
+    int k = (a.x2 - a.x1) / 2;
+    for (int i = 0; i < k; i++) {
       for (int j = a.y1; j < a.y2; j++) {
-        if (paper[a.x1 + i][j] != paper[a.x2 + k - i - 1][j]) return false;
+        if (paper[a.x1 + i][j] != paper[a.x2 - i - 1][j]) return false;
+      }
+    }
+    return true;
+  }
+
+  bool horizontal(rect a) {
+    int k = (a.y2 - a.y1) / 2;
+    for (int i = 0; i < k; i++) {
+      for (int j = a.x1; j < a.x2; j++) {
+        if (paper[j][a.y1 + i] != paper[j][a.y2 - i - 1]) return false;
       }
     }
     return true;
@@ -51,22 +61,45 @@ public:
   int fold1(rect r) {
     int t = 0;
     int l = r.x2 - r.x1;
-    for (int i = 1; i < (l + 1) / 2; i++) {
-      if (v_sym({r.x1, r.y1, r.x1 + i, r.y2})) {
-        t += fold1({r.x1 + i + 1, r.y1, r.x2, r.y2});
-      }
-    }
-    if (l % 2 == 0) {
-      l = l / 2;
-      if (v_sym({r.x1, r.y1, r.x1 + l, r.y2})) {
-        t += 2 * fold1({r.x1 + l, r.y1, r.x2, r.y2});
-      }
+    for (int i = 2; i <= l; i += 2) {
+      if (!vertical({r.x1, r.y1, r.x1 + i, r.y2})) continue;
+      t = fold1({r.x1 + i/2, r.y1, r.x2, r.y2});
+      break;
     }
     return t + fold2(r);
   }
 
   int fold2(rect r) {
-    return 1;
+    int t = 0;
+    int l = r.x2 - r.x1;
+    for (int i = 2; i <= l; i += 2) {
+      if (!vertical({r.x2 - i, r.y1, r.x2, r.y2})) continue;
+      t = fold2({r.x1, r.y1, r.x2 - i/2, r.y2});
+      break;
+    }
+    return t + fold3(r);
+  }
+
+  int fold3(rect r) {
+    int t = 0;
+    int l = r.y2 - r.y1;
+    for (int i = 2; i <= l; i += 2) {
+      if (!horizontal({r.x1, r.y1, r.x2, r.y1 + i})) continue;
+      t = fold3({r.x1, r.y1 + i/2, r.x2, r.y2});
+      break;
+    }
+    return t + fold4(r);
+  }
+
+  int fold4(rect r) {
+    int t = 0;
+    int l = r.y2 - r.y1;
+    for (int i = 2; i <= l; i += 2) {
+      if (!horizontal({r.x1, r.y2 - i, r.x2, r.y2})) continue;
+      t = fold4({r.x1, r.y1, r.x2, r.y2 - i/2});
+      break;
+    }
+    return t + 1;
   }
 
 // BEGIN CUT HERE
