@@ -36,42 +36,41 @@ public:
       cerr << endl;
     }
     cerr << endl;
-    // full rows
-    int a = 0, b;
-    bool full = true;
-    for (int i = 1; i <= N; i++) {
-      b = sum[i][M];
-      if ((b - a) == 0 || b - a == M) {
-        a = b;
-        continue;
-      }
-      full = false;
-      break;
-    }
-    if (full) {
-      //cerr << "full rows" << endl;
-      return fold1({0, 0, N, 1}) * M * (M + 1) / 2;
-    }
+    // // full rows
+    // int a = 0, b;
+    // bool full = true;
+    // for (int i = 1; i <= N; i++) {
+    //   b = sum[i][M];
+    //   if ((b - a) == 0 || b - a == M) {
+    //     a = b;
+    //     continue;
+    //   }
+    //   full = false;
+    //   break;
+    // }
+    // if (full) {
+    //   //cerr << "full rows" << endl;
+    //   return fold1({0, 0, N, 1}) * M * (M + 1) / 2;
+    // }
 
-    // full columns
-    a = 0;
-    full = true;
-    for (int i = 1; i <= M; i++) {
-      b = sum[N][i];
-      if ((b - a) == 0 || (b - a) == N) {
-        a = b;
-        continue;
-      }
-      full = false;
-      break;
-    }
+    // // full columns
+    // a = 0;
+    // full = true;
+    // for (int i = 1; i <= M; i++) {
+    //   b = sum[N][i];
+    //   if ((b - a) == 0 || (b - a) == N) {
+    //     a = b;
+    //     continue;
+    //   }
+    //   full = false;
+    //   break;
+    // }
+    // if (full) {
+    //   //cerr << "full columns" << endl;
+    //   return fold1({0, 0, 1, M}) * N * (N + 1) / 2;
+    // }
 
-    if (full) {
-      //cerr << "full columns" << endl;
-      return fold1({0, 0, 1, M}) * N * (N + 1) / 2;
-    }
-
-    return fold1({0, 0, N, M});
+    return fold1({0, 0, N, M}) * fold3({0,0,N,M});
   }
 
   int rect_sum(rect a) {
@@ -120,7 +119,7 @@ public:
       t = fold2({r.x1, r.y1, r.x2 - i/2, r.y2});
       break;
     }
-    return t + fold3(r);
+    return t + 1;
   }
 
   int fold3(rect r) {
@@ -166,8 +165,5 @@ public:
 int main() {
   BoardFolding ___test;
   ___test.run_test(-1);
-  cerr << ___test.howMany(250, 250, {"mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "FpFBFppqFpFBFBCBFpFBFppqFppqmqpqFpFBFppqF9", "mCmqmCCBmCmqmqpqmCmqmCCBmCCBFBCBmCmqmCCBm6"});
-
-
 }
 // END CUT HERE
