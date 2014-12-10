@@ -8,6 +8,7 @@
 !**.java
 !**.jar
 !**.in
+!**.txt
 !**.sample_out
 !*/
 !.gitignore

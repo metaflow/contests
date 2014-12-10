@@ -8,12 +8,9 @@ using llu = unsigned long long;
 const int INF = numeric_limits<int>::max();
 const int MAX = 260;
 
-struct rect {
-  int x1, y1, x2, y2;
-};
-
 class BoardFolding {
   int paper[MAX][MAX];
+  int row_count, column_count;
   int tonumber(char c) {
     if (c >= '0' && c <= '9') return c - '0';
     if (c >= 'a' && c <= 'z') return c - 'a' + 10;
@@ -22,82 +19,85 @@ class BoardFolding {
     return 63;
   }
 
+  vector<vector<int>> dict;
+
+  int get_index(vector<int> &v) {
+    for (int i = 0; i < dict.size(); i++) {
+      if (dict[i] == v) return i;
+    }
+    int t = dict.size();
+    dict.emplace_back(v);
+    return t;
+  }
+
+  vector<int> get_rows() {
+    vector<int> indexes(row_count);
+    for (int row = 0; row < row_count; row++) {
+      vector<int> v(column_count);
+      for (int column = 0; column < column_count; column++) {
+        v[column] = paper[row][column];
+      }
+      indexes[row] = get_index(v);
+    }
+    return indexes;
+  }
+
+  vector<int> get_columns() {
+    vector<int> indexes(column_count);
+    for (int column = 0; column < column_count; column++) {
+      vector<int> v(row_count);
+      for (int row = 0; row < row_count; row++) {
+        v[row] = paper[row][column];
+      }
+      indexes[column] = get_index(v);
+    }
+    return indexes;
+  }
 public:
   int howMany(int N, int M, vector <string> compressedPaper) {
+    row_count = N;
+    column_count = M;
     fill(&paper[0][0], &paper[MAX][0], 0);
     for (int i = 0; i < N; i++) {
       for (int j = 0; j < M; j++) {
         paper[i][j] = (tonumber(compressedPaper[i][j / 6]) >> (j % 6)) % 2;
-        // cerr << paper[i][j];
       }
-      // cerr << endl;
     }
     // cerr << endl;
-    return fold1({0, 0, N, M}) * fold3({0,0,N,M});
+    auto rows = get_rows();
+    auto columns = get_columns();
+    return fold_left(rows, 0, rows.size())
+           * fold_left(columns, 0, columns.size());
   }
 
-  bool vertical(rect a) {
-    int k = (a.x2 - a.x1) / 2;
-    for (int i = 0; i < k; i++) {
-      for (int j = a.y1; j < a.y2; j++) {
-        if (paper[a.x1 + i][j] != paper[a.x2 - i - 1][j]) return false;
-      }
-    }
-    return true;
-  }
-
-  bool horizontal(rect a) {
-    int k = (a.y2 - a.y1) / 2;
-    for (int i = 0; i < k; i++) {
-      for (int j = a.x1; j < a.x2; j++) {
-        if (paper[j][a.y1 + i] != paper[j][a.y2 - i - 1]) return false;
-      }
-    }
-    return true;
-  }
-
-  int fold1(rect r) {
+  int fold_left(vector<int> &row, int begin, int end) {
     int t = 0;
-    int l = r.x2 - r.x1;
+    int l = end - begin;
     for (int i = 2; i <= l; i += 2) {
-      if (!vertical({r.x1, r.y1, r.x1 + i, r.y2})) continue;
-      t = fold1({r.x1 + i/2, r.y1, r.x2, r.y2});
+      if (!symmetrical(row, begin, begin + i)) continue;
+      t = fold_left(row, begin + i/2, end);
       break;
     }
-    return t + fold2(r);
+    return t + fold_right(row, begin, end);
   }
 
-  int fold2(rect r) {
+  int fold_right(vector<int> &row, int begin, int end) {
     int t = 0;
-    int l = r.x2 - r.x1;
+    int l = end - begin;
     for (int i = 2; i <= l; i += 2) {
-      if (!vertical({r.x2 - i, r.y1, r.x2, r.y2})) continue;
-      t = fold2({r.x1, r.y1, r.x2 - i/2, r.y2});
+      if (!symmetrical(row, end - i, end)) continue;
+      t = fold_right(row, begin, end - i / 2);
       break;
     }
     return t + 1;
   }
 
-  int fold3(rect r) {
-    int t = 0;
-    int l = r.y2 - r.y1;
-    for (int i = 2; i <= l; i += 2) {
-      if (!horizontal({r.x1, r.y1, r.x2, r.y1 + i})) continue;
-      t = fold3({r.x1, r.y1 + i/2, r.x2, r.y2});
-      break;
+  bool symmetrical(vector<int> &row, int begin, int end) {
+    int k = (end - begin) / 2;
+    for (int i = 0; i < k; i++) {
+      if (row[begin + i] != row[end - i - 1]) return false;
     }
-    return t + fold4(r);
-  }
-
-  int fold4(rect r) {
-    int t = 0;
-    int l = r.y2 - r.y1;
-    for (int i = 2; i <= l; i += 2) {
-      if (!horizontal({r.x1, r.y2 - i, r.x2, r.y2})) continue;
-      t = fold4({r.x1, r.y1, r.x2, r.y2 - i/2});
-      break;
-    }
-    return t + 1;
+    return true;
   }
 // BEGIN CUT HERE
     public:
