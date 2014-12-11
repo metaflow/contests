@@ -10,9 +10,14 @@ const int INF = numeric_limits<int>::max();
 class MaximumBipartiteMatchingProblem {
 public:
   long long solve(int n1, int n2, int ans, int d) {
-
+    ll a = n1, b = n2, f = ans;
+    if (a < b) swap(a, b);
+    if (f > b || d > b) return -1;
+    if (f == b) return a * b;
+    if (f < 2 * d) return -1;
+    return a * (f - d) + b * d - (f - d) * d;
   }
-  
+
 // BEGIN CUT HERE
 	public:
 	void run_test(int Case) { if ((Case == -1) || (Case == 0)) test_case_0(); if ((Case == -1) || (Case == 1)) test_case_1(); if ((Case == -1) || (Case == 2)) test_case_2(); if ((Case == -1) || (Case == 3)) test_case_3(); if ((Case == -1) || (Case == 4)) test_case_4(); }

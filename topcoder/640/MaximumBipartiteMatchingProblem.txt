@@ -42,6 +42,7 @@ EXAMPLES
 
 Returns: 5
 
+
 One optimal graph is shown in the picture below. The red vertices form one partition, the blue ones form the other partition.
 
 
