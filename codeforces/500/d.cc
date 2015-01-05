@@ -17,12 +17,11 @@ struct node {
   bool visited;
   vector<pedge> adjusted;
   pedge back;
+  int below = 0;
 };
 
 struct edge {
   pnode from, to;
-  int to_count;
-  //pedge opposite;
   int w;
   double p;
 };
@@ -30,8 +29,8 @@ struct edge {
 pedge connect(pnode &a, pnode &b, int w) {
   pedge ea = make_shared<edge>();
   pedge eb = make_shared<edge>();
-  ea->w = w; ea->to_count = -1; ea->from = a; ea->to = b;// ea->opposite = eb;
-  eb->w = w; eb->to_count = -1; eb->from = b; eb->to = a;// eb->opposite = ea;
+  ea->w = w; ea->from = a; ea->to = b;
+  eb->w = w; eb->from = b; eb->to = a;
   a->adjusted.emplace_back(ea);
   b->adjusted.emplace_back(eb);
   return ea;
@@ -39,22 +38,21 @@ pedge connect(pnode &a, pnode &b, int w) {
 
 int n;
 
-void count(const pedge e) {
-  if (e->to_count != -1) return;
-  e->to_count = 1;
-  for (auto f : e->to->adjusted) {
-    if (f->to == e->from) continue;
-    count(f);
-    e->to_count += f->to_count;
-  }
+double prob(const pedge e) {
+  double k = min(e->to->below, e->from->below);
+  double a = (n - k) * k;
+  double c = (double)n * (double)(n - 1);
+  return 3 * a / c;
 }
 
-double prob(const pedge e) {
-  int k = e->to_count;
-  double a = (double)(n - k) * (double)(n - k - 1) * (n - k - 2);
-  double b = (double)k * (double)(k - 1) * (double)(k - 2);
-  double c = (double)n * (double)(n - 1) * (double)(n - 2);
-  return 1 - (a + b) / c;
+void dfs(pnode &u) {
+  u->visited = true;
+  u->below = 1;
+  for (auto e : u->adjusted) {
+    if (e->to->visited) continue;
+    dfs(e->to);
+    u->below += e->to->below;
+  }
 }
 
 int main() {
@@ -69,9 +67,11 @@ int main() {
       edges.emplace_back(connect(g[f], g[t], w));
     }
     double l = 0;
+    dfs(g[0]);
+    double c = 6 / ((double)n * (double)(n - 1));
     for (auto e : edges) {
-      count(e);
-      e->p = prob(e);
+      double k = min(e->to->below, e->from->below);
+      e->p = k * (n - k);
       l += e->p * e->w;
     }
     int q;
@@ -81,7 +81,7 @@ int main() {
       cin >> i >> w;
       i--;
       l -= (edges[i]->w - w) * edges[i]->p;
-      printf("%.9f\n", 2 * l);
+      printf("%.9f\n", l * c);
       edges[i]->w = w;
     }
   }
