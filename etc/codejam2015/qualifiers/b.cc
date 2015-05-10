@@ -11,37 +11,36 @@ const int MAX = 1001;
 int p[MAX];
 
 int s(int t) {
-  if (t == 0) return 0;
-  if (p[t] == 0) return s(t - 1);
   if (t == 1) return 1;
   if (p[t] == 0) return s(t - 1);
-  int a = t / 2;
-  p[t]--;
-  p[a]++;
-  p[t - a]++;
-  return min(t, 1 + s(t));
-}
-
-int f(int t, vi& values) {
-  if (t == 1) return 1;
-  if (values[t] == 0) return f(t - 1, values);
-  //split
-  vi c(values);
-  int a = t / 2;
-  c[t]--;
-  c[a]++;
-  c[t - a]++;
-  int b = 1 + f(t, c);
-  // or shift
-  vi d(values);
-  d.erase(d.begin());
-  return min(b, 1 + f(t - 1, d));
+  int best = t;
+  int last_size = 0;
+  for (int cuts = 1; cuts < min(t, 3); cuts++) {
+    int size = t / (cuts + 1);
+    if (size == last_size) continue;
+    last_size = size;
+    int b = t % size;
+    int n = t / size;
+    if (b == 0) {
+      p[size] += n * p[t];
+      best = min(best, cuts * p[t] + s(t - 1));
+      p[size] -= n * p[t];
+      continue;
+    }
+    p[size] += n * p[t];
+    p[b] += p[t];
+    best = min(best, cuts * p[t] + s(t - 1));
+    p[size] -= n * p[t];
+    p[b] -= p[t];
+  }
+  return best;
 }
 
 int main() {
   int tcc;
   cin >> tcc;
   for (int tc = 1; tc <= tcc; tc++) {
+    cerr << "." << endl;
     int n; cin >> n;
     fill_n(p, MAX, 0);
     vi v(MAX, 0);
@@ -51,8 +50,6 @@ int main() {
       v[a]++;
     }
     int a = s(MAX - 1);
-    // int b = f(MAX - 1, v);
     printf("Case #%d: %d\n", tc, a);
-    // if (a != b) printf("<<<\n");
   }
 }
