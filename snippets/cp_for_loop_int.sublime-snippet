@@ -5,7 +5,7 @@ for (int ${3:i} = 0; $3 < ${2:n}; $3++) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>ffor</tabTrigger>
+  <tabTrigger>ff</tabTrigger>
   <description>int for loop</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++, storage.type.c</scope>

@@ -3,6 +3,7 @@
   <content><![CDATA[
 int adjust(pedge e, int d) {
   if (!e) return d;
+  if (d == 0) return 0;
   d = adjust(e->from->back, min(d, e->flow));
   e->flow -= d;
   e->opposite->flow += d;
@@ -26,14 +27,17 @@ int max_flow(vector<pnode> &g, pnode &source, pnode &sink) {
       }
     }
     if (!sink->visited) break;
-    result += adjust(sink->back, INF);
+    for (auto e : sink->adjusted) {
+      if (!e->to->visited) continue;
+      result += adjust(e->opposite, INF);
+    }
   }
   return result;
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>max_flow</tabTrigger>
-  <description>max flow (Karp)</description>
+  <tabTrigger>alg_max_flow</tabTrigger>
+  <description>max flow (Dinic), uses ds_graph_pointers</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++, storage.type.c</scope>
 </snippet>

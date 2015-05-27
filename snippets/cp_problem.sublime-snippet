@@ -12,12 +12,12 @@ const int INF = numeric_limits<int>::max();
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  ${1}
+  $0
 }
 
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>problem_header</tabTrigger>
+  <tabTrigger>problem</tabTrigger>
   <description>c++11</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>
