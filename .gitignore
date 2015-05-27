@@ -11,3 +11,5 @@
 !**.sample_out
 !*/
 !.gitignore
+!**.sh
+!**.sublime-snippet

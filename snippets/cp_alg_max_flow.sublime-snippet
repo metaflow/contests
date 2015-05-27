@@ -1,0 +1,39 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+int adjust(pedge e, int d) {
+  if (!e) return d;
+  d = adjust(e->from->back, min(d, e->flow));
+  e->flow -= d;
+  e->opposite->flow += d;
+  return d;
+}
+
+int max_flow(vector<pnode> &g, pnode &source, pnode &sink) {
+  int result = 0;
+  while (true) {
+    for (auto u : g) u->visited = false;
+    queue<pnode> q;
+    q.push(source); source->visited = true;
+    while (!(q.empty() || sink->visited)) {
+      auto u = q.front(); q.pop();
+      for (auto e : u->adjusted) {
+        auto v = e->to;
+        if (v->visited || e->flow == 0) continue;
+        v->back = e;
+        v->visited = true;
+        q.push(v);
+      }
+    }
+    if (!sink->visited) break;
+    result += adjust(sink->back, INF);
+  }
+  return result;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>max_flow</tabTrigger>
+  <description>max flow (Karp)</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++, storage.type.c</scope>
+</snippet>

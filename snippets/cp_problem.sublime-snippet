@@ -1,0 +1,24 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+#include<bits/stdc++.h>
+using namespace std;
+
+using vi = vector<int>;
+using ii = pair<int,int>;
+using ll = long long;
+using llu = unsigned long long;
+const int INF = numeric_limits<int>::max();
+
+int main() {
+  ios_base::sync_with_stdio(false); cin.tie(0);
+  ${1}
+}
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>problem_header</tabTrigger>
+  <description>c++11</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>

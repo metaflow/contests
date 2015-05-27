@@ -1,0 +1,36 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+struct node;
+struct edge;
+using pnode = shared_ptr<node>;
+using pedge = shared_ptr<edge>;
+using graph = vector<pnode>;
+
+struct node {
+  bool visited;
+  vector<pedge> adjusted;
+  pedge back;
+};
+
+struct edge {
+  pnode from, to;
+  int flow;
+  pedge opposite;
+};
+
+void connect(pnode &a, pnode &b, int w) {
+  pedge ea = make_shared<edge>();
+  pedge eb = make_shared<edge>();
+  ea->from = a; ea->to = b; ea->flow = w; ea->opposite = eb;
+  eb->from = b; eb->to = a; eb->flow = 0; eb->opposite = ea;
+  a->adjusted.emplace_back(ea);
+  b->adjusted.emplace_back(eb);
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>graph_pointers</tabTrigger>
+  <description>graph data structure on pointers</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++, meta.class-struct-block.c++, storage.type.c++</scope>
+</snippet>
