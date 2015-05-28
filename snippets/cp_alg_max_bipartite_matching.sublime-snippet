@@ -1,0 +1,33 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+bool bipartite_matching_connect(const int u, vvb& m, vi& to, vb& used) {
+  for (size_t v = 0; v < to.size(); v++) {
+    if (!m[u][v] || used[v]) continue;
+    used[v] = true;
+    if (to[v] == -1 || bipartite_matching_connect(to[v], m, to, used)) {
+      to[v] = u;
+      return true;
+    }
+  }
+  return false;
+}
+
+// {A} => {B}, m[i][j] == A[i] -> B[j]
+int bipartite_matching(vvb& m) {
+  if (m.empty()) return 0;
+  vi to(m[0].size(), -1);
+  int result = 0;
+  for (size_t u = 0; u < m.size(); u++) {
+    vb used(to.size());
+    if (bipartite_matching_connect(u, m, to, used)) result++;
+  }
+  return result;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>alg_max_bipartite_matching</tabTrigger>
+  <description>maximum bipartite matching O(V*E)</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++, storage.type.c</scope>
+</snippet>

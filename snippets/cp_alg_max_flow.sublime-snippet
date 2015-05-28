@@ -3,7 +3,6 @@
   <content><![CDATA[
 int adjust(pedge e, int d) {
   if (!e) return d;
-  if (d == 0) return 0;
   d = adjust(e->from->back, min(d, e->flow));
   e->flow -= d;
   e->opposite->flow += d;
@@ -28,8 +27,9 @@ int max_flow(vector<pnode> &g, pnode &source, pnode &sink) {
     }
     if (!sink->visited) break;
     for (auto e : sink->adjusted) {
-      if (!e->to->visited) continue;
-      result += adjust(e->opposite, INF);
+      auto o = e->opposite;
+      if (!o->from->visited || o->flow == 0) continue;
+      result += adjust(o, o->flow);
     }
   }
   return result;
