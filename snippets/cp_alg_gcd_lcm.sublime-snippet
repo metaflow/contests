@@ -1,0 +1,22 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+ll gcd(ll a, ll b) {
+  while (b) {
+    ll t = b;
+    b = a % b;
+    a = t;
+  }
+  return a;
+}
+
+ll lcm(ll a, ll b) {
+  return a * b / gcd(a, b);
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>alg_gcd_lcm</tabTrigger>
+  <description>GCD and LCM</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>

@@ -1,0 +1,57 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+void sort_suffix_array(vi& sa, vllu& rank, int k) {
+  int n = sa.size();
+  vi counts(max(n, 300));
+  for (int i = 0; i < n; i++) {
+    int p = 0;
+    if (i + k < n) p = rank[i + k];
+    counts[p]++;
+  }
+  int s = 0;
+  for (size_t i = 0; i < counts.size(); i++) {
+    int t = counts[i];
+    counts[i] = s;
+    s += t;
+  }
+  vi updated_sa(n);
+  for (auto i : sa) {
+    int p = 0;
+    if (i + k < n) p = rank[i + k];
+    updated_sa[counts[p]] = i;
+    counts[p]++;
+  }
+  swap(sa, updated_sa);
+}
+
+vi build_suffix_array(string s) {
+  size_t n = s.size();
+  vi sa(n);
+  vllu rank(n);
+  for (size_t i = 0; i < n; i++) {
+    rank[i] = s[i];
+    sa[i] = i;
+  }
+  for (size_t k = 1; k < n; k = k << 1) {
+    sort_suffix_array(sa, rank, k);
+    sort_suffix_array(sa, rank, 0);
+    vllu updated_rank(rank.size());
+    int r = 0;
+    updated_rank[sa[0]] = r;
+    for (size_t i = 1; i < n; i++) {
+      if (rank[sa[i]] != rank[sa[i - 1]] ||
+          rank[sa[i] + k] != rank[sa[i - 1] +k]) r++;
+      updated_rank[sa[i]] = r;
+    }
+    swap(rank, updated_rank);
+    if (rank[sa[n - 1]] == n - 1) break;
+  }
+  return sa;
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>alg_build_suffix_array</tabTrigger>
+  <description>O(n log(n)) suffix array construction</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
