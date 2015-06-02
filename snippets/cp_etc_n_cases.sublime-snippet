@@ -1,8 +1,7 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-int tcc;
-cin >> tcc;
+int tcc; cin >> tcc;
 for (int tc = 1; tc <= tcc; tc++) {
   $0
   ll answer = 0;
