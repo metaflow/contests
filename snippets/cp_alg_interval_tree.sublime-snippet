@@ -1,0 +1,62 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+// intervals are inclusive [a, b]
+// e.g. [1, 2] + [2, 3] -> [1, 3]
+// and find([4, 7]) -> ([1, 4], [5, 6], [7, 11])
+class interval_tree {
+private:
+  struct intervals_key {
+    bool operator() (const ii& a, const ii& b) {
+      return a.second < b.first;
+   };
+  };
+  map<ii, int, intervals_key> m;
+  friend ostream& operator << (ostream& s, const interval_tree& v) {
+    for (auto ii = v.m.cbegin(); ii != v.m.cend(); ii++) {
+      s << "[" << ii->first.first << ", " << ii->first.second << "] ";
+    }
+    return s;
+  }
+public:
+  void add(int a, int b) {
+    vii r;
+    auto p = m.equal_range(make_pair(a, b));
+    for (auto ii = p.first; ii != p.second; ii++) r.emplace_back(ii->first);
+    m.erase(p.first, p.second);
+    for (auto ii : r) {
+      a = min(a, ii.first);
+      b = max(b, ii.second);
+    }
+    m.emplace(make_pair(a, b), 0);
+  }
+
+  void remove(int a, int b) {
+    auto p = m.equal_range(make_pair(a, b));
+    vii r;
+    for (auto ii = p.first; ii != p.second; ii++) r.emplace_back(ii->first);
+    m.erase(p.first, p.second);
+    for (auto ii : r) {
+      if (ii.first < a) {
+        m.emplace(make_pair(ii.first, min(a, ii.second)), 0);
+      }
+      if (ii.second > b) {
+        m.emplace(make_pair(max(b, ii.first), ii.second), 0);
+      }
+    }
+  }
+
+  vii find(int a, int b) {
+    vii r;
+    auto p = m.equal_range(make_pair(a, b));
+    for (auto i = p.first; i != p.second; i++) r.emplace_back(i->first);
+    return r;
+  }
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>alg_interval_tree</tabTrigger>
+  <description>add / remove inclusive intervals [a, b]</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
