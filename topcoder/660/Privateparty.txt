@@ -1,0 +1,81 @@
+PROBLEM STATEMENT
+Hero is inviting his friends to the party.
+He has n friends, numbered 0 through n-1.
+For each of his friends there is at most one other person the friend dislikes.
+You are given this information as a vector <int> a with n elements.
+For each i, a[i] is either the number of the person disliked by friend i, we have a[i]=i if friend i likes everybody else.
+
+Hero is inviting his friends one at a time.
+Whenever he invites friend i, they will accept if and only if the friend a[i] didn't accept an earlier invitation.
+(That includes two cases: either Hero didn't invite friend a[i] yet, or he did but the friend rejected the invitation.)
+
+Hero noticed that the order in which he invites his friends matters: different orders may produce different numbers of accepted invitations.
+He thought about finding the best order but the task was too hard for him.
+Therefore he has decided that he will invite his friends in a randomly chosen order.
+(Each permutation of his friends is equally likely to be chosen.)
+
+Return the expected number of friends that will accept Hero's invitation.
+
+DEFINITION
+Class:Privateparty
+Method:getexp
+Parameters:vector <int>
+Returns:double
+Method signature:double getexp(vector <int> a)
+
+
+NOTES
+-Your solution is correct if the absolute error or the relative error is at most 10^-9.
+
+
+CONSTRAINTS
+-a will contain exactly n elements.
+-n will be between 1 and 50, inclusive.
+-Each element of a will be between 0 and n - 1, inclusive.
+
+
+EXAMPLES
+
+0)
+{0,1}
+
+Returns: 2.0
+
+There are two friends.
+As a[0]=0 and a[1]=1, each friend likes the other.
+Regardless of the order of invitations, both will always accept.
+
+1)
+{0,0}
+
+Returns: 1.5
+
+In this test case friend 1 dislikes friend 0.
+If Hero invites 0 first and 1 next, 0 will accept and then 1 will reject.
+If Hero invites 1 first and 0 next, 1 will accept (as 0 didn't accept yet) and then 0 will accept as well (because he likes 1).
+
+2)
+{0,1,1}
+
+Returns: 2.5
+
+Now there are three friends.
+Friend 0 likes everybody else, friend 1 likes everybody else, and friend 2 dislikes friend 1.
+Given three friends, there are six possible orders.
+Hero will choose one of these orders uniformly at random.
+For example, if he invites them in the order (1,0,2), friend 1 will accept, friend 0 will accept, and friend 2 will reject the invitation.
+However, if he invites them in the order (2,1,0), all three friends will accept the invite.
+
+3)
+{0,1,1,2}
+
+Returns: 3.166666666666667
+
+
+
+4)
+{3,2,1,0}
+
+Returns: 2.0
+
+
