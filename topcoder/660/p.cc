@@ -61,4 +61,5 @@ int main() {
     printf("%.12f\n", (t - d - 0.5));
     d = t;
   }
+  // looks like the lim of (t - d - 0.5) = 0.5-1/e => t - d ->1 - 1/e
 }

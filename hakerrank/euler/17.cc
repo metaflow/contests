@@ -35,24 +35,28 @@ vector<string> under20 = {"Zero", "One", "Two", "Three", "Four", "Five", "Six",
 "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
 
 vector<string> spell(ll n) {
-  cerr << n << endl;
+  // cerr << n << endl;
   for (auto m : multipliers) {
-    if (n > m.first) {
+    if (n >= m.first) {
       auto v = spell(n / m.first);
-      cerr << m.second << endl;
+      // cerr << m.second << endl;
       v.emplace_back(m.second);
-      auto a = spell(n % m.first);
-      v.insert(v.end(), a.begin(), a.end());
+      if (n % m.first) {
+        auto a = spell(n % m.first);
+        v.insert(v.end(), a.begin(), a.end());
+      }
       return v;
     }
   }
   for (auto m : tens) {
-    if (n > m.first) {
+    if (n >= m.first) {
       vector<string> v;
-      cerr << m.second << endl;
+      // cerr << m.second << endl;
       v.emplace_back(m.second);
-      auto a = spell(n % m.first);
-      v.insert(v.end(), a.begin(), a.end());
+      if (n % m.first) {
+        auto a = spell(n % m.first);
+        v.insert(v.end(), a.begin(), a.end());
+      }
       return v;
     }
   }
