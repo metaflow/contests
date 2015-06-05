@@ -7,6 +7,7 @@
 !**.java
 !**.jar
 !**.in
+!**.in.out
 !**.txt
 !**.sample_out
 !*/
