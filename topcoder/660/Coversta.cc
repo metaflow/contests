@@ -9,25 +9,45 @@ using llu = unsigned long long;
 const int INF = numeric_limits<int>::max();
 
 class Coversta {
+  vvi v;
+  vvi sum;
+  int n, m, k;
+
+  bool out(int a, int b) {
+    return a < 0 || a >= n || b < 0 || b >= m;
+  }
+
+  void update_sum(int a, int b, int s, vi& x, vi& y) {
+    for (int j = 0; j < k; j++) {
+      int c = a + x[j]; int d = b + y[j];
+      if (out(c, d)) continue;
+      int q = v[c][d];
+      for (int g = 0; g < k; g++) {
+        int e = c - x[g]; int f = d - y[g];
+        if (out(e, f)) continue;
+        sum[e][f] += q * s;
+      }
+    }
+  }
 public:
-  int place(vector <string> a, vector <int> x, vector <int> y) {
-    int n = a.size(); int m = a[0].size(); int k = x.size();
-    vvi v(n);
+  int place(vector <string> field, vector <int> x, vector <int> y) {
+    n = field.size(); m = field[0].size(); k = x.size();
+    v.clear(); sum.clear(); v.resize(n); sum.resize(n);
     for (int i = 0; i < n; i++) {
       v[i].resize(m);
       for (int j = 0; j < m; j++) {
-        v[i][j] = a[i][j] - '0';
+        v[i][j] = field[i][j] - '0';
       }
     }
-    vvi sum(n);
+
     vector<ii> coords;
     for (int i = 0; i < n; i++) {
-      sum[i].resize(m);
+      sum[i].resize(m, 0);
       for (int j = 0; j < m; j++) {
         coords.emplace_back(i, j);
         for (int d = 0; d < k; d++) {
           int a = i + x[d]; int b = j + y[d];
-          if (a < 0 || a >= n || b < 0 || b >= m) continue;
+          if (out(a, b)) continue;
           sum[i][j] += v[a][b];
         }
       }
@@ -42,26 +62,13 @@ public:
       if (candidate + sum[coords[i + 1].first][coords[i + 1].second] < best) {
         break;
       }
-      for (int j = 0; j < k; j++) {
-        int c = a + x[j]; int d = b + y[j];
-        if (c < 0 || c >= n || d < 0 || d >= m) continue;
-        int q = v[c][d];
-        for (int g = 0; g < k; g++) {
-          int e = c - x[g]; int f = d - y[g];
-          if (e < 0 || e >= n || f < 0 || f >= m) continue;
-          sum[e][f] -= q;
-        }
-        int best_left = 0;
-        for (int l = i + 1; l < coords.size() && l < i + 110; l++) {
-          best_left = max(best_left, sum[coords[l].first][coords[l].second]);
-        }
-        best = max(best, candidate + best_left);
-        for (int g = 0; g < k; g++) {
-          int e = c - x[g]; int f = d - y[g];
-          if (e < 0 || e >= n || f < 0 || f >= m) continue;
-          sum[e][f] += q;
-        }
+      update_sum(a, b, -1, x, y);
+      int best_left = 0;
+      for (int l = i + 1; l < coords.size() && l < i + 110; l++) {
+        best_left = max(best_left, sum[coords[l].first][coords[l].second]);
       }
+      best = max(best, candidate + best_left);
+      update_sum(a, b, +1, x, y);
     }
     return best;
   }
