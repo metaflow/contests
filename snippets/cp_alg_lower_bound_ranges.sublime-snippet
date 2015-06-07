@@ -1,0 +1,32 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+// O(N) for each element v[i] get length of max span of [a, b]:
+// each p in [a, b] is not less then v[i]. It's possible to get [a, b] itself
+vi lower_bound_ranges(vector<int> &v) {
+  stack<int> less;
+  int n = v.size();
+  vi w(n, 1);
+  less.push(-1);
+  for (int i = 0; i < n; i++) {
+    while (less.top() != -1 && !(v[less.top()] < v[i])) less.pop();
+    w[i] += i - less.top() - 1;
+    less.push(i);
+  }
+  while (!less.empty()) less.pop();
+  less.push(n);
+  for (int i = n - 1; i > -1; i--) {
+    while (less.top() != n && !(v[less.top()] < v[i])) less.pop();
+    w[i] += less.top() - i - 1;
+    less.push(i);
+  }
+  return w;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>alg_lower_bound_ranges</tabTrigger>
+  <description>for each element v[i] get length of max span of [a, b]:
+    each p in [a, b] is not less then v[i]</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>

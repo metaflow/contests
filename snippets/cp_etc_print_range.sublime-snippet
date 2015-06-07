@@ -1,0 +1,20 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+template <typename Iterator>
+ostream& print_range(ostream& s, const Iterator a, const Iterator b) {
+  bool first = true;
+  for (auto i = a; i != b; i++) {
+    if (!first) s << " ";
+    first = false;
+    s << *i;
+  }
+  return s;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>etc_print_range</tabTrigger>
+  <description>prints range of values</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
