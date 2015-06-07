@@ -1,0 +1,16 @@
+{
+  "c-compiler": "x86_64-w64-mingw32-gcc",
+  "c-compiler-flags": [
+    "-O2",
+    "-lm",
+    "-static"
+  ],
+  "cpp-compiler": "x86_64-w64-mingw32-g++",
+  "cpp-compiler-flags": [
+    "-O2",
+    "-std=gnu++0x",
+    "-lm",
+    "-static"
+  ],
+  "parunner-file": "parunner.exe"
+}
