@@ -2,6 +2,12 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 
+// v max flow
+struct node;
+struct edge;
+using pnode = shared_ptr<node>;
+using pedge = shared_ptr<edge>;
+
 struct node {
   bool visited;
   vector<pedge> adjusted;
@@ -56,6 +62,7 @@ int max_flow(vector<pnode> &g, pnode &source, pnode &sink) {
   }
   return result;
 }
+// ^ max flow 
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
   <tabTrigger>alg_max_flow</tabTrigger>
