@@ -1,0 +1,28 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+default_random_engine source(random_device{}());
+
+ll random_in_range(ll a, ll b) {
+  return uniform_int_distribution<ll>(a, b)(source);
+}
+
+bool random_bool() {
+  return random_in_range(0, 1) == 1;
+}
+
+string random_string(int length) {
+  string s = "";
+  string an = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for (int i = 0; i < length; i++) {
+    s += an[random_in_range(0, an.size() - 1)];
+  }
+  return s;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>etc_random</tabTrigger>
+  <description>random input helpers</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>

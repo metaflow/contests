@@ -1,9 +1,0 @@
-buildestions for Distributed Code Jam
-
-
-for i 1 .. n call rig
-run solution
-run bruteforce
-compare results
-
-rig can just copy files or generate them

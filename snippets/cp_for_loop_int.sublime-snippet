@@ -1,6 +1,6 @@
 <snippet>
   <content><![CDATA[
-for (int ${3:i} = 0; $3 < ${2:n}; $3++) {
+for (ll ${3:i} = 0; $3 < ${2:n}; $3++) {
   $0
 }
 ]]></content>

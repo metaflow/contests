@@ -9,7 +9,7 @@ using pnode = shared_ptr<node>;
 using pedge = shared_ptr<edge>;
 
 struct node {
-  bool visited;
+  int age;
   vector<pedge> adjusted;
   pedge back;
 };
@@ -40,23 +40,23 @@ void connect(pnode &a, pnode &b, int w) {
 int max_flow(vector<pnode> &g, pnode &source, pnode &sink) {
   int result = 0;
   while (true) {
-    for (auto u : g) u->visited = false;
+    for (auto u : g) u->age = 0;
     queue<pnode> q;
-    q.push(source); source->visited = true;
-    while (!(q.empty() || sink->visited)) {
+    q.push(source); source->age = 1;
+    while (!(q.empty() || sink->age != 0)) {
       auto u = q.front(); q.pop();
       for (auto e : u->adjusted) {
         auto v = e->to;
-        if (v->visited || e->flow == 0) continue;
+        if (v->age != 0 || e->flow == 0) continue;
         v->back = e;
-        v->visited = true;
+        v->age = u->age + 1;
         q.push(v);
       }
     }
-    if (!sink->visited) break;
+    if (sink->age == 0) break;
     for (auto e : sink->adjusted) {
       auto o = e->opposite;
-      if (!o->from->visited || o->flow == 0) continue;
+      if (o->from->age != sink->age - 1 || o->flow == 0) continue;
       result += adjust(o, o->flow);
     }
   }
