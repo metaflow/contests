@@ -2,11 +2,16 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 struct point {
-  double x, y;
+  ${1:double} x, y;
   point() {}
-  point(double x, double y) : x(x), y(y) {}
-  double operator * (const point & o) {
+  point($1 x, $1 y) : x(x), y(y) {}
+  // scalar multiplication
+  $1 operator * (const point & o) {
     return x * o.x + y * o.y;
+  }
+  // vector multiplication
+  $1 operator ^ (const point & o) {
+    return x * o.y - y * o.x;
   }
   point operator - (const point& o) {
     return point(x - o.x, y - o.y);
@@ -18,6 +23,10 @@ struct point {
   double operator >> (const point& o) {
     point d = (*this - o);
     return sqrt(d * d);
+  }
+  const bool operator < (const point& o) const {
+    if (o.x != x) return x < o.x;
+    return y < o.y;
   }
 };
 
