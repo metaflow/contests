@@ -1,0 +1,34 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+vll __fibonacci_m_pow(vll &a, ll n, ll mod) {
+  if (n == 1) return a;
+  vll r(4), m1, m2;
+  if (n % 2 == 0) {
+    m1 = m2 = __fibonacci_m_pow(a, n / 2, mod);
+  } else {
+    m1 = a;
+    m2 = __fibonacci_m_pow(a, n - 1, mod);
+  }
+  r[0] = (m1[0] * m2[0] + m1[1] * m2[2]) % mod;
+  r[1] = (m1[0] * m2[1] + m1[1] * m2[3]) % mod;
+  r[2] = (m1[2] * m2[0] + m1[3] * m2[2]) % mod;
+  r[3] = (m1[2] * m2[1] + m1[3] * m2[3]) % mod;
+  return r;
+}
+
+// n >= 1, {1, 1, 2, 3, 5, ...}
+ll fibonacci(ll n, ll mod) {
+  vll a(4);
+  a[0] = 1; a[1] = 1; a[2] = 1; a[3] = 0;
+  auto r = __fibonacci_m_pow(a, n, mod);
+  return r[1];
+}
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>alg_fibonacci</tabTrigger>
+  <description>O(n log(n)) fibonacci</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
