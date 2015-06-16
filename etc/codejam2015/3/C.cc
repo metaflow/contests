@@ -42,6 +42,7 @@ struct quali {
 };
 
 vector<quali> R, L;
+string sr, sl;
 vb Rv, Lv;
 ll Y;
 
@@ -64,7 +65,10 @@ double estimate(ida_state &s) {
   return a + b;
 }
 
+set<string> uniq_states;
+
 bool ida_dfs(ida_state& s, double bound) {
+  uniq_states.insert(sl + sr);
   double e = estimate(s);
   // cerr << "e " << e << endl;
   if (e + s.t > bound) {
@@ -86,9 +90,11 @@ bool ida_dfs(ida_state& s, double bound) {
     Rv[min_index] = true;
     s.t += m;
     s.x += m * Y;
+    sr[min_index] = '+';
     if (ida_dfs(s, bound)) return true;
     s.t -= m;
     s.x -= m * Y;
+    sr[min_index] = '.';
     Rv[min_index] = false;
   }
 
@@ -106,8 +112,10 @@ bool ida_dfs(ida_state& s, double bound) {
     Lv[min_index] = true;
     s.t += m;
     s.x -= m * Y;
+    sl[min_index] = '+';
     if (ida_dfs(s, bound)) return true;
     s.t -= m;
+    sl[min_index] = '.';
     s.x += m * Y;
     Lv[min_index] = false;
   }
@@ -137,11 +145,14 @@ int main() {
     for (ll i = 0; i < N; i++) cin >> ss[i];
     R.clear();
     L.clear();
+    sr = ""; sl = "";
     for (ll i = 0; i < N; i++) {
       if (pp[i] > 0) {
         R.emplace_back(pp[i], ss[i]);
+        sr += ".";
       } else {
         L.emplace_back(pp[i], -ss[i]);
+        sl += ".";
       }
     }
     Rv.clear(); Rv.resize(R.size());
@@ -149,7 +160,11 @@ int main() {
     ida_state s;
     s.x = 0;
     s.t = 0;
+    // TODO there are at most 250^4 ~= 4e9 possible different states at most
+    // so it's feasible to cover some of them + prunning ~0.1%
+    uniq_states.clear();
     cout << "Case #" << tc << ": "
     << fixed << setprecision(7) << tsp(s) << endl;
+    cerr << "UN(" << N << ") " << uniq_states.size() << endl;
   }
 }
