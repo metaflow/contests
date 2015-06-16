@@ -53,23 +53,15 @@ struct ida_state {
 double ida_updated_bound;
 double estimate(ida_state &s) {
   double a = 0, b = 0;
-  double ma = 0;
   for (size_t i = 0; i < R.size(); i++) {
     if (Rv[i]) continue;
-    double t = R[i].meet(s.x, s.t, Y);
-    a = max(a, t);
-    if (ma == 0 || ma > t) ma = t;
+    a = max(a, R[i].meet(s.x, s.t, Y));
   }
-  double mb = 0;
   for (size_t i = 0; i < L.size(); i++) {
     if (Lv[i]) continue;
-    double t = L[i].meet(s.x, s.t, Y);
-    b = max(b, t);
-    if (mb == 0 || mb > t) mb = t;
+    b = max(b, L[i].meet(s.x, s.t, Y));
   }
-  a += mb;
-  b += ma;
-  return max(a, b);
+  return a + b;
 }
 
 bool ida_dfs(ida_state& s, double bound) {
