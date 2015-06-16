@@ -14,6 +14,7 @@ using vvd = vector<vd>;
 using vll = vector<ll>;
 using dd = pair<double, double>;
 const int INF = numeric_limits<int>::max();
+const double DINF = 1e20;
 const double EPS = 1e-10;
 
 struct quali {
@@ -21,82 +22,142 @@ struct quali {
   double at(double t) {
     return start + speed * t;
   }
+  quali() {}
   quali(ll a, ll b): start(a), speed(b) {}
   bool operator < (const quali& rhs) const {
     if (speed != rhs.speed) return speed < rhs.speed;
     return start < rhs.start;
   }
+  double meet(double x, double t, ll Y) {
+    double v = start + speed * t;
+    double r;
+    if (speed > 0) {
+      r = (v - x) / (Y - speed);
+    } else {
+      r = (x - v) / (Y + speed);
+    }
+    assert(r >= 0);
+    return r;
+  }
 };
 
-// time, position
-stack<pair<int, double>> get_hull(vector<quali>& q) {
-  stack<pair<int, double>> s; // index, time
-  for (size_t i = 0; i < q.size(); i++) {
-    auto u = q[i];
-    while (!s.empty()) {
-      int j; double t;
-      tie(j, t) = s.top();
-      if (q[j].at(t) > u.at(t)) break;
-      s.pop();
-    }
-    if (s.empty()) {
-      s.emplace(i, 0);
-    } else {
-      auto v = q[s.top().first];
-      if (v.speed == u.speed) continue; // same quali
-      double t = double(u.start - v.start) / double(v.speed - u.speed);
-      s.emplace(i, t);
-    }
-    // cout << "T " << s.top().first << " " << s.top().second << endl;
+vector<quali> R, L;
+vb Rv, Lv;
+ll Y;
+
+// IDA* TSP with bitmask up to 64 vertices
+struct ida_state {
+  double x, t;
+};
+
+double ida_updated_bound;
+double estimate(ida_state &s) {
+  double a = 0, b = 0;
+  double ma = 0;
+  for (size_t i = 0; i < R.size(); i++) {
+    if (Rv[i]) continue;
+    double t = R[i].meet(s.x, s.t, Y);
+    a = max(a, t);
+    if (ma == 0 || ma > t) ma = t;
   }
-  return s;
+  double mb = 0;
+  for (size_t i = 0; i < L.size(); i++) {
+    if (Lv[i]) continue;
+    double t = L[i].meet(s.x, s.t, Y);
+    b = max(b, t);
+    if (mb == 0 || mb > t) mb = t;
+  }
+  a += mb;
+  b += ma;
+  return max(a, b);
 }
 
-double intersect(stack<pair<int, double>> s, vector<quali>& q, quali me) {
-  while (!s.empty()) {
-    int j; double t;
-    tie(j, t) = s.top();
-    if (q[j].at(t) > me.at(t)) break;
-    s.pop();
+bool ida_dfs(ida_state& s, double bound) {
+  double e = estimate(s);
+  // cerr << "e " << e << endl;
+  if (e + s.t > bound) {
+    ida_updated_bound = min(ida_updated_bound, e + s.t);
+    return false;
   }
-  if (s.empty()) return 0;
-  auto v = q[s.top().first];
-  double t = double(me.start - v.start) / double(v.speed - me.speed);
-  return t;
+  if (e == 0) return true;
+  int min_index = -1;
+  double m = DINF;
+  for (size_t i = 0; i < R.size(); i++) {
+    if (Rv[i]) continue;
+    double w = R[i].meet(s.x, s.t, Y);
+    if (w < m) {
+      m = w;
+      min_index = i;
+    }
+  }
+  if (min_index != -1) {
+    Rv[min_index] = true;
+    s.t += m;
+    s.x += m * Y;
+    if (ida_dfs(s, bound)) return true;
+    s.t -= m;
+    s.x -= m * Y;
+    Rv[min_index] = false;
+  }
+
+  min_index = -1;
+  m = DINF;
+  for (size_t i = 0; i < L.size(); i++) {
+    if (Lv[i]) continue;
+    double w = L[i].meet(s.x, s.t, Y);
+    if (w < m) {
+      m = w;
+      min_index = i;
+    }
+  }
+  if (min_index != -1) {
+    Lv[min_index] = true;
+    s.t += m;
+    s.x -= m * Y;
+    if (ida_dfs(s, bound)) return true;
+    s.t -= m;
+    s.x += m * Y;
+    Lv[min_index] = false;
+  }
+  return false;
+}
+
+double tsp(ida_state& s) {
+  double bound = 0;
+  while (bound < DINF) {
+    // cerr << "T " << bound << endl;
+    ida_updated_bound = DINF;
+    if (ida_dfs(s, bound)) break;
+    bound = ida_updated_bound;
+  }
+  return bound;
 }
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   int tcc; cin >> tcc;
   for (int tc = 1; tc <= tcc; tc++) {
-    ll Y, N;
+    cerr << tc << endl;
+    ll N;
     cin >> Y >> N;
-    vector<quali> R, L;
     vll pp(N), ss(N);
     for (ll i = 0; i < N; i++) cin >> pp[i];
     for (ll i = 0; i < N; i++) cin >> ss[i];
+    R.clear();
+    L.clear();
     for (ll i = 0; i < N; i++) {
       if (pp[i] > 0) {
         R.emplace_back(pp[i], ss[i]);
       } else {
-        L.emplace_back(-pp[i], ss[i]);
+        L.emplace_back(pp[i], -ss[i]);
       }
     }
-    sort(R.begin(), R.end());
-    sort(L.begin(), L.end());
-    auto hr = get_hull(R);
-    auto hl = get_hull(L);
-    quali me(0, Y);
-    // R -> L
-    double t = intersect(hr, R, me);
-    me.start = -t * 2 * Y;
-    double best = max(t, intersect(hl, L, me));
-    // L -> R
-    me.start = 0;
-    t = intersect(hl, L, me);
-    me.start = - t * 2 * Y;
-    best = min(best, max(t, intersect(hr, R, me)));
+    Rv.clear(); Rv.resize(R.size());
+    Lv.clear(); Lv.resize(L.size());
+    ida_state s;
+    s.x = 0;
+    s.t = 0;
     cout << "Case #" << tc << ": "
-    << fixed << setprecision(7) << best << endl;
+    << fixed << setprecision(7) << tsp(s) << endl;
   }
 }
