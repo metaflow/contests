@@ -36,135 +36,172 @@ struct quali {
     } else {
       r = (x - v) / (Y + speed);
     }
-    assert(r >= 0);
+    if (r < 0) {
+      cerr << "r " << r << " " << v << " -> " << x << t << endl;
+      assert(r >= 0);
+    }
     return r;
   }
 };
 
-vector<quali> R, L;
-string sr, sl;
+vector<quali> Q;
 vb Rv, Lv;
 ll Y;
 
-// IDA* TSP with bitmask up to 64 vertices
-struct ida_state {
-  double x, t;
+struct as_state {
+  vb catched;
+  int cc;
+  int quali;
+  size_t h;
+  double t, e;
+  const bool operator < (const as_state& rhs) const {
+    if (quali != rhs.quali) return quali < rhs.quali;
+    if (cc != rhs.cc) return cc < rhs.cc;
+    return catched < rhs.catched;
+  }
+  const bool operator == (const as_state& rhs) const {
+    return (quali == rhs.quali) && (cc == rhs.cc) && (catched == rhs.catched);
+  }
+  void hash() {
+    h = quali * cc;
+    for (int i = 0; i < catched.size(); i++) {
+      if (!catched[i]) continue;
+      h = h ^ (1 << ((i * quali) % 60));
+    }
+  }
+  void estimate() {
+    double x = Q[quali].at(t);
+    double l = 0, r = 0;
+    for (size_t i = 1; i < Q.size(); i++) {
+      if (catched[i]) continue;
+      double d = Q[i].meet(x, t, Y);
+      if (Q[i].start < 0) {
+        l = max(l, d);
+      } else {
+        r = max(r, d);
+      }
+    }
+    e = r + l;
+    hash();
+    // cerr << "e = " << e << endl;
+  }
 };
 
-double ida_updated_bound;
-double estimate(ida_state &s) {
-  double a = 0, b = 0;
-  for (size_t i = 0; i < R.size(); i++) {
-    if (Rv[i]) continue;
-    a = max(a, R[i].meet(s.x, s.t, Y));
-  }
-  for (size_t i = 0; i < L.size(); i++) {
-    if (Lv[i]) continue;
-    b = max(b, L[i].meet(s.x, s.t, Y));
-  }
-  return a + b;
-}
+// adj[u][?] = (v, x) - edge from u to v of weight x
+double shortest_paths(as_state from) {
+  double best = DINF;
 
-set<string> uniq_states;
+  auto hh = [] (const as_state& a) { return a.h; };
+  unordered_map<as_state, double, decltype(hh)> actual_time(100, hh);
+  auto by_time = [] (const as_state& lhs, const as_state& rhs) {
+    return lhs.e > rhs.e;
+  };
+  priority_queue<as_state, vector<as_state>, decltype(by_time)> pq(by_time);
+  actual_time[from] = from.e;
+  pq.emplace(from);
 
-bool ida_dfs(ida_state& s, double bound) {
-  uniq_states.insert(sl + sr);
-  double e = estimate(s);
-  // cerr << "e " << e << endl;
-  if (e + s.t > bound) {
-    ida_updated_bound = min(ida_updated_bound, e + s.t);
-    return false;
-  }
-  if (e == 0) return true;
-  int min_index = -1;
-  double m = DINF;
-  for (size_t i = 0; i < R.size(); i++) {
-    if (Rv[i]) continue;
-    double w = R[i].meet(s.x, s.t, Y);
-    if (w < m) {
-      m = w;
-      min_index = i;
+  while (!pq.empty()) {
+    auto u = pq.top(); pq.pop();
+    if (actual_time[u] < u.e) continue;
+    // cerr << " " << u.e << endl;
+    if (u.e >= best) break;
+    double t = u.t;
+    double x = Q[u.quali].at(t);
+    ll leftmost = 0, rightmost = 0;
+    double l = DINF, r = DINF;
+    for (size_t i = 1; i < Q.size(); i++) {
+      if (u.catched[i]) continue;
+      double d = Q[i].meet(x, t, Y);
+      if (Q[i].start < 0) {
+        if (l <= d) continue;
+        l = d;
+        leftmost = i;
+      } else {
+        if (r <= d) continue;
+        r = d;
+        rightmost = i;
+      }
     }
-  }
-  if (min_index != -1) {
-    Rv[min_index] = true;
-    s.t += m;
-    s.x += m * Y;
-    sr[min_index] = '+';
-    if (ida_dfs(s, bound)) return true;
-    s.t -= m;
-    s.x -= m * Y;
-    sr[min_index] = '.';
-    Rv[min_index] = false;
-  }
 
-  min_index = -1;
-  m = DINF;
-  for (size_t i = 0; i < L.size(); i++) {
-    if (Lv[i]) continue;
-    double w = L[i].meet(s.x, s.t, Y);
-    if (w < m) {
-      m = w;
-      min_index = i;
+    u.cc++;
+    if (leftmost != 0) {
+      u.t += l;
+      u.quali = leftmost;
+      u.catched[leftmost] = true;
+      u.estimate();
+      if (u.e < best) {
+        auto &d = actual_time[u];
+        if (d == 0 || d > u.e) {
+          d = u.e;
+          pq.emplace(u);
+          // cerr << "enqueue" << endl;
+        }
+      }
+      u.t -= l;
+      u.catched[leftmost] = false;
     }
-  }
-  if (min_index != -1) {
-    Lv[min_index] = true;
-    s.t += m;
-    s.x -= m * Y;
-    sl[min_index] = '+';
-    if (ida_dfs(s, bound)) return true;
-    s.t -= m;
-    sl[min_index] = '.';
-    s.x += m * Y;
-    Lv[min_index] = false;
-  }
-  return false;
-}
 
-double tsp(ida_state& s) {
-  double bound = 0;
-  while (bound < DINF) {
-    // cerr << "T " << bound << endl;
-    ida_updated_bound = DINF;
-    if (ida_dfs(s, bound)) break;
-    bound = ida_updated_bound;
+    if (rightmost != 0) {
+      //auto v = u;
+      u.t += r;
+      u.quali = rightmost;
+      u.catched[rightmost] = true;
+      u.estimate();
+      if (u.e < best) {
+        auto &d = actual_time[u];
+        if (d == 0 || d > u.e) {
+          d = u.e;
+          pq.emplace(u);
+          // cerr << "enqueue" << endl;
+        }
+      }
+    }
+    if (rightmost == 0 && leftmost == 0) {
+      best = min(best, t);
+    }
+    // cerr << "T " << actual_time.size() << endl;
   }
-  return bound;
+  return best;
 }
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
+/*
+  auto by_time = [] (const as_state& lhs, const as_state& rhs) {
+    return lhs.t < rhs.t;
+  };
+  priority_queue<as_state, vector<as_state>, decltype(by_time)> pq(by_time);
+  */
+
   int tcc; cin >> tcc;
   for (int tc = 1; tc <= tcc; tc++) {
     cerr << tc << endl;
     ll N;
+    Q.clear();
+    quali me(0, 0);
+    Q.emplace_back(me);
     cin >> Y >> N;
     vll pp(N), ss(N);
     for (ll i = 0; i < N; i++) cin >> pp[i];
     for (ll i = 0; i < N; i++) cin >> ss[i];
-    R.clear();
-    L.clear();
-    sr = ""; sl = "";
     for (ll i = 0; i < N; i++) {
       if (pp[i] > 0) {
-        R.emplace_back(pp[i], ss[i]);
-        sr += ".";
+        Q.emplace_back(pp[i], ss[i]);
       } else {
-        L.emplace_back(pp[i], -ss[i]);
-        sl += ".";
+        Q.emplace_back(pp[i], -ss[i]);
       }
     }
-    Rv.clear(); Rv.resize(R.size());
-    Lv.clear(); Lv.resize(L.size());
-    ida_state s;
-    s.x = 0;
-    s.t = 0;
     // TODO there are at most 250^4 ~= 4e9 possible different states at most
     // so it's feasible to cover some of them + prunning ~0.1%
-    uniq_states.clear();
+//    uniq_states.clear();
+    as_state start;
+    start.catched.resize(Q.size(), false);
+    start.catched[0] = true;
+    start.quali = 0;
+    start.cc = 1;
+    start.t = 0;
+    start.estimate();
     cout << "Case #" << tc << ": "
-    << fixed << setprecision(7) << tsp(s) << endl;
-    cerr << "UN(" << N << ") " << uniq_states.size() << endl;
+    << fixed << setprecision(7) << shortest_paths(start) << endl;
   }
 }
