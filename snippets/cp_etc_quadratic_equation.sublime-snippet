@@ -1,0 +1,23 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+// real roots of axx + bx + c = 0
+vd quadratic_equation(double a, double b, double c) {
+  vd _;
+  double d = b * b - 4 * a * c;
+  if (d < 0) return _;
+  d = sqrt(d);
+  double x1 = (-b - d) / 2 / a;
+  double x2 = (-b + d) / 2 / a;
+  _.emplace_back(x1);
+  if (x2 != x1) _.emplace_back(x2);
+  return _;
+}
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>etc_quadratic_equation</tabTrigger>
+  <description>real roots for axx + bx + c = 0</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
