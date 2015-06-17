@@ -1,0 +1,17 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+bool equal_double(double x, double y, double epsilon) {
+  if (abs(x - y) < epsilon) return true;
+  // Is x or y too close to zero?
+  if (abs(x) < epsilon || abs(y) < epsilon) return false;
+  // Check relative precision.
+  return (abs((x - y) / x) < epsilon) && (abs((x - y) / y) < epsilon);
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>etc_equal_double</tabTrigger>
+  <description>equal for double</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
