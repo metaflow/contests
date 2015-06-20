@@ -24,12 +24,8 @@ struct bigint {
     buckets.emplace_back(a);
     normalize();
   }
-  bigint(const bigint& n) {
-    buckets = n.buckets;
-  }
-  bigint(bigint&& n) : bigint() {
-    swap(*this, n);
-  }
+  bigint(const bigint& n) { buckets = n.buckets; }
+  bigint(bigint&& n) : bigint() { swap(*this, n); }
   friend void swap(bigint& first, bigint& second) {
     swap(first.buckets, second.buckets);
   }
@@ -39,10 +35,13 @@ struct bigint {
     normalize();
     return *this;
   }
-  bigint& operator = (const bigint rhs) {
-    bigint t(rhs);
-    swap(*this, t);
+  bigint& operator = (bigint rhs) {
+    swap(*this, rhs);
     return *this;
+  }
+  friend bigint operator + (bigint lhs, bigint &rhs) {
+    lhs += rhs;
+    return lhs;
   }
   void normalize() {
     size_t i = 0;
@@ -75,10 +74,7 @@ struct bigint {
     }
     return r;
   }
-  friend bigint operator + (bigint lhs, bigint &rhs) {
-    lhs += rhs;
-    return lhs;
-  }
+
   friend ostream& operator << (ostream& s, bigint& n) {
     for (auto i = n.buckets.rbegin(); i != n.buckets.rend(); i++) {
       s << *i << setw(BUCKET_DIGITS) << setfill('0');

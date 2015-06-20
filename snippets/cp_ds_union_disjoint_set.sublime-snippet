@@ -1,0 +1,31 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+struct disjoint_set {
+  vll parent;
+  disjoint_set(size_t n) {
+    parent.resize(n);
+    for (size_t i = 0; i < n; i++) {
+      parent[i] = i;
+    }
+  }
+  ll get_parent(ll i) {
+    if (parent[i] != i) parent[i] = get_parent(parent[i]);
+    return parent[i];
+  }
+  bool connected(ll i, ll j) {
+    return get_parent(i) == get_parent(j);
+  }
+  void connect(ll i, ll j) {
+    ll a = get_parent(i);
+    ll b = get_parent(j);
+    parent[a] = b;
+  }
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>ds_union_disjoint_set</tabTrigger>
+  <description>union-disjoint set</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
