@@ -5,6 +5,7 @@ struct bigint {
   static const ll BUCKET = 1000;
   static const int BUCKET_DIGITS = 3;
   vll buckets;
+  // constructors
   bigint() {}
   bigint(ll a) {
     buckets.emplace_back(a);
@@ -15,6 +16,7 @@ struct bigint {
   friend void swap(bigint& first, bigint& second) {
     swap(first.buckets, second.buckets);
   }
+  // assignment
   bigint& operator = (ll a) {
     buckets.clear();
     buckets.emplace_back(a);
@@ -25,10 +27,7 @@ struct bigint {
     swap(*this, rhs);
     return *this;
   }
-  friend bigint operator + (bigint lhs, bigint &rhs) {
-    lhs += rhs;
-    return lhs;
-  }
+  // utility
   void normalize() {
     size_t i = 0;
     while (i < buckets.size()) {
@@ -41,15 +40,6 @@ struct bigint {
       i++;
     }
   }
-  bigint& operator += (const bigint& rhs) {
-    size_t n = rhs.buckets.size();
-    if (n > buckets.size()) buckets.resize(n);
-    for (size_t i = 0; i < min(buckets.size(), n); i++) {
-      buckets[i] += rhs.buckets[i];
-    }
-    normalize();
-    return *this;
-  }
   size_t size() {
     if (buckets.empty()) return 0;
     size_t r = BUCKET_DIGITS * (buckets.size() - 1) + 1;
@@ -60,13 +50,57 @@ struct bigint {
     }
     return r;
   }
-
   friend ostream& operator << (ostream& s, bigint& n) {
     for (auto i = n.buckets.rbegin(); i != n.buckets.rend(); i++) {
       s << *i << setw(BUCKET_DIGITS) << setfill('0');
     }
     s << setw(0);
     return s;
+  }
+  // +
+  friend bigint operator + (bigint lhs, const bigint &rhs) {
+    lhs += rhs;
+    return lhs;
+  }
+  bigint& operator += (const bigint& rhs) {
+    size_t n = rhs.buckets.size();
+    if (n > buckets.size()) buckets.resize(n);
+    for (size_t i = 0; i < min(buckets.size(), n); i++) {
+      buckets[i] += rhs.buckets[i];
+    }
+    normalize();
+    return *this;
+  }
+  bigint& operator += (const ll n) {
+    buckets[0] += n;
+    normalize();
+    return *this;
+  }
+  friend bigint operator + (bigint lhs, const ll &rhs) {
+    lhs += rhs;
+    return lhs;
+  }
+  // *
+  bigint& operator *= (const ll n) {
+    for (size_t i = 0; i < buckets.size(); i++) {
+      buckets[i] *= n;
+    }
+    normalize();
+    return *this;
+  }
+  friend bigint operator * (bigint lhs, const ll &rhs) {
+    lhs *= rhs;
+    return lhs;
+  }
+  bigint& operator *= (const bigint& rhs) {
+    bigint c = *this;
+    buckets.clear();
+    for (size_t i = 0; i < rhs.buckets.size(); i++) {
+      *this += (c * rhs.buckets[i]);
+      normalize();
+      c.buckets.insert(c.buckets.begin(), 0);
+    }
+    return *this;
   }
 };
 ]]></content>
