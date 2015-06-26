@@ -1,0 +1,21 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+// assumes no 3 points collinear
+bool convex(vector<point> &p) {
+  ll s = (p[1] - p[0]) ^ (p[2] - p[0]);
+  for (ll i = 1; i < p.size(); i++) {
+    int j = (i + 1) % p.size();
+    int k = (j + 1) % p.size();
+    if (s * ((p[j] - p[i]) ^ (p[k] - p[i])) < 0) return false;
+  }
+  return true;
+}
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>alg_check_polygon_convex</tabTrigger>
+  <description>check if polygon convex</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
