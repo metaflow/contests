@@ -15,92 +15,47 @@ using vll = vector<ll>;
 const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 
-struct point { ll x, y; };
-
-bool bipartite_matching_connect(const int u,
-  vector<point>& ranges, vll& bridges, vi& to, vb& used) {
-  ll a = ranges[u].x;
-  ll b = ranges[u].y;
-  for (ll v = a; v <= b; v++) {
-    if (used[v]) continue;
-    if (to[v] == -1) {
-      to[v] = u;
-      return true;
-    }
-  }
-  for (ll v = a; v <= b; v++) {
-    if (used[v]) continue;
-    used[v] = true;
-    if (bipartite_matching_connect(to[v], ranges, bridges, to, used)) {
-      to[v] = u;
-      return true;
-    }
-  }
-  return false;
-}
-
-// {A} => {B}, m[i][j] == A[i] -> B[j]
-pair<vi, bool> bipartite_matching(vector<point>& ranges, vll& bridges) {
-  vi to(bridges.size(), -1);
-  for (size_t u = 0; u < ranges.size(); u++) {
-    vb used(to.size());
-    if (!bipartite_matching_connect(u, ranges, bridges, to, used))
-      return make_pair(to, false);
-  }
-  return make_pair(to, true);
-}
-
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   ll n, m;
   while (cin >> n >> m) {
-    vector<point> islands(n);
-    for (ll i = 0; i < n; i++) cin >> islands[i].x >> islands[i].y;
-    vector<pair<ll, ll>> bridges(m);
-    for (ll i = 0; i < m; i++) {
-      cin >> bridges[i].first;
-      bridges[i].second = i;
-    }
-    sort(bridges.begin(), bridges.end());
-    vll br(m);
-    for (ll i = 0; i < m; i++) br[i] = bridges[i].first;
-    vector<point> ranges(n - 1);
-    bool ok = true;
+    ll x1, y1;
+    cin >> x1 >> y1;
+    vector<tuple<ll, ll, ll>> ranges;
     for (ll i = 0; i < n - 1; i++) {
-      ranges[i].x = islands[i + 1].x - islands[i].y;
-      ranges[i].y = islands[i + 1].y - islands[i].x;
-      auto p = lower_bound(br.begin(), br.end(), ranges[i].x);
-      if (p == br.end()) {ok = false ; break;}
-      auto q = upper_bound(br.begin(), br.end(), ranges[i].y);
-      while (q != br.end() && q != br.begin() && *q > ranges[i].y) q--;
-      if (q == br.begin() && *q > ranges[i].y) {ok = false; break;}
-      ll a = p - br.begin();
-      ll b = q - br.begin();
-      b = min(b, ll(br.size() - 1));
-      ranges[i].x = a;
-      ranges[i].y = b;
+      ll x2, y2; cin >> x2 >> y2;
+      ranges.emplace_back(y2 - x1, x2 - y1, i);
+      x1 = x2;
+      y1 = y2;
     }
-    if (!ok || ranges.size() > bridges.size()) {
-      cout << "No" << endl;
-      continue;
+    set<pair<ll, ll>> bridges;
+    for (ll i = 0; i < m; i++) {
+      pair<ll, ll> bridge;
+      cin >> bridge.first;
+      bridge.second = i + 1;
+      bridges.insert(bridge);
     }
-    auto answer = bipartite_matching(ranges, br);
-    if (answer.second) {
+    sort(ranges.begin(), ranges.end());
+    auto r = ranges.begin();
+    vi assign(ranges.size());
+    bool ok = true;
+    while (r != ranges.end()) {
+      pair<ll, ll> probe(get<1>(*r), 0);
+      auto b = bridges.lower_bound(probe);
+      if (b == bridges.end() || b->first > get<0>(*r)) { ok = false; break; }
+      assign[get<2>(*r)] = b->second;
+      bridges.erase(b);
+      r++;
+    }
+    if (ok) {
       cout << "Yes" << endl;
-      auto to = answer.first;
-      vi assignment(n - 1);
-      for (ll i = 0; i < m; i++) {
-        if (to[i] == -1) continue;
-        assignment[to[i]] = bridges[i].second + 1;
-      }
       for (ll i = 0; i < n - 1; i++) {
         if (i) cout << " ";
-        cout << assignment[i];
+        cout << assign[i];
       }
       cout << endl;
     } else {
       cout << "No" << endl;
     }
-    // break;
   }
 }
