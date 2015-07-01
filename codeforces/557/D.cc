@@ -22,20 +22,7 @@ using graph = vector<pnode>;
 struct node {
   vector<pnode> adjusted;
   int age;
-  bool visited;
 };
-
-bool dfs(pnode u) {
-  for (auto v : u->adjusted) {
-    if (v->age != 0) {
-      if (u->age - v->age % 2 == 0) return true;
-      continue;
-    }
-    v->age = u->age + 1;
-    dfs(v);
-  }
-  return false;
-}
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
@@ -52,22 +39,18 @@ int main() {
     ll answer = 0;
     ll ways = 0;
     if (m == 0) {
-      ways = n * (n - 1) * (n - 2) / 6;
       answer = 3;
+      ways = n * (n - 1) * (n - 2) / 6;
     } else {
       ll w1 = 0;
       bool cycle = false;
       for (auto u : g) {
         if (u->age != 0) continue;
-        u->age = 1;
-        if (dfs(u)) {
-          cycle = true;
-          break;
-        }
         ll odd = 0, even = 0;
         queue<pnode> q;
         q.emplace(u);
-        u->visited = true;
+        u->age = 1;
+        // u->visited = true;
         while (!q.empty()) {
           auto p = q.front(); q.pop();
           if (p->age % 2 == 1) {
@@ -76,12 +59,16 @@ int main() {
             even++;
           }
           for (auto v : p->adjusted) {
-            if (v->visited) continue;
-            v->visited = true;
+            if (v->age != 0) {
+              if (abs(v->age - p->age) % 2 == 0) {
+                cycle = true;
+              }
+              continue;
+            }
+            v->age = p->age + 1;
             q.emplace(v);
           }
         }
-        // cout << "o " << odd << " " << even << endl;
         w1 += odd * (odd - 1) / 2 + even * (even - 1) / 2;
       }
       if (cycle) {

@@ -17,13 +17,16 @@ const double EPS = 1e-10;
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  ll n; double w;
+  ll n, w;
   while (cin >> n >> w) {
-    vd a(2 * n);
-    for (size_t i = 0; i < a.size(); i++) cin >> a[i];
+    vll a(2 * n);
+    for (size_t i = 0; i < a.size(); i++) {
+      cin >> a[i];
+    }
     sort(a.begin(), a.end());
-    double total = min(a[0], a[n] / 2) * 3 * n;
-    total = min(total, w);
-    cout << total << endl;
+    ll x = min(min(a[0] * 2, a[n]) * 3 * n, 2 * w);
+    cout << x / 2;
+    if (x % 2) cout << ".5";
+    cout << endl;
   }
 }
