@@ -6,25 +6,54 @@ using ii = pair<int,int>;
 using ll = long long;
 using llu = unsigned long long;
 const int INF = numeric_limits<int>::max();
+int dp[51][2000][101];
 
 class ExactTree {
     public:
-    ll getMax(ll m) {
-      if (m == 2) return 1;
-      return getMax(m - 1) + m * (m - 1) / 2;
+    int M;
+    int f(int n, int k, int r) {
+      int &q = dp[n][k][r];
+      if (q == -2) {
+        // cerr << "n, k, r " << n << " " << k << " " << r << endl;
+        q = -1;
+        if (n == 1) {
+          if (r == 0) q = 0;
+          return q;
+        }
+        for (int a = 1; a < n; a++) {
+          int b = n - a;
+          for (int ra = 0; ra < M; ra++) {
+            // ra + rb + (a | b) * k  + a * b = r | M
+            // 1:
+            int rb;
+            rb = r - a * b - a * k - ra;
+            while (rb < 0) rb += M;
+            rb %= M;
+            int fa = f(a, b + k, ra);
+            int fb = f(b, a + k, rb);
+            if (fa != -1 && fb != -1) {
+              int t = fa + fb + a * k + a * b;
+              if (q == -1 || q > t) q = t;
+            }
+
+            rb = r - a * b - b * k - ra;
+            while (rb < 0) rb += M;
+            rb %= M;
+            fb = f(b, a + k, rb);
+            if (fa != -1 && fb != -1) {
+              int t = fa + fb + b * k + a * b;
+              if (q == -1 || q > t) q = t;
+            }
+          }
+        }
+      }
+      return q;
     }
-    ll getMin(ll m) {
-      return (m - 1) * (m - 1);
-    }
+
     int getTree(int n, int m, int r) {
-      cerr << n << endl;
-      ll a = getMin(n);
-      ll b = getMax(n);
-      cout << "a = " << a << " b = " << b << endl;
-      ll k = (a / m) * m + r;
-      if (k < a) k += m;
-      if (k > b) return -1;
-      return k;
+      M = m;
+      fill(&dp[0][0][0], &dp[51][0][0], -2);
+      return f(n, 0, r);
     }
 
 // BEGIN CUT HERE
