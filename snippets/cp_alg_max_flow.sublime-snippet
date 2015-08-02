@@ -7,6 +7,7 @@ struct node;
 struct edge;
 using pnode = shared_ptr<node>;
 using pedge = shared_ptr<edge>;
+using graph = vector<pnode>;
 
 struct node {
   int age;
