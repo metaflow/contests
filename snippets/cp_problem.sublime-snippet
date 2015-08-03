@@ -15,6 +15,7 @@ using vvb = vector<vb>;
 using vd = vector<double>;
 using vvd = vector<vd>;
 using vll = vector<ll>;
+using vvll = vector<vll>;
 const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 
