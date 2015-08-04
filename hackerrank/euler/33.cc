@@ -90,46 +90,62 @@ int _at(int a, int p) {
 }
 
 int _rm(int a, int p) {
-  return (a / mult[p + 1]) + (a % mult[p]);
+  return (a / mult[p + 1]) * mult[p] + (a % mult[p]);
 }
 
-bool reducible(const int to_remove, const int u, const int d, const int p_u, const int a, const int b, const int n) {
-  if (to_remove == 0) {
-    if (u * d == 0) return false;
-    ll g = gcd(u, d);
-    return (u / g == a && d / g == b);
-  }
-  for (ll i = p_u; i < n; i++) {
-    int y = _at(u, i);
-    if (y == 0) continue;
-    for (ll j = 0; j < n; j++) {
-      if (_at(d, j) != y) continue;
-      if (reducible(to_remove - 1, _rm(u, i), _rm(d, j), i, a, b, n - 1)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
+const int MAX = 10000;
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  auto primes = sieve_primes();
-  ll n, k;
-  cin >> n >> k;
-  ll L = n - k;
-  ll u = 0, d = 0;
-  ll m = mult[n - 1];
-  for (ll i = m; i < m * 10; i++) {
-    for (ll j = i + 1; j < m * 10; j++) {
-      ll g = gcd(i, j);
-      ll a = i / g, b = j / g;
-      if (n_len(j / g) > L) continue;
-      u++;
-      // auto mi = mask(i);
-      // auto mj = mask(j);
-      // for (ll q = r)
+  vector<vector<set<int>>> reducible(MAX);
+  for (ll i = 0; i < MAX; i++) reducible[i].resize(4);
+
+  for (ll i = MAX - 1; i >= 10; i--) {
+    for (int p = 0; p < 4; p++) {
+      if (_at(i, p) == 0) continue;
+      int to = _rm(i, p);
+      reducible[to][1].insert(i);
+      for (ll j = 1; j < 3; j++) {
+        reducible[to][j + 1].insert(
+          reducible[i][j].begin(),
+          reducible[i][j].end());
+      }
     }
   }
-  cout << u << " " << d << endl;
+
+  ll n, k;
+  while (cin >> n >> k) {
+    ll L = n - k;
+    ll from = mult[n - 1], to = mult[n];
+    set<ii> answer;
+    for (ll i = 1; i < mult[L]; i++) {
+      auto mi = mask(i);
+      for (ll j = i + 1; j < mult[L]; j++) {
+        auto l = reducible[j][k].lower_bound(from);
+        auto t = reducible[j][k].upper_bound(to);
+        auto mj = mask(j);
+        for (auto d = l; d != t; d++) {
+          int c = i * (*d);
+          if (c % j != 0) continue;
+          c /= j;
+          if (n_len(c) != n) continue;
+          if (reducible[i][k].count(c) == 0) continue;
+          auto md = mask(*d);
+          auto mc = mask(c);
+          bool matched = true;
+          for (int p = 1; p < 10; p++) {
+            int dc = mc[p] - mi[p];
+            matched = matched && (dc == md[p] - mj[p]);
+          }
+          if (matched) answer.emplace(c, *d);
+        }
+      }
+    }
+    ll sum_n = 0, sum_d = 0;
+    for (auto p : answer) {
+      sum_n += p.first;
+      sum_d += p.second;
+    }
+    cout << sum_n << ' ' << sum_d << endl;
+  }
 }
