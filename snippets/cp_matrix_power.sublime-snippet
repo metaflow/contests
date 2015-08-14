@@ -1,0 +1,21 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+vvll matrix_power(vvll m, ll power) {
+  ll n = m.size();
+  vvll o(n);
+  for (ll i = 0; i < n; i++) { o[i].resize(n); o[i][i] = 1; }
+  while (power) {
+    if (power % 2) o = matrix_multiply(o, m);
+    m = matrix_multiply(m, m);
+    power /= 2;
+  }
+  return o;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>_matrix_power</tabTrigger>
+  <description>O(log(power)) square matrix power</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
