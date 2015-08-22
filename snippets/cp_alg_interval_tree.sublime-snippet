@@ -55,7 +55,7 @@ public:
 };
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_interval_tree</tabTrigger>
+  <tabTrigger>_interval_tree</tabTrigger>
   <description>add / remove inclusive intervals [a, b]</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

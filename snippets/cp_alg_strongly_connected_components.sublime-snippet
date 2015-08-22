@@ -57,7 +57,7 @@ void find_scc(graph& g) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_strongly_connected_components</tabTrigger>
+  <tabTrigger>_strongly_connected_components</tabTrigger>
   <description>Tarjan SCC</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

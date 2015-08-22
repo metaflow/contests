@@ -36,7 +36,7 @@ ostream& operator << (ostream& s, const point& p) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>ds_2d</tabTrigger>
+  <tabTrigger>_2d</tabTrigger>
   <description>2d geometry primitives</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++, storage.type.c++</scope>

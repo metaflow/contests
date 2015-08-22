@@ -24,7 +24,7 @@ struct disjoint_set {
 };
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>ds_union_disjoint_set</tabTrigger>
+  <tabTrigger>_union_disjoint_set</tabTrigger>
   <description>union-disjoint set</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

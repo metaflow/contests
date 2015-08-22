@@ -24,7 +24,7 @@ vi lower_bound_ranges(vector<int> &v) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_lower_bound_ranges</tabTrigger>
+  <tabTrigger>_lower_bound_ranges</tabTrigger>
   <description>for each element v[i] get length of max span of [a, b]:
     each p in [a, b] is not less then v[i]</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->

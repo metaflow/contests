@@ -10,7 +10,7 @@ bool equal_double(double x, double y, double epsilon) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>etc_equal_double</tabTrigger>
+  <tabTrigger>_equal_double</tabTrigger>
   <description>equal for double</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

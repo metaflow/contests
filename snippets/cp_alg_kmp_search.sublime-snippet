@@ -28,7 +28,7 @@ vi kmp_search(string pattern, string s, vi b) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_kmp_search</tabTrigger>
+  <tabTrigger>_kmp_search</tabTrigger>
   <description>Knuth Morris Pratt string search O(n)</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

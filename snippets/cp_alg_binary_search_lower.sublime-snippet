@@ -15,7 +15,7 @@ ${1:ll} binary_search_lower($1 a, $1 b, function<bool($1)> f) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_binary_search_lower</tabTrigger>
+  <tabTrigger>_binary_search_lower</tabTrigger>
   <description>binary search answer within (a, b], f(a) = false, f(b) = true</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

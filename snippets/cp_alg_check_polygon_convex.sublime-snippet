@@ -14,7 +14,7 @@ bool convex(vector<point> &p) {
 
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_check_polygon_convex</tabTrigger>
+  <tabTrigger>_check_polygon_convex</tabTrigger>
   <description>check if polygon convex</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

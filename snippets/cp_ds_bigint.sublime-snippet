@@ -105,7 +105,7 @@ struct bigint {
 };
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>ds_bigint</tabTrigger>
+  <tabTrigger>_bigint</tabTrigger>
   <description>simple bigint implementation</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

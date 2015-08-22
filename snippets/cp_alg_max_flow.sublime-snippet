@@ -66,8 +66,8 @@ int max_flow(vector<pnode> &g, pnode &source, pnode &sink) {
 // ^ max flow 
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_max_flow</tabTrigger>
-  <description>max flow (Dinic), uses ds_graph_pointers</description>
+  <tabTrigger>_max_flow</tabTrigger>
+  <description>max flow (Dinic)</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++, storage.type.c</scope>
 </snippet>

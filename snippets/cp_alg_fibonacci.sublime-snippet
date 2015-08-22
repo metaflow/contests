@@ -27,8 +27,8 @@ ll fibonacci(ll n, ll mod) {
 
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_fibonacci</tabTrigger>
-  <description>O(n log(n)) fibonacci</description>
+  <tabTrigger>_fibonacci</tabTrigger>
+  <description>O(log(n)) Fibonacci calculation</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>
 </snippet>

@@ -28,8 +28,8 @@ vll shortest_paths(int from, vector<vector<ii>>& adj) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_sssp</tabTrigger>
-  <description>single source shortest paths (modified Dijkstra)</description>
+  <tabTrigger>_single_source_shortests_paths</tabTrigger>
+  <description>single source shortest paths (~ Dijkstra)</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>
 </snippet>

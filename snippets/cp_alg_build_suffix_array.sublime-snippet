@@ -72,8 +72,8 @@ vi build_lcp(string &s, vi &sa) {
 
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_build_suffix_array</tabTrigger>
-  <description>O(n log(n)) suffix array construction</description>
+  <tabTrigger>_build_suffix_array_lcp</tabTrigger>
+  <description>O(n log(n)) suffix array and longest common profix calculation</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>
 </snippet>

@@ -38,7 +38,7 @@ ostream& operator << (ostream& s, const point& p) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>ds_3d</tabTrigger>
+  <tabTrigger>_3d</tabTrigger>
   <description>3D point and vectors</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

@@ -1,15 +1,20 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-ll sign(ll n) {
-  if (n < 0) return -1;
-  if (n == 0) return 0;
-  return 1;
+// (a * b) % mod, safe for ll near max
+ll mult_mod(ll a, ll b, ll mod) {
+  ll x = 0;
+  while (b) {
+    if (b % 2) x = (x + a) % mod;
+    a = (a * 2) % mod;
+    b /= 2;
+  }
+  return x;
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>_sign</tabTrigger>
-  <description>sign</description>
+  <tabTrigger>_mult_mod</tabTrigger>
+  <description></description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>
 </snippet>

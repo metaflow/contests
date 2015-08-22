@@ -236,7 +236,7 @@ namespace unweighted_max_matching {
 using namespace unweighted_max_matching;
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_max_unweighted_graph_matching</tabTrigger>
+  <tabTrigger>_max_unweighted_graph_matching</tabTrigger>
   <description>Edmond's blossom algorithm</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

@@ -1,22 +1,20 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-ll gcd(ll a, ll b) {
-  while (b) {
-    ll t = b;
-    b = a % b;
-    a = t;
+// (base^power) % mod, safe for ll near max
+ll pow_mod(ll base, ll power, ll mod) {
+  ll r = 1;
+  while (power) {
+    if (power % 2) r = mult_mod(r, base, mod);
+    base = mult_mod(base, base, mod);
+    power /= 2;
   }
-  return a;
-}
-
-ll lcm(ll a, ll b) {
-  return a * b / gcd(a, b);
+  return r;
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>_gcd_lcm</tabTrigger>
-  <description>GCD and LCM</description>
+  <tabTrigger>_pow_mod</tabTrigger>
+  <description></description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>
 </snippet>

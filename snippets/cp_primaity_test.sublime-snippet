@@ -1,0 +1,38 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+// Miller-Rabin primality test | mult_mod, random
+bool primality_test(ll n, ll trials) {
+  auto complex_test = [] (ll a, ll n) {
+    ll c = n - 1;
+    ll m = 1;
+    ll k = 0;
+    while (c >= m) {
+      k++;
+      m <<= 1;
+    }
+    m >>= 1;
+    ll d = 1;
+    for (ll i = 0; i < k; i++) {
+      ll x = d;
+      d = mult_mod(d, d, n);
+      if (d == 1 && x != 1 && x != n - 1) return true;
+      if (c & m) d = mult_mod(d, a, n);
+      m >>= 1;
+    }
+    return (d != 1);
+  };
+
+  for (ll i = 0; i < trials; i++) {
+    ll a = random_in_range(2, n - 1);
+    if (complex_test(a, n)) return false;
+  }
+  return true;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>_primaity_test</tabTrigger>
+  <description>Miller-Rabin primality test</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>

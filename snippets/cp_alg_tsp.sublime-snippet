@@ -39,7 +39,7 @@ ll tsp(vvi& distances) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_tsp</tabTrigger>
+  <tabTrigger>_tsp</tabTrigger>
   <description>IDA* TSP up to 64 vertices</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

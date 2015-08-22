@@ -52,7 +52,7 @@ struct fenwik_tree {
 };
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>ds_fenwik_tree</tabTrigger>
+  <tabTrigger>_fenwik_tree</tabTrigger>
   <description>Fenwik tree for range sum queries</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

@@ -16,7 +16,7 @@ vd quadratic_equation(double a, double b, double c) {
 
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>etc_quadratic_equation</tabTrigger>
+  <tabTrigger>_quadratic_equation</tabTrigger>
   <description>real roots for axx + bx + c = 0</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>

@@ -33,7 +33,7 @@ vector<double> solve(vector<vd> m) {
 }
 ]]></content>
   <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-  <tabTrigger>alg_gaussian_elimination</tabTrigger>
+  <tabTrigger>_gaussian_elimination</tabTrigger>
   <description>straighforward Gaussian elimination O(n^3)</description>
   <!-- Optional: Set a scope to limit where the snippet will trigger -->
   <scope>source.c++</scope>
