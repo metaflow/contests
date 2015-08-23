@@ -1,0 +1,40 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+class StaticRMQ {
+  vvll S;
+public:
+  StaticRMQ(vll& v) {
+    ll n = v.size();
+    S.resize(v.size());
+    for (ll i = 0; i < n; i++) S[i].emplace_back(i);
+    for (ll k = 1; (1 << k) <= n; k++) {
+      for (ll i = 0; i + (1 << k) - 1 < n; i++) {
+        ll a = S[i][k - 1];
+        ll b = S[i + (1 << (k - 1))][k - 1];
+        if (v[a] <= v[b]) {
+          S[i].emplace_back(a);
+        } else {
+          S[i].emplace_back(b);
+        }
+      }
+    }
+  }
+
+  // [from, to]
+  size_t query(vll& v, size_t from, size_t to) {
+    ll k = 0;
+    while ((to - from + 1) >= (1 << (1 + k))) k++;
+    ll a = S[from][k];
+    ll b = S[to - (1 << k) + 1][k];
+    if (v[a] <= v[b]) return a;
+    return b;
+  }
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>_static_rmq</tabTrigger>
+  <description>O(n logn) construction and O(1) queries RMQ</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>

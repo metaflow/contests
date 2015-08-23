@@ -1,0 +1,103 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+struct node;
+struct edge;
+using pnode = shared_ptr<node>;
+using pedge = shared_ptr<edge>;
+using graph = vector<pnode>;
+
+struct node {
+  bool in_queue;
+  ll potential;
+  vector<pedge> adjusted;
+  pedge back;
+};
+
+struct edge {
+  pnode from, to;
+  ll capacity, original_capacity;
+  ll cost, original_cost;
+  pedge opposite;
+
+};
+
+void connect(pnode &a, pnode &b, ll w, ll cost) {
+  pedge ea = make_shared<edge>();
+  pedge eb = make_shared<edge>();
+  ea->from = a; ea->to = b; ea->capacity = ea->original_capacity = w;
+  ea->cost = ea->original_cost = cost; ea->opposite = eb;
+  eb->from = b; eb->to = a; eb->capacity = eb->original_capacity = 0;
+  eb->cost = eb->original_cost = 0; eb->opposite = ea;
+  a->adjusted.emplace_back(ea);
+  b->adjusted.emplace_back(eb);
+}
+
+void sssp(pnode start, graph& g) {
+  for (auto u : g) {
+    u->potential = INF;
+    u->in_queue = false;
+    u->back = NULL;
+  }
+  queue<pnode> q;
+  start->potential = 0;
+  start->in_queue = true;
+  q.emplace(start);
+  while (!q.empty()) {
+    auto u = q.front(); q.pop();
+    u->in_queue = false;
+    for (auto e : u->adjusted) {
+      if (e->capacity == 0) continue;
+      auto v = e->to;
+      ll t = u->potential + e->cost;
+      if (t >= v->potential) continue;
+      v->potential = t;
+      v->back = e;
+      if (v->in_queue) continue;
+      v->in_queue = true;
+      q.emplace(v);
+    }
+  }
+  // update potentials
+  for (auto u : g) {
+    for (auto e : u->adjusted) {
+      if (e->original_capacity == 0) continue;
+      e->cost += e->from->potential - e->to->potential;
+    }
+  }
+}
+
+ll min_cost_max_flow(graph& g, pnode s, pnode t) {
+  while (true) {
+    sssp(s, g);
+    if (t->potential == INF) break;
+    // augment
+    stack<pedge> a;
+    ll m = INF;
+    auto u = t;
+    while (u->back) {
+      a.push(u->back);
+      m = min(m, u->back->capacity);
+      u = u->back->from;
+    }
+    while (!a.empty()) {
+      auto e = a.top(); a.pop();
+      e->capacity -= m;
+      e->opposite->capacity += m;
+    }
+  }
+  ll cost = 0;
+  for (auto u : g) {
+    for (auto e : u->adjusted) {
+      cost += (e->original_capacity - e->capacity) * e->original_cost;
+    }
+  }
+  return cost;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>_min_cost_max_flow</tabTrigger>
+  <description>find min-cost max-flow in directed graph with no negative cycles</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.c++</scope>
+</snippet>
