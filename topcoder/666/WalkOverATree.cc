@@ -17,66 +17,53 @@ const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 
 class WalkOverATree {
-  ii dp[51][51][101][2]; // (visited count, left)
+  ll dp[51][51][101][2]; // (visited count, left)
   vvll adj;
     public:
-    ii walk(ll node, ll child, ll left, int back) {
+    ll walk(ll node, ll child, ll left, int back) {
       auto& r = dp[node][child][left][back];
-      if (r.first != -1) return r;
-      if (left == 0) {
-        r.first = 0;
-        r.second = 0;
-        return r;
-      }
-      if (child >= adj[node].size()) {
-        r.first = 0;
-        r.second = left;
-        return r;
-      }
-      r.first = 0;
+      if (r != -1) return r;
+      r = 0;
+      if (left == 0) return r;
+      if (child >= adj[node].size()) return r;
       if (back == 1) {
-        auto w = walk(node, child + 1, left, 1);
-        r.first = w.first;
-        r.second = w.second;
+        r = walk(node, child + 1, left, 1);
         for (int i = 2; i <= left; i++) {
           auto t = walk(adj[node][child], 0, i - 2, 1);
-          w = walk(node, child + 1, t.second + left - i, 1);
-          if (r.first < t.first + w.first + 1) {
-            r.first = t.first + w.first + 1;
-            r.second = w.second;
-          }
+          auto w = walk(node, child + 1, left - i, 1);
+          w += t + 1;
+          r = max(r, w);
         }
-      } else {
-        auto w = walk(node, child + 1, left, 0);
-        r.first = w.first;
-        r.second = w.second;
-        for (int i = 1; i <= left; i++) {
-          auto t = walk(adj[node][child], 0, i - 1, 0);
-          if (r.first < t.first + 1) {
-            r.first = t.first + 1;
-            r.second = t.second;
-          }
-          if (i > 1) {
-            t = walk(adj[node][child], 0, i - 2, 1);
-            w = walk(node, child + 1, t.second + left - i, 0);
-            if (r.first < t.first + w.first + 1) {
-              r.first = t.first + w.first + 1;
-              r.second = w.second;
-            }
-          }
+        return r;
+      }
+      r = walk(node, child + 1, left, 0);
+      for (int i = 1; i <= left; i++) {
+        auto t = walk(adj[node][child], 0, i - 1, 0);
+        t++;
+        r = max(r, t);
+        if (i > 1) {
+          t = walk(adj[node][child], 0, i - 2, 1);
+          auto w = walk(node, child + 1, left - i, 0);
+          w += t + 1;
+          r = max(r, w);
+
+          t = walk(node, child + 1, left - i, 1);
+          w = walk(adj[node][child], 0, i - 1, 0);
+          w += t + 1;
+          r = max(r, w);
         }
       }
       return r;
     }
     int maxNodesVisited(vector <int> parent, int L) {
-      fill(&dp[0][0][0][0], &dp[51][0][0][0], make_pair(-1, 0));
+      fill(&dp[0][0][0][0], &dp[51][0][0][0], -1);
       ll n = parent.size() + 1;
       adj.clear();
       adj.resize(n, vll(0));
       for (ll i = 0; i < n - 1; i++) {
         adj[parent[i]].emplace_back(i + 1);
       }
-      return walk(0, 0, L, 0).first + 1;
+      return walk(0, 0, L, 0) + 1;
       // return 0;
     }
 
