@@ -61,7 +61,7 @@ void sssp(pnode start, graph& g) {
   // update potentials
   for (auto u : g) {
     for (auto e : u->adjusted) {
-      if (e->original_capacity == 0) continue;
+      if (e->capacity == 0) continue;
       e->cost += e->from->potential - e->to->potential;
     }
   }
