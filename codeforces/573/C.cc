@@ -26,8 +26,8 @@ struct node {
   bool visited;
   vector<pedge> adjusted;
   ll k = 0;
-  ll id, leafs = 0;
-  ll big;
+  ll id, leafs = 0, depth = 0;
+  bool top;
   pedge to_parent;
 };
 
@@ -99,14 +99,60 @@ int main() {
       }
     }
     for (auto u : g) {
-      u->big = 0;
+      ll big = 0;
+      u->visited = false;
       for (auto e : u->adjusted) {
         if (e->leafs == 0) e->leafs = leafs - u->leafs;
-        if (e->leafs > 2) u->big++;
+        if (e->leafs > 1) big++;
       }
-      if (u->adjusted.size() > 3 || u->big > 1) cout << u->id << endl;
+      u->top = (u->adjusted.size() > 3 || big > 1);
     }
-    cout << "^^^^" << endl;
+    pnode bottom;
+    g[0]->visited = true;
+    g[0]->depth = 0;
+    q.emplace(g[0]);
+    while (!q.empty()) {
+      auto u = q.front(); q.pop();
+      for (auto e : u->adjusted) {
+        auto v = e->to;
+        if (v->visited) continue;
+        v->visited = true;
+        v->depth = u->depth + 1;
+        v->to_parent = e;
+        if (v->top) bottom = v;
+        q.emplace(v);
+      }
+    }
+    bool ok = true;
+    for (auto u : g) u->visited = false;
+    if (bottom) {
+      while (bottom->to_parent) {
+        bottom->visited = true;
+        bottom = bottom->to_parent->from;
+      }
+      bottom->visited = true;
+      bottom.reset();
+      for (auto u : g) {
+        if (!u->top || u->visited) continue;
+        if (!bottom || u->depth > bottom->depth) bottom = u;
+      }
+      if (bottom) {
+        while (!bottom->visited) {
+          bottom->visited = true;
+          bottom = bottom->to_parent->from;
+        }
+        while (bottom->to_parent) {
+          bottom = bottom->to_parent->from;
+          if (bottom->top) ok = false;
+        }
+        for (auto u : g) ok = ok && (u->visited || !u->top);
+      }
+    }
+    if (ok) {
+      cout << "Yes" << endl;
+    } else {
+      cout << "No" << endl;
+    }
     // for (auto u : g) {
     //   for (auto e : u->adjusted) {
     //     cout << e->from->id << " " << e->to->id << " " << e->leafs << endl;
