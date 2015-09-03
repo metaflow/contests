@@ -19,86 +19,77 @@ const double EPS = 1e-10;
 struct node;
 struct edge;
 using pnode = shared_ptr<node>;
-using pedge = shared_ptr<edge>;
 using graph = vector<pnode>;
 
 struct node {
-  ll id;
-  ll t;
-  int type; // 0 - unknown, 1 - vowel, 2 - consolant
-  vector<pedge> adjusted;
+  ll pos;
+  int type;
+  bool visited;
+  vi possible;
+  vector<pnode> adjusted;
 };
 
 struct edge {
   pnode from, to;
-  int trigger, type;
 };
 
-void connect(pnode &a, pnode &b, int trigger, int type) {
-  pedge ea = make_shared<edge>();
-  pedge eb = make_shared<edge>();
-  ea->from = a; ea->to = b; ea->trigger = trigger; ea->type = type;
-  eb->from = b; eb->to = a; eb->trigger = 3 - type; eb->type = 3 - trigger;
-  a->adjusted.emplace_back(ea);
-  b->adjusted.emplace_back(eb);
-}
-
-char find_letter(vi& az, char from, int type) {
-  for (ll i = from - 'a'; i < (ll)az.size(); i++) {
-    if (az[i] == type) return 'a' + i;
+int get_letter(vi& az, int from, int type) {
+  for (ll i = from; i < (ll)az.size(); i++) {
+    if (az[i] == type) return i;
   }
-  return '!';
+  return -1;
 }
 
-ll T = 0;
-
-bool dfs(pnode u, int type, string& s, vi& az) {
-  assert(u->type == 0);
-  u->type = type;
-  u->t = T;
-  T++;
-  if (find_letter(az, s[u->id], type) == '!') return false;
-  for (auto e : u->adjusted) {
-    if (e->trigger != type) continue;
-    auto v = e->to;
-    if (v->type == 0) {
-      if (!dfs(v, e->type, s, az)) return false;
-    } else {
-      if (v->type != e->type) return false;
+vi get_possible(vi current, pnode from, graph& g) {
+  for (auto u : g) u->visited = false;
+  queue<pnode> q;
+  current[from->pos] &= from->type;
+  from->visited = true;
+  q.emplace(from);
+  while (!q.empty()) {
+    auto u = q.front(); q.pop();
+    for (auto v : u->adjusted) {
+      if (v->visited) continue;
+      current[v->pos] &= v->type;
+      v->visited = true;
+      q.emplace(v);
     }
   }
+  return current;
+}
+
+bool valid(vi& possible) {
+  for (auto i : possible) if (i == 0) return false;
   return true;
 }
 
-void revert(graph& g, ll t) {
-  for (auto u : g) if (u->t >= t) u->type = 0;
+bool solve(size_t pos, vi& types, vi possible, vi& values, graph& g);
+
+bool check(size_t pos, vi& types, vi possible, vi& values, graph& g) {
+  if (types[values[pos]] & possible[pos]) {
+    vi m(possible.begin(), possible.end());
+    auto u = g[pos * 2 + types[values[pos]] - 1];
+    for (ll i = 0; i < m.size(); i++) m[i] = m[i] & u->possible[i];
+    // auto m = get_possible(possible, g[pos * 2 + types[values[pos]] - 1], g);
+    if (valid(m) && solve(pos + 1, types, m, values, g)) return true;
+  }
+  return false;
 }
 
-bool try_set(string& s, ll pos, vi& az, graph& g) {
-  if (pos == (ll)s.size()) return true;
-  if (g[pos]->type) {
-    s[pos] = find_letter(az, s[pos], g[pos]->type);
-    if (s[pos] == '!') return false;
-    return try_set(s, pos + 1, az, g);
-  }
-  int k = s[pos] - 'a';
-  auto t = az[k];
-  ll back = T;
-  if (dfs(g[pos], t, s, az) && try_set(s, pos + 1, az, g)) return true;
-  revert(g, back);
-  k++;
-  if (k >= (ll)az.size()) return false;
-  s[pos] = k + 'a';
-  t = az[k];
-  for (ll i = pos + 1; i < s.size(); i++) s[i] = 'a';
-  back = T;
-  if (dfs(g[pos], t, s, az) && try_set(s, pos + 1, az, g)) return true;
-  revert(g, back);
-  t = 3 - t;
-  s[pos] = find_letter(az, s[pos], t);
-  if (s[pos] == '!') return false;
-  for (ll i = pos + 1; i < (ll)s.size(); i++) s[i] = 'a';
-  if (dfs(g[pos], t, s, az) && try_set(s, pos + 1, az, g)) return true;
+bool solve(size_t pos, vi& types, vi possible, vi& values, graph& g) {
+  if (pos >= values.size()) return true;
+
+  if (check(pos, types, possible, values, g)) return true;
+
+  values[pos]++;
+  if (values[pos] >= (ll)types.size()) return false;
+  for (size_t i = pos + 1; i < values.size(); i++) values[i] = 0;
+  if (check(pos, types, possible, values, g)) return true;
+
+  values[pos] = get_letter(types, values[pos], 3 - types[values[pos]]);
+  if (values[pos] == -1) return false;
+  for (size_t i = pos + 1; i < values.size(); i++) values[i] = 0;
+  if (check(pos, types, possible, values, g)) return true;
   return false;
 }
 
@@ -106,30 +97,55 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   string VC;
   while (cin >> VC) {
-    vi az(VC.size());
-    for (ll i = 0; i < az.size(); i++) az[i] = (VC[i] == 'V' ? 1 : 2);
+    vi types(VC.size());
+    int y = 0;
+    for (size_t i = 0; i < types.size(); i++) {
+      types[i] = (VC[i] == 'V' ? 1 : 2);
+      y = y | types[i];
+    }
     ll n, m;
     cin >> n >> m;
-    graph g(n);
-    for (ll i = 0; i < n; i++) {
+
+    graph g(2 * n);
+    for (size_t i = 0; i < g.size(); i++) {
       g[i] = make_shared<node>();
-      g[i]->type = 0;
-      g[i]->id = i;
+      g[i]->pos = i / 2;
+      g[i]->type = 1 + i % 2;
     }
+
     for (ll i = 0; i < m; i++) {
       ll a, b; char trigger, type;
       cin >> a >> trigger >> b >> type;
-      a--; b--;
-      trigger = (trigger == 'V' ? 1 : 2);
-      type = (type == 'V' ? 1 : 2);
-      connect(g[a], g[b], trigger, type);
+      ll u = (a - 1) * 2 + (trigger == 'V' ? 0 : 1);
+      ll v = (b - 1) * 2 + (type == 'V' ? 0 : 1);
+      g[u]->adjusted.emplace_back(g[v]);
+      u = (b - 1) * 2 + (type == 'V' ? 1 : 0);
+      v = (a - 1) * 2 + (trigger == 'V' ? 1 : 0);
+      g[u]->adjusted.emplace_back(g[v]);
     }
+    vi possible(n, y);
+    vi values(n);
     string s;
     cin >> s;
-    if (!try_set(s, 0, az, g)) {
-      cout << -1 << endl;
+    for (ll i = 0; i < n; i++) values[i] = s[i] - 'a';
+    // for (ll i = 0; i < n; i++) cerr << possible[i];
+    // cerr << endl;
+    for (size_t i = 0; i < g.size(); i++) {
+      if ((possible[g[i]->pos] & g[i]->type) == 0) continue;
+      // cerr << possible[g[i]->pos] << " " << g[i]->type << endl;
+      g[i]->possible = get_possible(possible, g[i], g);
+      if (!valid(g[i]->possible)) possible[g[i]->pos] -= g[i]->type;
+    }
+    // for (ll i = 0; i < n; i++) cerr << possible[i];
+    // cerr << endl;
+    // break;
+    if (solve(0, types, possible, values, g)) {
+      for (ll i = 0; i < n; i++) {
+        cout << (char)(values[i] + 'a');
+      }
+      cout << endl;
     } else {
-      cout << s << endl;
+      cout << -1 << endl;
     }
   }
 }
