@@ -23,6 +23,7 @@ class LuckySum {
     }
 
     vi f(vi v, string s, int fa, int fb, int pos) {
+      int max_level = 1;
       if (pos < s.size()) {
         vi va;
         if (pos >= fa) {
@@ -46,14 +47,19 @@ class LuckySum {
             c[pos] %= 10;
             if (check(c, s, pos - 1)) {
               c = f(c, s, fa, fb, pos + 1);
-              if (c[0] == 0) return c;
+              if (c[0] <= 0) return c;
+              max_level = max(max_level, 1 + c[0]);
             }
           }
         }
       } else {
         if (check(v, s, pos - 1)) return v;
       }
-      v[0] = 1;
+      v[0] = max_level;
+      if (max_level > 1 && max_level < s.size() - pos) {
+        v[0] = -1;
+        // cerr << "!!!" << endl;
+      }
       return v;
     }
 
@@ -61,31 +67,32 @@ class LuckySum {
       ll n = s.size();
       vi carry(n, 3);
       carry[0] = 2;
-      bool ok = true;
-      for (ll i = 0; i < n; i++) {
-        bool last = (i == n - 1);
-        switch (s[i]) {
-          case '?': break;
-          case '1': if (last || i != 0) carry[i] &= 1; break;
-          case '2': if (last) { ok = false; }
-                    else { carry[i + 1] &= 1; carry[i] &= 1; } break;
-          case '4': if (last) { carry[i] &= 1; } else { carry[i + 1] &= 2; } break;
-          case '5': if (last) { ok = false; } else { carry[i + 1] &= 1; } break;
-          case '7': if (last) { ok = false; } else { carry[i + 1] &= 2; carry[i] &= 2; } break;
-          case '8': carry[i] &= 2; break;
-          case '9': if (last) { ok = false; } else { carry[i + 1] &= 1; carry[i] &= 2; } break;
-          default: ok = false; break;
-        }
-      }
-      for (auto i : carry) ok = ok && (i != 0);
+      // bool ok = true;
+      // for (ll i = 0; i < n; i++) {
+      //   bool last = (i == n - 1);
+      //   switch (s[i]) {
+      //     case '?': break;
+      //     case '1': if (last || i != 0) carry[i] &= 1; break;
+      //     case '2': if (last) { ok = false; }
+      //               else { carry[i + 1] &= 1; carry[i] &= 1; } break;
+      //     case '4': if (last) { carry[i] &= 1; } else { carry[i + 1] &= 2; } break;
+      //     case '5': if (last) { ok = false; } else { carry[i + 1] &= 1; } break;
+      //     case '7': if (last) { ok = false; } else { carry[i + 1] &= 2; carry[i] &= 2; } break;
+      //     case '8': carry[i] &= 2; break;
+      //     case '9': if (last) { ok = false; } else { carry[i + 1] &= 1; carry[i] &= 2; } break;
+      //     default: ok = false; break;
+      //   }
+      // }
+      // for (auto i : carry) ok = ok && (i != 0);
       ll best = - 1;
-      if (ok) {
+      char q = s[n - 1];
+      if (q == '1' || q == '4' || q == '8' || q == '?') {
         s = "0" + s;
         for (ll i = 1; i <= 2; i++) {
           for (ll j = i; j <= n; j++) {
             vi v(n + 1, 0);
             v = f(v, s, i, j, 1);
-            if (v[0] != 1) {
+            if (v[0] == 0) {
               ll a = 0;
               for (auto k : v) {
                 a = a * 10 + k;
@@ -95,6 +102,8 @@ class LuckySum {
           }
         }
       }
+
+
       return best;
     }
 
@@ -111,7 +120,7 @@ class LuckySum {
 	void test_case_0() { string Arg0 = "?"; long long Arg1 = 8LL; verify_case(0, Arg1, construct(Arg0)); }
 	void test_case_1() { string Arg0 = "?1"; long long Arg1 = 11LL; verify_case(1, Arg1, construct(Arg0)); }
 	void test_case_2() { string Arg0 = "4?8"; long long Arg1 = 448LL; verify_case(2, Arg1, construct(Arg0)); }
-	void test_case_3() { string Arg0 = "2??"; long long Arg1 = -1LL; verify_case(3, Arg1, construct(Arg0)); }
+	void test_case_3() { string Arg0 = "?????2?2222??5"; long long Arg1 = -1LL; verify_case(3, Arg1, construct(Arg0)); }
 	void test_case_4() { string Arg0 = "??????????????"; long long Arg1 = 11888888888888LL; verify_case(4, Arg1, construct(Arg0)); }
 
 // END CUT HERE
