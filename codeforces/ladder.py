@@ -65,7 +65,6 @@ def openProblem(contestId, index):
       inputs = soup.find_all('div', attrs = {'class': 'input'})
       outputs = soup.find_all('div', attrs = {'class': 'output'})
       samples = zip(inputs, outputs)
-      print samples
       for s in samples:
         for i in s[0].find('pre').strings:
           in_file.write(i)
@@ -74,6 +73,7 @@ def openProblem(contestId, index):
           out_file.write(i)
           out_file.write('\n')
   subprocess.call(["problem", index])
+  subprocess.call(["date"])
   return
 
 problemset = json.loads(call('problemset.problems', {}))
@@ -93,7 +93,7 @@ if len(matched) == 0:
   exit(1)
 
 selected = matched[random.randint(0, len(matched) - 1)]
-print 'from %d: %d %d' % (
-      len(matched), selected[1]['solvedCount'], selected[0]['points'])
+print '%d matched. %s %s solved by %d' % (
+  len(matched), selected[0]['contestId'], selected[0]['index'], selected[1]['solvedCount'])
 
 openProblem(str(selected[0]['contestId']), str(selected[0]['index']))
