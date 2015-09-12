@@ -15,25 +15,29 @@ using vll = vector<ll>;
 const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 
-bool palindromic(ll a, ll base) {
-  vll v;
-  while (a) {
-    v.emplace_back(a % base);
-    a /= base;
+bool multiplier(ll n, ll k) {
+  ll left = k;
+  vb used(k);
+  for (ll i = 1; i < 10; i++) {
+    ll t = n * i;
+    while (t) {
+      ll a = t % 10;
+      t /= 10;
+      if (a == 0 || a > k) return false;
+      if (used[a]) return false;
+      left--;
+      used[a] = true;
+    }
+    if (left == 0) return true;
   }
-  for (ll i = 0; i < v.size() / 2; i++) {
-    if (v[i] != v[v.size() - i - 1]) return false;
-  }
-  return true;
+  return false;
 }
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   ll n, k;
   cin >> n >> k;
-  ll answer = 0;
-  for (ll i = 1; i < n; i++) {
-    if (palindromic(i, 10) && palindromic(i, k)) answer += i;
+  for (ll i = 2; i < n; i++) {
+    if (multiplier(i, k)) cout << i << endl;
   }
-  cout << answer << endl;
 }
