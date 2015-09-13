@@ -1,7 +1,7 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-ll sign(ll n) {
+l sign(l n) {
   if (n < 0) return -1;
   if (n == 0) return 0;
   return 1;

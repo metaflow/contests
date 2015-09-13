@@ -2,16 +2,16 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 class StaticRMQ {
-  vvll S;
+  vvl S;
 public:
-  StaticRMQ(vll& v) {
-    ll n = v.size();
+  StaticRMQ(vl& v) {
+    l n = v.size();
     S.resize(v.size());
-    for (ll i = 0; i < n; i++) S[i].emplace_back(i);
-    for (ll k = 1; (1 << k) <= n; k++) {
-      for (ll i = 0; i + (1 << k) - 1 < n; i++) {
-        ll a = S[i][k - 1];
-        ll b = S[i + (1 << (k - 1))][k - 1];
+    for (l i = 0; i < n; i++) S[i].emplace_back(i);
+    for (l k = 1; (1 << k) <= n; k++) {
+      for (l i = 0; i + (1 << k) - 1 < n; i++) {
+        l a = S[i][k - 1];
+        l b = S[i + (1 << (k - 1))][k - 1];
         if (v[a] <= v[b]) {
           S[i].emplace_back(a);
         } else {
@@ -22,11 +22,11 @@ public:
   }
 
   // [from, to]
-  size_t query(vll& v, size_t from, size_t to) {
-    ll k = 0;
+  size_t query(vl& v, size_t from, size_t to) {
+    l k = 0;
     while ((to - from + 1) >= (1 << (1 + k))) k++;
-    ll a = S[from][k];
-    ll b = S[to - (1 << k) + 1][k];
+    l a = S[from][k];
+    l b = S[to - (1 << k) + 1][k];
     if (v[a] <= v[b]) return a;
     return b;
   }

@@ -3,15 +3,15 @@
   <content><![CDATA[
 // RSQ for range [1, n]
 struct fenwik_tree {
-  vll tree;
-  ll max_p;
+  vl tree;
+  l max_p;
   fenwik_tree(size_t n) {
     max_p = n;
     tree.resize(n + 1);
   };
   // sum of [1, p], O(log(max))
-  ll read(ll p) {
-    ll sum = 0;
+  l read(l p) {
+    l sum = 0;
     while (p) {
       sum += tree[p];
       p -= (p & -p);
@@ -19,24 +19,24 @@ struct fenwik_tree {
     return sum;
   }
   // O(log(max))
-  void add(ll p, ll value) {
+  void add(l p, l value) {
     while (p <= max_p) {
       tree[p] += value;
       p += (p & -p);
     }
   }
   // find lowest index with given sum, -1 if not found O(log(max))
-  ll find(ll sum) {
-    ll mask = max_p;
+  l find(l sum) {
+    l mask = max_p;
     while (true) {
-      ll lower = (mask & -mask);
+      l lower = (mask & -mask);
       if (lower == mask) break;
       mask -= lower;
     }
-    ll p = 0;
-    ll top = -1;
+    l p = 0;
+    l top = -1;
     while (mask != 0) {
-      ll m = p + mask;
+      l m = p + mask;
       if (m <= max_p) {
         if (sum == tree[m]) top = m;
         if (sum > tree[m]) {

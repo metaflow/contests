@@ -3,8 +3,8 @@
   <content><![CDATA[
 default_random_engine source(random_device{}());
 
-ll random_in_range(ll a, ll b) {
-  return uniform_int_distribution<ll>(a, b)(source);
+l random_in_range(l a, l b) {
+  return uniform_int_distribution<l>(a, b)(source);
 }
 
 bool random_bool() {

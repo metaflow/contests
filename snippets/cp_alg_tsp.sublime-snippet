@@ -2,9 +2,9 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 // IDA* TSP with bitmask up to 64 vertices
-ll ida_updated_bound;
-ll estimate(int root, llu visited, vvi& distances) {
-  ll e = 0;
+l ida_updated_bound;
+l estimate(int root, lu visited, vvi& distances) {
+  l e = 0;
   for (size_t i = 0; i < distances.size(); i++) {
     if (visited & (1ull << i)) continue;
     if (distances[root][i] > e) e = distances[root][i];
@@ -12,9 +12,9 @@ ll estimate(int root, llu visited, vvi& distances) {
   return e;
 }
 
-bool tsp_dfs(int position, llu visited, ll traveled,
-             ll bound, vvi& distances) {
-  ll e = estimate(position, visited, distances) + traveled;
+bool tsp_dfs(int position, lu visited, l traveled,
+             l bound, vvi& distances) {
+  l e = estimate(position, visited, distances) + traveled;
   if (e > bound) {
     ida_updated_bound = min(ida_updated_bound, e);
     return false;
@@ -28,8 +28,8 @@ bool tsp_dfs(int position, llu visited, ll traveled,
   return false;
 }
 
-ll tsp(vvi& distances) {
-  ll bound = estimate(0, 1, distances);
+l tsp(vvi& distances) {
+  l bound = estimate(0, 1, distances);
   while (bound != INF) {
     ida_updated_bound = INF;
     if (tsp_dfs(0, 1, 0, bound, distances)) break;

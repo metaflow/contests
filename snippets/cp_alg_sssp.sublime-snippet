@@ -2,9 +2,9 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 // adj[u][?] = (v, x) - edge from u to v of weight x
-vll shortest_paths(int from, vector<vector<ii>>& adj) {
+vl shortest_paths(int from, vector<vector<ii>>& adj) {
   size_t n = adj.size();
-  vll distance(n, INF);
+  vl distance(n, INF);
   queue<size_t> q;
   vb in_queue(n, false);
   distance[from] = 0;
@@ -14,7 +14,7 @@ vll shortest_paths(int from, vector<vector<ii>>& adj) {
     for (auto e : adj[u]) {
       int v = e.first;
       int d = e.second;
-      ll t = distance[u] + d;
+      l t = distance[u] + d;
       if (t < distance[v]) {
         distance[v] = t;
         if (!in_queue[v]) {

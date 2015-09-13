@@ -1,15 +1,15 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-const ll MAX_PRIME = 1000000;
-vll sieve_primes() {
+const l MAX_PRIME = 1000000;
+vl sieve_primes() {
   bitset<MAX_PRIME + 1> b;
-  vll primes;
+  vl primes;
   primes.emplace_back(2);
-  for (ll i = 3; i <= MAX_PRIME; i += 2) {
+  for (l i = 3; i <= MAX_PRIME; i += 2) {
     if (b[i]) continue;
     primes.emplace_back(i);
-    for (ll j = i * i; j <= MAX_PRIME; j += i) b.set(j);
+    for (l j = i * i; j <= MAX_PRIME; j += i) b.set(j);
   }
   return primes;
 }

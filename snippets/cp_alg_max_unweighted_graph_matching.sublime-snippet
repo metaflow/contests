@@ -10,20 +10,20 @@ namespace unweighted_max_matching {
   using pedge = shared_ptr<edge>;
   using graph = vector<pnode>;
 
-  ll _edge_id = 0;
+  l _edge_id = 0;
   struct edge {
     pnode _to;
     pedge opposite;
     bool matched, visited;
-    ll id;
+    l id;
     pnode to();
     pnode from() { return opposite->to(); }
     void match(bool v);
     void visit(bool v) { visited = v; opposite->visited = v; }
   };
-  ll _node_id;
+  l _node_id;
   struct node {
-    ll id, age, tree_no, blossom_id;
+    l id, age, tree_no, blossom_id;
     bool exposed;
     vector<pedge> adjusted;
     pedge back, matched;
@@ -89,14 +89,14 @@ namespace unweighted_max_matching {
   }
 
   vector<pedge> find_augmenting_path(graph& g);
-  ll _blossom_id = 0;
+  l _blossom_id = 0;
   vector<pedge> process_blossom(graph& g, const pedge connect) {
     // create blossom
     _blossom_id++;
-    ll blossom_id = _blossom_id;
+    l blossom_id = _blossom_id;
     auto blossom = make_shared<node>();
     blossom->id = _node_id++;
-    set<ll> blossom_border;
+    set<l> blossom_border;
     blossom_border.insert(connect->id);
     auto u = connect->from();
     auto w = connect->to();
@@ -151,7 +151,7 @@ namespace unweighted_max_matching {
   }
 
   queue<pnode> get_exposed(graph& g) {
-    ll tree_no = 1;
+    l tree_no = 1;
     queue<pnode> q;
     for (auto u : g) {
       if (u->up) continue;
@@ -217,14 +217,14 @@ namespace unweighted_max_matching {
     return path;
   }
 
-  ll match(graph& g) {
+  l match(graph& g) {
     for (auto u : g) u->reset();
     while (true) {
       auto p = find_augmenting_path(g);
       if (p.empty()) break;
       for (auto e : p) e->match(!e->matched);
     }
-    ll r = 0;
+    l r = 0;
     for (auto u : g) {
       for (auto e : u->adjusted) {
         if (e->matched) r++;

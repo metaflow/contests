@@ -2,9 +2,9 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 // return b: a * b = 1 (mod n)
-ll inverse_mod(ll a, ll n) {
-  ll x, y;
-  ll d = extended_euclid(a, n, x, y);
+l inverse_mod(l a, l n) {
+  l x, y;
+  l d = extended_euclid(a, n, x, y);
   if (d != 1) return 0;
   return (x + (abs(x) / n + 1) * n) % n;
 }

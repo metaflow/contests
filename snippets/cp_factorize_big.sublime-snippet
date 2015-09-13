@@ -3,11 +3,11 @@
   <content><![CDATA[
 // factorize to primes with pollard_rho function
 // primes up to pow(max, 1/3)
-vll probablity_factorization(ll n, vll& primes) {
-  auto pollard_rho = [](ll n) -> ll {
-    ll i = 0, k = 2;
-    ll x = 3, y = 3;
-    ll d = 1;
+vl probablity_factorization(l n, vl& primes) {
+  auto pollard_rho = [](l n) -> l {
+    l i = 0, k = 2;
+    l x = 3, y = 3;
+    l d = 1;
     while (d == 1) {
       i++;
       x = (mult_mod(x, x, n) + 1) % n;
@@ -16,10 +16,10 @@ vll probablity_factorization(ll n, vll& primes) {
     }
     return d;
   };
-  vll factors = factorize_to_primes(n, primes);
+  vl factors = factorize_to_primes(n, primes);
   n = factors.back(); factors.pop_back();
   if (!primality_test(n, 3)) {
-    ll f = pollard_rho(n);
+    l f = pollard_rho(n);
     factors.emplace_back(f);
     n /= f;
   }

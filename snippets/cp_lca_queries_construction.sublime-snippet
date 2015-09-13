@@ -1,7 +1,7 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-void dfs(pnode u, vll& path, vll& depths) {
+void dfs(pnode u, vl& path, vl& depths) {
   path.emplace_back(u->id);
   depths.emplace_back(u->depth);
   u->at = path.size() - 1;

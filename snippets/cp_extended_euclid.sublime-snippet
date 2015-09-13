@@ -2,10 +2,10 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 // return gcd(a, b) and set x, y: a * x + b * y = gcd(a, b)
-ll extended_euclid(ll a, ll b, ll& x, ll& y) {
+l extended_euclid(l a, l b, l& x, l& y) {
   if (b == 0) { x = 1; y = 0; return a; }
-  ll d = extended_euclid(b, a % b, x, y);
-  ll t = y;
+  l d = extended_euclid(b, a % b, x, y);
+  l t = y;
   y = x - (a / b) * y;
   x = t;
   return d;

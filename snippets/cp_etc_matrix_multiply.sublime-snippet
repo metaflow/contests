@@ -1,15 +1,15 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-vvll matrix_multiply(vvll a, vvll b, ll mod) {
-  ll n = a.size();
-  ll k = b.size();
-  ll m = b[0].size();
-  vvll c(n);
-  for (ll i = 0; i < n; i++) c[i].resize(m);
-  for (ll i = 0; i < n; i++) {
-    for (ll j = 0; j < m; j++) {
-      for (ll q = 0; q < k; q++) {
+vvl matrix_multiply(vvl a, vvl b, l mod) {
+  l n = a.size();
+  l k = b.size();
+  l m = b[0].size();
+  vvl c(n);
+  for (l i = 0; i < n; i++) c[i].resize(m);
+  for (l i = 0; i < n; i++) {
+    for (l j = 0; j < m; j++) {
+      for (l q = 0; q < k; q++) {
         c[i][j] = (c[i][j] + a[i][q] * b[q][j]) % mod;
       }
     }

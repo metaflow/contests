@@ -2,12 +2,12 @@
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
 struct bigint {
-  static const ll BUCKET = 1000;
+  static const l BUCKET = 1000;
   static const int BUCKET_DIGITS = 3;
-  vll buckets;
+  vl buckets;
   // constructors
   bigint() {}
-  bigint(ll a) {
+  bigint(l a) {
     buckets.emplace_back(a);
     normalize();
   }
@@ -17,7 +17,7 @@ struct bigint {
     swap(first.buckets, second.buckets);
   }
   // assignment
-  bigint& operator = (ll a) {
+  bigint& operator = (l a) {
     buckets.clear();
     buckets.emplace_back(a);
     normalize();
@@ -31,7 +31,7 @@ struct bigint {
   void normalize() {
     size_t i = 0;
     while (i < buckets.size()) {
-      ll t = buckets[i] / BUCKET;
+      l t = buckets[i] / BUCKET;
       if (t) {
         if (i + 1 == buckets.size()) buckets.resize(i + 2);
         buckets[i + 1] += t;
@@ -43,7 +43,7 @@ struct bigint {
   size_t size() {
     if (buckets.empty()) return 0;
     size_t r = BUCKET_DIGITS * (buckets.size() - 1) + 1;
-    ll b = buckets.back();
+    l b = buckets.back();
     while (b >= 10) {
       r++;
       b /= 10;
@@ -71,24 +71,24 @@ struct bigint {
     normalize();
     return *this;
   }
-  bigint& operator += (const ll n) {
+  bigint& operator += (const l n) {
     buckets[0] += n;
     normalize();
     return *this;
   }
-  friend bigint operator + (bigint lhs, const ll &rhs) {
+  friend bigint operator + (bigint lhs, const l &rhs) {
     lhs += rhs;
     return lhs;
   }
   // *
-  bigint& operator *= (const ll n) {
+  bigint& operator *= (const l n) {
     for (size_t i = 0; i < buckets.size(); i++) {
       buckets[i] *= n;
     }
     normalize();
     return *this;
   }
-  friend bigint operator * (bigint lhs, const ll &rhs) {
+  friend bigint operator * (bigint lhs, const l &rhs) {
     lhs *= rhs;
     return lhs;
   }

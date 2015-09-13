@@ -1,9 +1,9 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-vll __fibonacci_m_pow(vll &a, ll n, ll mod) {
+vl __fibonacci_m_pow(vl &a, l n, l mod) {
   if (n == 1) return a;
-  vll r(4), m1, m2;
+  vl r(4), m1, m2;
   if (n % 2 == 0) {
     m1 = m2 = __fibonacci_m_pow(a, n / 2, mod);
   } else {
@@ -18,8 +18,8 @@ vll __fibonacci_m_pow(vll &a, ll n, ll mod) {
 }
 
 // n >= 1, {1, 1, 2, 3, 5, ...}
-ll fibonacci(ll n, ll mod) {
-  vll a(4);
+l fibonacci(l n, l mod) {
+  vl a(4);
   a[0] = 1; a[1] = 1; a[2] = 1; a[3] = 0;
   auto r = __fibonacci_m_pow(a, n, mod);
   return r[1];

@@ -1,9 +1,9 @@
 <snippet>
   <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
   <content><![CDATA[
-// (base^power) % mod, safe for ll near max
-ll pow_mod(ll base, ll power, ll mod) {
-  ll r = 1;
+// (base^power) % mod, safe for l near max
+l pow_mod(l base, l power, l mod) {
+  l r = 1;
   while (power) {
     if (power % 2) r = mult_mod(r, base, mod);
     base = mult_mod(base, base, mod);

@@ -9,20 +9,20 @@ using graph = vector<pnode>;
 
 struct node {
   bool in_queue;
-  ll potential;
+  l potential;
   vector<pedge> adjusted;
   pedge back;
 };
 
 struct edge {
   pnode from, to;
-  ll capacity, original_capacity;
-  ll cost, original_cost;
+  l capacity, original_capacity;
+  l cost, original_cost;
   pedge opposite;
 
 };
 
-void connect(pnode &a, pnode &b, ll w, ll cost) {
+void connect(pnode &a, pnode &b, l w, l cost) {
   pedge ea = make_shared<edge>();
   pedge eb = make_shared<edge>();
   ea->from = a; ea->to = b; ea->capacity = ea->original_capacity = w;
@@ -49,7 +49,7 @@ void sssp(pnode start, graph& g) {
     for (auto e : u->adjusted) {
       if (e->capacity == 0) continue;
       auto v = e->to;
-      ll t = u->potential + e->cost;
+      l t = u->potential + e->cost;
       if (t >= v->potential) continue;
       v->potential = t;
       v->back = e;
@@ -67,13 +67,13 @@ void sssp(pnode start, graph& g) {
   }
 }
 
-ll min_cost_max_flow(graph& g, pnode s, pnode t) {
+l min_cost_max_flow(graph& g, pnode s, pnode t) {
   while (true) {
     sssp(s, g);
     if (t->potential == INF) break;
     // augment
     stack<pedge> a;
-    ll m = INF;
+    l m = INF;
     auto u = t;
     while (u->back) {
       a.push(u->back);
@@ -86,7 +86,7 @@ ll min_cost_max_flow(graph& g, pnode s, pnode t) {
       e->opposite->capacity += m;
     }
   }
-  ll cost = 0;
+  l cost = 0;
   for (auto u : g) {
     for (auto e : u->adjusted) {
       cost += (e->original_capacity - e->capacity) * e->original_cost;
