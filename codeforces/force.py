@@ -15,17 +15,19 @@ ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
 ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
 
 parser = argparse.ArgumentParser(description='Ladder')
-parser.add_argument('-s','--solved', help='# of user solved', required=True)
+parser.add_argument('--random', action='store_true', default=False)
+parser.add_argument('-s','--solved', help='# of user solved')
 parser.add_argument('-r','--range', help='range - absolute or %', required=False, default='5%')
+parser.add_argument('--open',
+  help='open specific problem',
+  action='store_true',
+  default=True)
+parser.add_argument('-c', '--contest',
+  help='id of contest')
+parser.add_argument('-p', '--problem',
+  help='index of problem')
+
 args = parser.parse_args()
-solved = int(args.solved)
-range = args.range
-if '%' in str(range):
-  range = range[:range.find('%')]
-  range = int(range) * solved / 100
-else:
-  range = int(range)
-print 'searching for problem with %d +- %d solutions' % (solved, range)
 
 def params(values):
   params = values.items()
@@ -84,24 +86,38 @@ def openProblem(contestId, index):
   subprocess.call(["date"])
   return
 
-problemset = json.loads(call('problemset.problems', {}))
-problems = problemset['result']['problems']
-stats = problemset['result']['problemStatistics']
-problems = zip(problems, stats)
+if (args.open):
+  openProblem(args.contest, args.problem)
+  exit(0)
 
-matched = []
-for p in problems:
-  if (int(p[1]['solvedCount']) > int(solved) + int(range)) or \
-     (int(p[1]['solvedCount']) < int(solved) - int(range)):
-     continue
-  matched.append(p)
+if (args.random):
+  solved = int(args.solved)
+  range = args.range
+  if '%' in str(range):
+    range = range[:range.find('%')]
+    range = int(range) * solved / 100
+  else:
+    range = int(range)
+  print 'searching for problem with %d +- %d solutions' % (solved, range)
+  problemset = json.loads(call('problemset.problems', {}))
+  problems = problemset['result']['problems']
+  stats = problemset['result']['problemStatistics']
+  problems = zip(problems, stats)
 
-if len(matched) == 0:
-  print 'nothing'
-  exit(1)
+  matched = []
+  for p in problems:
+    if (int(p[1]['solvedCount']) > int(solved) + int(range)) or \
+       (int(p[1]['solvedCount']) < int(solved) - int(range)):
+       continue
+    matched.append(p)
 
-selected = matched[random.randint(0, len(matched) - 1)]
-print '%d matched. %s %s solved by %d' % (
-  len(matched), selected[0]['contestId'], selected[0]['index'], selected[1]['solvedCount'])
+  if len(matched) == 0:
+    print 'nothing'
+    exit(1)
 
-openProblem(str(selected[0]['contestId']), str(selected[0]['index']))
+  selected = matched[random.randint(0, len(matched) - 1)]
+  print '%d matched. %s %s solved by %d' % (
+    len(matched), selected[0]['contestId'], selected[0]['index'], selected[1]['solvedCount'])
+
+  openProblem(str(selected[0]['contestId']), str(selected[0]['index']))
+  exit(0)
