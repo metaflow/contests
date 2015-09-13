@@ -16,8 +16,16 @@ ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
 
 parser = argparse.ArgumentParser(description='Ladder')
 parser.add_argument('-s','--solved', help='# of user solved', required=True)
-parser.add_argument('-r','--range', help='', required=False, default=50)
+parser.add_argument('-r','--range', help='range - absolute or %', required=False, default='5%')
 args = parser.parse_args()
+solved = int(args.solved)
+range = args.range
+if '%' in str(range):
+  range = range[:range.find('%')]
+  range = int(range) * solved / 100
+else:
+  range = int(range)
+print 'searching for problem with %d +- %d solutions' % (solved, range)
 
 def params(values):
   params = values.items()
@@ -83,8 +91,8 @@ problems = zip(problems, stats)
 
 matched = []
 for p in problems:
-  if (int(p[1]['solvedCount']) > int(args.solved) + int(args.range)) or \
-     (int(p[1]['solvedCount']) < int(args.solved) - int(args.range)):
+  if (int(p[1]['solvedCount']) > int(solved) + int(range)) or \
+     (int(p[1]['solvedCount']) < int(solved) - int(range)):
      continue
   matched.append(p)
 
