@@ -14,35 +14,43 @@ using vvd = vector<vd>;
 using vll = vector<ll>;
 const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
+const ll MAX = (1 << 20) + 1;
+
+ll dp[MAX];
+
+ll count_bits(ll a) {
+  ll r = 0;
+  while (a) {
+    if (a % 2) r++;
+    a /= 2;
+  }
+  return r;
+}
 
 class OrderOfOperations {
     public:
-    int minTime(vector <string> s) {
-      int answer = 0;
-      ll n = s.size();
-      ll m = s[0].size();
-      vb on(m, false);
-      vb used(n, false);
-      for (ll i = 0; i < n; i++) {
-        ll best = INF, best_id = -1;
-        for (ll j = 0; j < n; j++) {
-          if (used[j]) continue;
-          ll t = 0;
-          for (ll k = 0; k < m; k++) {
-            if (!on[k] && s[j][k] == '1') t++;
-          }
-          if (t < best) {
-            best = t;
-            best_id = j;
-          }
+    int minTime(vector<string> s) {
+      ll target = 0;
+      vll v;
+      for (auto k : s) {
+        ll a = 0;
+        for (auto c : k) {
+          a *= 2;
+          if (c == '1') a++;
         }
-        answer += best * best;
-        for (ll k = 0; k < m; k++) {
-          if (s[best_id][k] == '1') on[k] = true;
-        }
-        used[best_id] = true;
+        v.emplace_back(a);
+        target = target | a;
       }
-      return answer;
+      fill(&dp[0], &dp[MAX], INF);
+      dp[0] = 0;
+      for (ll i = 0; i < target; i++) {
+        if (dp[i] == INF) continue;
+        for (auto a : v) {
+          ll t = count_bits(a - (a & i));
+          dp[i | a] = min(dp[i | a], dp[i] + t * t);
+        }
+      }
+      return dp[target];
     }
 
 // BEGIN CUT HERE
@@ -83,8 +91,70 @@ class OrderOfOperations {
 };
 
 // BEGIN CUT HERE
+
+int minTimeGreedy(vector <string> s) {
+  int answer = 0;
+  ll n = s.size();
+  ll m = s[0].size();
+  vb on(m, false);
+  vb used(n, false);
+  for (ll i = 0; i < n; i++) {
+    ll best = INF, best_id = -1;
+    for (ll j = 0; j < n; j++) {
+      if (used[j]) continue;
+      ll t = 0;
+      for (ll k = 0; k < m; k++) {
+        if (!on[k] && s[j][k] == '1') t++;
+      }
+      if (t < best) {
+        best = t;
+        best_id = j;
+      }
+    }
+    answer += best * best;
+    for (ll k = 0; k < m; k++) {
+      if (s[best_id][k] == '1') on[k] = true;
+    }
+    used[best_id] = true;
+  }
+  return answer;
+}
+
+string to_binary(int i, int k) {
+  string r;
+  while (k--) {
+    if (i % 2) {
+      r += "1";
+    } else {
+      r += "0";
+    }
+    i /= 2;
+  }
+  reverse(r.begin(), r.end());
+  return r;
+}
+
 int main() {
-    OrderOfOperations ___test;
-    ___test.run_test(-1);
+  OrderOfOperations correct;
+  ll t = (1 << 6);
+  for (int i = 0; i < t; i++) {
+    auto si = to_binary(i, 6);
+    for (int j = i + 1; j < t; j++) {
+      if (count_bits(i) == count_bits(j)) continue;
+      auto sj = to_binary(j, 6);
+      for (int k = j + 1; k < t; k++) {
+        if (count_bits(i) == count_bits(k)) continue;
+        if (count_bits(j) == count_bits(k)) continue;
+        auto sk = to_binary(k, 6);
+        vector<string> s = {si, sj, sk};
+        if (correct.minTime(s) != minTimeGreedy(s)) {
+          cout << si << endl;
+          cout << sj << endl;
+          cout << sk << endl;
+          return 0;
+        }
+      }
+    }
+  }
 }
 // END CUT HERE

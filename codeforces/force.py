@@ -15,17 +15,13 @@ ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
 ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
 
 parser = argparse.ArgumentParser(description='Ladder')
-parser.add_argument('--random', action='store_true', default=False)
+parser.add_argument('--random', action='store_true')
 parser.add_argument('-s','--solved', help='# of user solved')
-parser.add_argument('-r','--range', help='range - absolute or %', required=False, default='5%')
-parser.add_argument('--open',
-  help='open specific problem',
-  action='store_true',
-  default=True)
-parser.add_argument('-c', '--contest',
-  help='id of contest')
-parser.add_argument('-p', '--problem',
-  help='index of problem')
+parser.add_argument('-r','--range', help='range - absolute or %', default='5%')
+
+parser.add_argument('--open', help='open problem', action='store_true')
+parser.add_argument('-c', '--contest', help='id of contest')
+parser.add_argument('-p', '--problem', help='index of problem')
 
 args = parser.parse_args()
 
