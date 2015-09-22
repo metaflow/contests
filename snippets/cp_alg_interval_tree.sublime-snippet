@@ -3,6 +3,7 @@
   <content><![CDATA[
 // intervals are inclusive [a, b]
 // e.g. [1, 2] + [2, 3] -> [1, 3]
+// [1, 4] - [2, 3] -> [1], [4]
 // and find([4, 7]) -> ([1, 4], [5, 6], [7, 11])
 class interval_tree {
 private:
@@ -11,10 +12,10 @@ private:
       return a.second < b.first;
    };
   };
-  map<ii, int, intervals_key> m;
+  set<ii, intervals_key> m;
   friend ostream& operator << (ostream& s, const interval_tree& v) {
     for (auto ii = v.m.cbegin(); ii != v.m.cend(); ii++) {
-      s << "[" << ii->first.first << ", " << ii->first.second << "] ";
+      s << "[" << ii->first << ", " << ii->second << "] ";
     }
     return s;
   }
@@ -22,26 +23,26 @@ public:
   void add(int a, int b) {
     vii r;
     auto p = m.equal_range(make_pair(a, b));
-    for (auto ii = p.first; ii != p.second; ii++) r.emplace_back(ii->first);
+    for (auto ii = p.first; ii != p.second; ii++) r.emplace_back(*ii);
     m.erase(p.first, p.second);
     for (auto ii : r) {
       a = min(a, ii.first);
       b = max(b, ii.second);
     }
-    m.emplace(make_pair(a, b), 0);
+    m.emplace(make_pair(a, b));
   }
 
   void remove(int a, int b) {
     auto p = m.equal_range(make_pair(a, b));
     vii r;
-    for (auto ii = p.first; ii != p.second; ii++) r.emplace_back(ii->first);
+    for (auto ii = p.first; ii != p.second; ii++) r.emplace_back(*ii);
     m.erase(p.first, p.second);
     for (auto ii : r) {
       if (ii.first < a) {
-        m.emplace(make_pair(ii.first, min(a, ii.second)), 0);
+        m.emplace(make_pair(ii.first, min(a, ii.second) - 1));
       }
       if (ii.second > b) {
-        m.emplace(make_pair(max(b, ii.first), ii.second), 0);
+        m.emplace(make_pair(max(b, ii.first) + 1, ii.second));
       }
     }
   }
@@ -49,7 +50,13 @@ public:
   vii find(int a, int b) {
     vii r;
     auto p = m.equal_range(make_pair(a, b));
-    for (auto i = p.first; i != p.second; i++) r.emplace_back(i->first);
+    for (auto i = p.first; i != p.second; i++) r.emplace_back(*i);
+    return r;
+  }
+
+  vii keys() {
+    vii r;
+    r.insert(r.begin(), m.cbegin(), m.cend());
     return r;
   }
 };

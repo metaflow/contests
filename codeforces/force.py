@@ -73,10 +73,10 @@ def openProblem(contestId, index):
       samples = zip(inputs, outputs)
       for s in samples:
         for i in s[0].find('pre').strings:
-          in_file.write(i)
+          in_file.write(unicode(i).encode('utf-8').strip())
           in_file.write('\n')
         for i in s[1].find('pre').strings:
-          out_file.write(i)
+          out_file.write(unicode(i).encode('utf-8').strip())
           out_file.write('\n')
   subprocess.call(["problem", index])
   subprocess.call(["date"])
@@ -101,19 +101,24 @@ if (args.random):
   problems = zip(problems, stats)
 
   matched = []
+  alreadySolved = 0
   for p in problems:
     if (int(p[1]['solvedCount']) > int(solved) + int(range)) or \
        (int(p[1]['solvedCount']) < int(solved) - int(range)):
        continue
-    matched.append(p)
+    if not os.path.exists("%s/%s.cc" % (p[0]['contestId'], p[0]['index'])):
+      matched.append(p)
+    else:
+      alreadySolved += 1
 
   if len(matched) == 0:
     print 'nothing'
     exit(1)
 
   selected = matched[random.randint(0, len(matched) - 1)]
-  print '%d matched. %s %s solved by %d' % (
-    len(matched), selected[0]['contestId'], selected[0]['index'], selected[1]['solvedCount'])
+  print '%d matched (%d already solved). %s %s solved by %d' % (
+    len(matched), alreadySolved,
+    selected[0]['contestId'], selected[0]['index'], selected[1]['solvedCount'])
 
   openProblem(str(selected[0]['contestId']), str(selected[0]['index']))
   exit(0)
