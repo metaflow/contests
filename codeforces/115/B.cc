@@ -17,6 +17,21 @@ l DP[MAX][MAX][2];
 l last_row;
 l n, m;
 
+l dp(l row, l col, l right, vl& LB, vl& RB);
+
+l f(l row, l col, l right, vl& LB, vl& RB) {
+  // move left
+  l k = INF;
+  for (l i = 0; i <= col; i++) {
+    k = min(k, 1 + col - i + right + dp(row + 1, i, 1, LB, RB));
+  }
+  // move right
+  for (l i = col; i < m; i++) {
+    k = min(k, 1 + i - col + (1 - right) + dp(row + 1, i, 0, LB, RB));
+  }
+  return k;
+}
+
 l dp(l row, l col, l right, vl& LB, vl& RB) {
   if (row > last_row) return -1;
   l& d = DP[row][col][right];
@@ -24,15 +39,7 @@ l dp(l row, l col, l right, vl& LB, vl& RB) {
   d = INF;
   // if empty
   if (LB[row] == -1) {
-    // move left
-    for (l i = 0; i <= col; i++) {
-      d = min(d, 1 + col - i + right + dp(row + 1, i, 1, LB, RB));
-    }
-    // move right
-    for (l i = col; i < m; i++) {
-      d = min(d, 1 + i - col + (1 - right) + dp(row + 1, i, 0, LB, RB));
-    }
-    return d;
+    return d = f(row, col, right, LB, RB);
   }
   // to the right and then to the left
   l t = 0;
@@ -45,9 +52,7 @@ l dp(l row, l col, l right, vl& LB, vl& RB) {
   }
   t += orientation;
   t += c - LB[row];
-  for (l i = 0; i <= LB[row]; i++) {
-    d = min(d, LB[row] - i + t + dp(row + 1, i, 1, LB, RB) + 1);
-  }
+  d = min(d, t + f(row, LB[row], 0, LB, RB));
   // to the left and then to the right
   t = 0;
   orientation = right;
@@ -59,9 +64,7 @@ l dp(l row, l col, l right, vl& LB, vl& RB) {
   }
   t += 1 - orientation;
   t += RB[row] - c;
-  for (l i = RB[row]; i < m; i++) {
-    d = min(d, i - RB[row] + t + dp(row + 1, i, 0, LB, RB) + 1);
-  }
+  d = min(d, t + f(row, RB[row], 1, LB, RB));
   return d;
 }
 
