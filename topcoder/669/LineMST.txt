@@ -1,0 +1,92 @@
+PROBLEM STATEMENT
+
+Given are ints N and L.
+
+A complete graph is a graph in which each pair of vertices is connected by exactly one undirected edge.
+
+A graph is called beautiful if:
+
+It is a complete graph on N vertices.
+Each edge has an associated cost, and all these costs are integers between 1 and L, inclusive.
+
+Hence, there are exactly L^(N*(N-1)/2) different beautiful graphs.
+
+The minimum spanning tree (MST) of a beautiful graph is its subgraph with the following properties:
+
+The subgraph contains all N vertices.
+The subgraph is connected. (I.e., it is possible to get from any vertex to any other vertex using only edges that belong to the subgraph.)
+The total cost of edges in the subgraph is as small as possible.
+
+A single beautiful graph can have multiple MSTs.
+(Each of these MSTs will contain a different set of edges, but they will have the same total cost.)
+
+An MST is called a line if the degree of each of its vertices is at most 2.
+
+Hibiki likes MSTs.
+She also likes lines.
+For each beautiful graph G, let f(G) be the number of its MSTs that are lines.
+(Note that for some beautiful graphs it may be the case that f(G)=0.)
+
+Let X be the sum of the values f(G) over all beautiful graphs G.
+Please calculate X for her.
+As X can be very large, compute and return the value (X modulo 1,000,000,007).
+
+
+DEFINITION
+Class:LineMST
+Method:count
+Parameters:int, int
+Returns:int
+Method signature:int count(int N, int L)
+
+
+CONSTRAINTS
+-N will be between 2 and 200, inclusive.
+-L will be between 1 and 200, inclusive.
+
+
+EXAMPLES
+
+0)
+3
+2
+
+Returns: 15
+
+Beautiful graphs are complete graphs on 3 vertices in which each edge has cost either 1 or 2.
+There are 8 such graphs.
+Some of these graphs have more than one MST.
+For example, the graph in which each edge has cost 1 has three different MSTs.
+In this case, each of those three MSTs is a line, so we count each of them.
+
+1)
+2
+10
+
+Returns: 10
+
+There are 10 beautiful graphs and f(G) is 1 for each of them.
+
+2)
+3
+1
+
+Returns: 3
+
+Now there is only one beautiful graph. As we already explained in Example 0, this graph has 3 MSTs and each of those is a line.
+
+3)
+8
+41
+
+Returns: 655468587
+
+
+
+4)
+200
+200
+
+Returns: 152699064
+
+
