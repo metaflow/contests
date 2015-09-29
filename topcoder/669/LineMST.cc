@@ -34,36 +34,33 @@ l inverse_mod(l a, l n) {
 class LineMST {
 public:
   int count(int N, int L) {
-    l g = 1; // for N = 1
-    //[k][n] ways to get line MST with max edge exactly k of length n
-    vvl c(L + 1, vl(N + 1));
-    vvl p(L + 1, vl(N + 1)); // [i, j] mod power of i ^ j
-    for (l i = 1; i <= L; i++) {
+    vvl p(L + 1, vl(N * N));
+    for (l i = 1; i < L + 1; i++) {
       p[i][0] = 1;
-      for (l j = 1; j <= N; j++) {
+      for (l j = 1; j < N * N; j++) {
         p[i][j] = (p[i][j - 1] * i) % MOD;
       }
     }
-    for (l i = 1; i <= L; i++) c[i][1] = 1;
-    for (l i = 1; i < N; i++) c[1][i] = 1;
-    for (l k = 2; k <= L; k++) {
-      for (l j = 2; j < N; j++) {
-        l &t = c[k][j] = 0;
-        // ends with edge (< k)
-        for (int e = 1; e < k; e++) t += p[k - e + 1][j];
-        t %= MOD;
-        t = (t * c[k][j - 1]) % MOD;
-        // ends with edge (k)
-        for (int i = 1; i <= k; i++) t += c[i][j - 1];
-        t %= MOD;
+    vvl c(L + 1, vl(N + 1));
+    for (l i = 0; i < N + 1; i++) { c[1][i] = 1; }
+    for (l i = 0; i < L + 1; i++) { c[i][1] = 1; }
+    for (l i = 2; i < N + 1; i++) {
+      for (l j = 2; j < L + 1; j++) {
+        c[j][i] = c[j - 1][i];
+        for (l left = 1; left < i; left++) {
+          l right = i - left;
+          l t = (c[j][left] * c[j][right]) % MOD;
+          t = (t * p[L - j + 1][left * right - 1]) % MOD;
+          c[j][i] = (c[j][i] + t) % MOD;
+        }
       }
     }
-    l r = 0;
-    for (l i = 1; i <= L; i++) r += c[i][N - 1];
-    r %= MOD;
-    for (l i = 2; i <= N; i++) r = (r * i) % MOD; // n! ways to mark vertices
-    r = (r * inverse_mod(2, MOD)) % MOD;
-    return r;
+    l t = c[L][N];
+    for (l i = 3; i < N + 1; i++) {
+      t = (t * i) % MOD;
+    }
+    // t = (t * inverse_mod(2, MOD)) % MOD;
+    return t;
   }
 
 // BEGIN CUT HERE

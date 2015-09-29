@@ -12,24 +12,31 @@ const double EPS = 1e-10;
 const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
 class SubdividedSlimes {
+
+  // (base^power) % mod, safe for l near max
+  l pp(l base, l power) {
+    l r = 1;
+    while (power) {
+      if (power % 2) r = (r * base);
+      base = (base * base);
+      power /= 2;
+    }
+    return r;
+  }
+
 public:
   int needCut(int S, int M) {
-    priority_queue<l> q;
-    q.push(S);
-    l sum = 0;
-    l turns = 0;
-    while (!q.empty() && sum < M) {
-      l a = q.top();
-      q.pop();
-      l b = a / 2;
-      a -= b;
-      sum += a * b;
-      if (a > 1) q.push(a);
-      if (b > 1) q.push(b);
-      turns++;
+    for (l i = 1; i < S; i++) {
+      l p = (S) / (i + 1);
+      l r = S - p * i;
+      l m = r * p * i + p * p * i * (i - 1) / 2;
+      if (m >= M) return i;
+      p = (S + i) / (i + 1);
+      r = S - p * i;
+      m = r * p * i + p * p * i * (i - 1) / 2;
+      if (m >= M) return i;
     }
-    if (sum < M) return -1;
-    return turns;
+    return -1;
   }
 
 // BEGIN CUT HERE
@@ -40,7 +47,7 @@ public:
 	void verify_case(int Case, const int &Expected, const int &Received) { cerr << "Test Case #" << Case << "..."; if (Expected == Received) cerr << "PASSED" << endl; else { cerr << "FAILED" << endl; cerr << "\tExpected: \"" << Expected << '\"' << endl; cerr << "\tReceived: \"" << Received << '\"' << endl; } }
 	void test_case_0() { int Arg0 = 3; int Arg1 = 2; int Arg2 = 1; verify_case(0, Arg2, needCut(Arg0, Arg1)); }
 	void test_case_1() { int Arg0 = 3; int Arg1 = 3; int Arg2 = 2; verify_case(1, Arg2, needCut(Arg0, Arg1)); }
-	void test_case_2() { int Arg0 = 3; int Arg1 = 4; int Arg2 = -1; verify_case(2, Arg2, needCut(Arg0, Arg1)); }
+	void test_case_2() { int Arg0 = 5; int Arg1 = 9; int Arg2 = 3; verify_case(2, Arg2, needCut(Arg0, Arg1)); }
 	void test_case_3() { int Arg0 = 765; int Arg1 = 271828; int Arg2 = 14; verify_case(3, Arg2, needCut(Arg0, Arg1)); }
 
 // END CUT HERE
