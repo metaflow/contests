@@ -13,24 +13,6 @@ const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
 const l MOD = 1000000007;
 
-// return gcd(a, b) and set x, y: a * x + b * y = gcd(a, b)
-l extended_euclid(l a, l b, l& x, l& y) {
-  if (b == 0) { x = 1; y = 0; return a; }
-  l d = extended_euclid(b, a % b, x, y);
-  l t = y;
-  y = x - (a / b) * y;
-  x = t;
-  return d;
-}
-
-// return b: a * b = 1 (mod n)
-l inverse_mod(l a, l n) {
-  l x, y;
-  l d = extended_euclid(a, n, x, y);
-  if (d != 1) return 0;
-  return (x + (abs(x) / n + 1) * n) % n;
-}
-
 class LineMST {
 public:
   int count(int N, int L) {
@@ -41,15 +23,15 @@ public:
         p[i][j] = (p[i][j - 1] * i) % MOD;
       }
     }
-    vvl c(L + 1, vl(N + 1));
-    for (l i = 0; i < N + 1; i++) { c[1][i] = 1; }
+    vvl c(L + 1, vl(N + 1, 0));
+    // for (l i = 0; i < N + 1; i++) { c[1][i] = p[L][i]; }
     for (l i = 0; i < L + 1; i++) { c[i][1] = 1; }
     for (l i = 2; i < N + 1; i++) {
-      for (l j = 2; j < L + 1; j++) {
+      for (l j = 1; j < L + 1; j++) {
         c[j][i] = c[j - 1][i];
         for (l left = 1; left < i; left++) {
           l right = i - left;
-          l t = (c[j][left] * c[j][right]) % MOD;
+          l t = (c[j - 1][left] * c[j][right]) % MOD;
           t = (t * p[L - j + 1][left * right - 1]) % MOD;
           c[j][i] = (c[j][i] + t) % MOD;
         }
@@ -59,7 +41,6 @@ public:
     for (l i = 3; i < N + 1; i++) {
       t = (t * i) % MOD;
     }
-    // t = (t * inverse_mod(2, MOD)) % MOD;
     return t;
   }
 
@@ -76,7 +57,6 @@ public:
 	void test_case_4() { int Arg0 = 200; int Arg1 = 200; int Arg2 = 152699064; verify_case(4, Arg2, count(Arg0, Arg1)); }
 
 // END CUT HERE
-;
 };
 
 // BEGIN CUT HERE
