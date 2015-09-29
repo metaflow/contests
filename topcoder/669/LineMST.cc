@@ -13,25 +13,57 @@ const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
 const l MOD = 1000000007;
 
+// return gcd(a, b) and set x, y: a * x + b * y = gcd(a, b)
+l extended_euclid(l a, l b, l& x, l& y) {
+  if (b == 0) { x = 1; y = 0; return a; }
+  l d = extended_euclid(b, a % b, x, y);
+  l t = y;
+  y = x - (a / b) * y;
+  x = t;
+  return d;
+}
+
+// return b: a * b = 1 (mod n)
+l inverse_mod(l a, l n) {
+  l x, y;
+  l d = extended_euclid(a, n, x, y);
+  if (d != 1) return 0;
+  return (x + (abs(x) / n + 1) * n) % n;
+}
+
 class LineMST {
 public:
   int count(int N, int L) {
     l g = 1; // for N = 1
-    vl powers(L + 1, 1);
-    for (l i = 2; i <= N; i++) {
-      l m = 0;
-      for (l j = 0; j < L + 1; j++) {
-        powers[j] = (powers[j] * j) % MOD;
-        m = (m + powers[j]) % MOD;
+    //[k][n] ways to get line MST with max edge exactly k of length n
+    vvl c(L + 1, vl(N + 1));
+    vvl p(L + 1, vl(N + 1)); // [i, j] mod power of i ^ j
+    for (l i = 1; i <= L; i++) {
+      p[i][0] = 1;
+      for (l j = 1; j <= N; j++) {
+        p[i][j] = (p[i][j - 1] * i) % MOD;
       }
-      g = (g * m) % MOD;
     }
-    // take cycles into the account
-    l k = N * (N - 1) / 2 - 1;
-    k %= MOD;
-    k = (k * L) % MOD;
-    g = (g + k) % MOD;
-    return g;
+    for (l i = 1; i <= L; i++) c[i][1] = 1;
+    for (l i = 1; i < N; i++) c[1][i] = 1;
+    for (l k = 2; k <= L; k++) {
+      for (l j = 2; j < N; j++) {
+        l &t = c[k][j] = 0;
+        // ends with edge (< k)
+        for (int e = 1; e < k; e++) t += p[k - e + 1][j];
+        t %= MOD;
+        t = (t * c[k][j - 1]) % MOD;
+        // ends with edge (k)
+        for (int i = 1; i <= k; i++) t += c[i][j - 1];
+        t %= MOD;
+      }
+    }
+    l r = 0;
+    for (l i = 1; i <= L; i++) r += c[i][N - 1];
+    r %= MOD;
+    for (l i = 2; i <= N; i++) r = (r * i) % MOD; // n! ways to mark vertices
+    r = (r * inverse_mod(2, MOD)) % MOD;
+    return r;
   }
 
 // BEGIN CUT HERE
