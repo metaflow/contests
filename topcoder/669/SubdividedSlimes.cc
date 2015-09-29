@@ -26,17 +26,28 @@ class SubdividedSlimes {
 
 public:
   int needCut(int S, int M) {
-    for (l i = 1; i < S; i++) {
-      l p = (S) / (i + 1);
-      l r = S - p * i;
-      l m = r * p * i + p * p * i * (i - 1) / 2;
-      if (m >= M) return i;
-      p = (S + i) / (i + 1);
-      r = S - p * i;
-      m = r * p * i + p * p * i * (i - 1) / 2;
-      if (m >= M) return i;
+    vvl c(S + 1, vl(S + 1));
+    for (l step = S - 1; step > 0; step--) {
+      for (l i = step + 1; i <= S; i++) {
+        c[i][step] = max(c[i][step + 1],
+          c[i - step][step] + step * (i - step));
+      }
     }
-    return -1;
+    l p = S;
+    l count = 0;
+    while (M > 0) {
+      bool ok = false;
+      for (l step = S - 1; step > 0; step--) {
+        if (c[p][step] < M) continue;
+        M -= step * (p - step);
+        ok = true;
+        count++;
+        p -= step;
+        break;
+      }
+      if (!ok) return -1;
+    }
+    return count;
   }
 
 // BEGIN CUT HERE
