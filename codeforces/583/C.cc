@@ -10,7 +10,6 @@ using vd = vector<double>; using vvd = vector<vd>;
 const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
-const l MAX = 5 * e6 + 1;
 
 l gcd(l a, l b) {
   while (b) {
@@ -27,26 +26,30 @@ l lcm(l a, l b) {
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  vl p(MAX);
-  for (l m = 1; m < 3000; m++) {
-    for (l n = 1; n < m; n++) {
-      if (gcd(n, m) != 1) continue;
-      if ((m - n) % 2 == 0) continue;
-      for (l k = 1; ; k++) {
-        l t = 2 * k * m * (m + n);
-        if (t >= MAX) break;
-        p[t]++;
-      }
+  l n;
+  while (cin >> n) {
+    l n2 = n * n;
+    priority_queue<l> q, r;
+    for (l i = 0; i < n2; i++) {
+      l a; cin >> a; q.push(a);
     }
-  }
-  vl a(MAX);
-  for (l i = 1; i < MAX; i++) {
-    a[i] = i;
-    if (p[i] <= p[a[i - 1]]) a[i] = a[i - 1];
-  }
-  l tcc; cin >> tcc;
-  while (tcc--) {
-    l n; cin >> n;
-    cout << a[n] << endl;
+    vl solution;
+    for (l i = 0; i < n2; i++) {
+      l k = q.top(); q.pop();
+      if (!r.empty() && k == r.top()) {
+        r.pop();
+        continue;
+      }
+      for (auto j : solution) {
+        r.push(gcd(j, k));
+        r.push(gcd(j, k));
+      }
+      solution.push_back(k);
+    }
+    for (l i = 0; i < n; i++) {
+      if (i) cout << " ";
+      cout << solution[i];
+    }
+    cout << endl;
   }
 }
