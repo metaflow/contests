@@ -10,6 +10,7 @@ using vd = vector<double>; using vvd = vector<vd>;
 const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
+const double PI = 3.14159265358979323846;
 
 struct point {
   double x, y;
@@ -104,8 +105,8 @@ int main() {
       cout << t << endl;
     } else {
       point d = b - a;
-      double f = -M_PI / 2;
-      double t = M_PI / 2;
+      double f = -PI / 2;
+      double t = PI / 2;
       while (!equal_double(f, t, EPS)) {
         double q = (2 * f + t) / 3;
         double r = (f + 2 * t) / 3;
