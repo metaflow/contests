@@ -1,4 +1,5 @@
-#include<bits/stdc++.h>
+#include<vector>
+#include<iostream>
 using namespace std;
 
 using vi = vector<int>; using vvi = vector<vi>;
