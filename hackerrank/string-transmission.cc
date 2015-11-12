@@ -50,18 +50,14 @@ l solve(l n, l k, string s, vl& primes) {
   l total = 0;
   // ways to apply k bit change
   for (l i = 0; i <= k; i++) total = add(total, C[i][n]);
-  l e = 0;
-  if (sum <= k) e++; // there is a way to get all 0
-  if (n - sum <= k) e++; // there is a way to get all 1
-  auto factors = factorize_to_primes(primes, n);
-  if (!factors.empty()) total = sub(total, e);
-  //for (auto p : primes) {
-  for (l p = 2; p < n; p++) {
-    if (p >= n) break;
+  for (l p = 2; p <= n; p++) {
     if (n % p) continue;
-    l a = p;
-    l q = n / p;
-    vl v(p);
+    auto factors = factorize_to_primes(primes, p);
+    l t = 1; for (auto f : factors) t *= f;
+    if (t != p) continue;
+    l a = n / p; // length of part
+    l q = p; // number of parts
+    vl v(a);
     for (l i = 0; i < n; i++) v[i % a] += r[i];
     // number of ways to get symmetric with exatly k changes
     vvl d(a + 1, vl(k + 1));
@@ -85,9 +81,11 @@ l solve(l n, l k, string s, vl& primes) {
     }
     l dd = 0;
     for (l i = 0; i <= k; i++) dd = add(dd, d[a][i]);
-    cerr << dd << endl;
-    total = sub(total, dd);
-    total = add(total, e);
+    if (factors.size() % 2) {
+      total = sub(total, dd);
+    } else {
+      total = add(total, dd);
+    }
   }
   return total;
 }
@@ -175,9 +173,7 @@ int main() {
   for (l tc = 0; tc < tcc; tc++) {
     l n, k; cin >> n >> k;
     string s; cin >> s;
-    l total = solve(n, k, s, primes);
-    //solve_brute(n, k, s)
-    cout << total << endl;
+    cout << solve(n, k, s, primes) << endl;
   }
 }
 
