@@ -18,12 +18,15 @@ l mod;
 
 l add(l a, l b) { return (a + b) % mod; }
 l get(l pos, l n, l s) {
-  if (n == 0) { cerr << "!"; return 0; }
-  if (n == 1) return 1;
-  assert(pos >= 0 && pos < MAX);
-  assert(s >= 0 && s < MAX);
-  assert(n >= 0 && n < MAX);
-  assert(pos < n);
+  if (s < 0) return 0;
+  if (n == 1) {
+    return 1;
+  }
+  // assert(pos >= 0 && pos < MAX);
+  // assert(s >= 0 && s < MAX);
+  // assert(n >= 0 && n < MAX);
+  // assert(pos < n);
+  if (pos > n / 2) pos = n - 1 - pos;
   l& r = D[pos][n][s];
   if (r != -1) return r;
   r = 0;
@@ -34,20 +37,21 @@ l get(l pos, l n, l s) {
     }
   } else { // two childs
     // 0..a..pos..b..n-1
+    if (s == 0) return 0;
     for (l a = 0; a < pos; a++) {
       for (l b = pos + 1; b < n; b++) {
         l rest = s - (b - a);
-        // if (rest < 0) continue;
+        if (rest < 0) continue;
         for (l sa = 0; sa <= rest; sa++) {
-          r = add(r,
-                  (get(a, pos, sa) *
-                  get(b - pos - 1, n - pos - 1, rest - sa)) % mod);
+          l t = (get(a, pos, sa) - get(a, pos, sa - 1) + mod) % mod;
+          if (t == 0) continue;
+          r = add(r, (t * get(b - pos - 1, n - pos - 1, rest - sa)) % mod);
         }
       }
     }
     // cerr << pos << " " << n << " " << C[pos][n] << endl;
     // cerr << r << endl;
-    r = (r * C[pos][n]) % mod;
+    r = (r * C[pos][n - 1]) % mod;
   }
   return r;
 }
@@ -61,7 +65,7 @@ class BearPermutations {
       for (l i = 0; i < MAX; i++) { C[i][i] = 1; C[0][i] = 1; }
       for (l i = 1; i < MAX; i++) {
         for (l j = i + 1; j < MAX; j++) {
-          C[i][j] = add(C[i - 1][j - 1], C[i][ - 1]);
+          C[i][j] = add(C[i - 1][j - 1], C[i][j - 1]);
         }
       }
       fill(&D[0][0][0], &D[MAX][0][0], -1);
@@ -69,6 +73,7 @@ class BearPermutations {
       for (l i = 0; i < N; i++) {
         answer = add(answer, get(i, N, S));
       }
+      // while (answer < 0) answer += mod;
       return answer;
     }
 
@@ -91,8 +96,9 @@ class BearPermutations {
 
 // BEGIN CUT HERE
 int main() {
-    for (int i = 0; i < 6; i++) {
-      BearPermutations ___test; ___test.run_test(i);
-    }
+    // for (int i = 0; i < 6; i++) {
+    BearPermutations ___test; ___test.run_test(-1);
+    cout << ___test.countPermutations(55, 67, 867907753) << endl;
+    // }
 }
 // END CUT HERE
