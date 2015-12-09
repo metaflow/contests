@@ -1,0 +1,126 @@
+PROBLEM STATEMENT
+Bear Limak loves algorithms and tolerates data structures.
+Today he learned about the Cartesian tree.
+You can find a detailed description of this tree at https://en.wikipedia.org/wiki/Cartesian_tree.
+Below we give a shorter description that is sufficient to solve this problem.
+
+Let A be a sequence of distinct numbers.
+Each such sequence defines a unique Cartesian tree.
+The Cartesian tree is determined by the following rules:
+
+The Cartesian tree is a rooted binary tree.
+The nodes of the tree correspond to the elements of A.
+An in-order traversal of the tree prints the sequence A.
+The tree is a heap.
+
+
+A more detailed explanation of the third rule:
+Consider any node in the tree, and let x be the number in this node.
+All numbers in the left subtree must appear in A before x, and all numbers in the right subtree must appear in A after x.
+
+A more detailed explanation of the fourth rule:
+For each node, the number in the node must be strictly smaller than each of the numbers in the children of this node.
+
+Below is a figure that shows the Cartesian tree determined by the sequence A = {9,3,7,1,8,12,10,20,15,18,5}.
+
+
+
+We will now define the score of a Cartesian tree.
+Let T be the Cartesian tree determined by the sequence A.
+In the tree T there are some nodes that have two children.
+For each such node, look at the numbers in those two children, find the indices of those two numbers in A, and compute their (positive) difference.
+The score of the tree T is the sum of all these differences.
+
+For example, in the above tree we have four nodes that have two children each: the nodes with numbers 1, 3, 10, and 15.
+The children of node 1 are the nodes 3 and 5.
+In the original sequence A, the values 3 and 5 have (0-based) indices 1 and 10.
+The difference between these indices is 10 - 1 = 9.
+For the other three nodes with two children, the differences between their indices are 2, 3, and 2.
+Hence, the score of this tree is 9 + 2 + 3 + 2 = 16.
+
+You are given the ints N, S, and MOD.
+There are N! permutations of the numbers 1 through N.
+Each of these permutations determines a Cartesian tree.
+Limak only likes trees that have a score that is less than or equal to S.
+Let X be the number of permutations of order N that produce such Cartesian trees.
+Compute and return the value (X modulo MOD).
+
+DEFINITION
+Class:BearPermutations
+Method:countPermutations
+Parameters:int, int, int
+Returns:int
+Method signature:int countPermutations(int N, int S, int MOD)
+
+
+NOTES
+-Pay attention to the unusual time limit.
+
+
+CONSTRAINTS
+-N will be between 1 and 100, inclusive.
+-S will be between 0 and 100, inclusive.
+-MOD will be between 3 and 10^9, inclusive.
+-MOD will be prime.
+
+
+EXAMPLES
+
+0)
+3
+1
+71876209
+
+Returns: 4
+
+For N=3 there are 3! = 6 distinct permutations.
+Four of these produce Cartesian trees with score 0.
+The remaining two are the permutations (2,1,3) and (3,1,2).
+Each of these produces a Cartesian tree with score 2.
+As we are only interested in trees with score at most 1, there are 4 good permutations.
+
+1)
+4
+0
+1000003
+
+Returns: 8
+
+
+
+2)
+4
+1
+483128897
+
+Returns: 8
+
+
+
+3)
+5
+3
+907283243
+
+Returns: 82
+
+Two of the 82 permutations that produce valid trees are the permutations (1,3,4,2,5) and (5,4,1,3,2).
+Each of these permutations produces a tree with score 3.
+
+4)
+5
+100
+101
+
+Returns: 19
+
+All 5! permutations produce valid trees. The answer is (5! modulo 101).
+
+5)
+20
+30
+3
+
+Returns: 2
+
+

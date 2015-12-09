@@ -29,10 +29,16 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   l p, k;
   while (cin >> p >> k) {
-    l w1;
+    if (k == 0) {
+      cout << pow_mod(p, p - 1, MOD) << endl;
+      continue;
+    }
+    if (k == 1) {
+      cout << pow_mod(p, p, MOD) << endl;
+      continue;
+    }
     vector<bool> bs(p);
-    // l pow = 0;
-    l t = 1;
+    l pow = 0;
     for (l i = 1; i < p; i++) {
       if (bs[i]) continue;
       l j = i;
@@ -42,14 +48,9 @@ int main() {
         bs[j] = true;
         j = (j * k) % p;
       }
-      if (i == 1) w1 = w;
-      if (pow_mod(k, w, p) == 1) {
-        t = (t * p) % MOD;
-      } else {
-        t = (t * 2) % MOD;
-      }
+      // if (pow_mod(k, w, p) == 1) pow++;
+      pow++;
     }
-    //cout << pow_mod(p, pow, MOD) << endl;
-    cout << t << endl;
+    cout << pow_mod(p, pow, MOD) << endl;
   }
 }
