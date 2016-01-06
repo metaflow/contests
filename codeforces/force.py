@@ -10,6 +10,7 @@ import random
 import webbrowser
 import subprocess
 from bs4 import BeautifulSoup
+from sets import Set
 
 ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
 ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
@@ -22,6 +23,8 @@ parser.add_argument('-r','--range', help='range - absolute or %', default='5%')
 parser.add_argument('--open', help='open problem', action='store_true')
 parser.add_argument('-c', '--contest', help='id of contest')
 parser.add_argument('-p', '--problem', help='index of problem')
+
+parser.add_argument('--experiment', action='store_true')
 
 args = parser.parse_args()
 
@@ -81,6 +84,26 @@ def openProblem(contestId, index):
   subprocess.call(["problem", index])
   subprocess.call(["date"])
   return
+
+# ------ main --------
+if (args.experiment):
+  problemset = json.loads(call('problemset.problems', {}))
+  problems = problemset['result']['problems']
+  stats = problemset['result']['problemStatistics']
+  problems = zip(problems, stats)
+  print len(problems), 'problems total'
+  count = 10
+  for p in problems:
+    info = p[0]
+    stats = p[1]
+    if not 'points' in info:
+      continue
+    print p[0]
+    print p[1]
+    count -= 1
+    if (count < 0):
+      break
+  exit(0)
 
 if (args.open):
   openProblem(args.contest, args.problem)
