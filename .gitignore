@@ -1,16 +1,3 @@
-# Ignore everything
+# Ignore files w/o extensions
 *
-# But not these files...
-!**.jnlp
-!**.cpp
-!**.cc
-!**.java
-!**.jar
-!**.in
-!**.in.out
-!**.txt
-!**.sample_out
-!*/
-!.gitignore
-!**.sh
-!**.sublime-snippet
+!*.*

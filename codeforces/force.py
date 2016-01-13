@@ -8,6 +8,7 @@ import os
 import argparse
 import random
 import webbrowser
+import sqlite3
 import subprocess
 from bs4 import BeautifulSoup
 from sets import Set
@@ -18,7 +19,7 @@ ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
 parser = argparse.ArgumentParser(description='Ladder')
 parser.add_argument('--random', action='store_true')
 parser.add_argument('-s','--solved', help='# of user solved')
-parser.add_argument('-r','--range', help='range - absolute or %', default='5%')
+parser.add_argument('-r','--range', help='range - absolute or %', default='2%')
 
 parser.add_argument('--open', help='open problem', action='store_true')
 parser.add_argument('-c', '--contest', help='id of contest')
@@ -27,6 +28,9 @@ parser.add_argument('-p', '--problem', help='index of problem')
 parser.add_argument('--experiment', action='store_true')
 
 args = parser.parse_args()
+# CREATE TABLE api_cache(url TEXT unique, response TEXT, updated INTEGER);
+db = sqlite3.connect('codeforces.db')
+db.text_factory = str
 
 def params(values):
   params = values.items()
@@ -40,26 +44,42 @@ def params(values):
       s = s + '&' + a
   return s
 
-def call(method, values):
+def api_call(method, values):
+  url = 'http://codeforces.com/api/' + method
+  key = url + params(values)
+  print key
+  cursor = db.cursor()
+  cursor.execute('''SELECT response FROM api_cache WHERE url=?''', (key,))
+  cached = cursor.fetchone()
+  if not cached is None:
+    print 'api call cached'
+    return cached[0]
+    # print 'cached', cached
+  rand = '123456'
   values['apiKey'] = ApiKey
   values['time'] = int(time.time())
-  url = 'http://codeforces.com/api/' + method
-  rand = '123456'
   hash = rand + '/' + method + params(values) + '#' + ApiSecret
   hash = hashlib.sha512(hash).hexdigest()
   while len(hash) < 128:
     hash = '0' + hash
   values['apiSig'] = rand + hash
+
   url += params(values)
   req = urllib2.Request(url)
   response = urllib2.urlopen(req)
-  return response.read()
+  s = response.read()
+  cursor.execute('''
+    INSERT INTO api_cache(url, response, updated) VALUES (?,?,?)
+    ''', (key, s, values['time']))
+  db.commit()
+  return s
 
 def problemUrl(contestId, index):
   return 'http://codeforces.com/contest/%s/problem/%s' % \
          (contestId, index)
 
 def openProblem(contestId, index):
+  return
   url = problemUrl(contestId, index)
   webbrowser.open(url)
   if not os.path.exists(contestId):
@@ -87,7 +107,7 @@ def openProblem(contestId, index):
 
 # ------ main --------
 if (args.experiment):
-  problemset = json.loads(call('problemset.problems', {}))
+  problemset = json.loads(api_call('problemset.problems', {}))
   problems = problemset['result']['problems']
   stats = problemset['result']['problemStatistics']
   problems = zip(problems, stats)
@@ -118,7 +138,7 @@ if (args.random):
   else:
     range = int(range)
   print 'searching for problem with %d +- %d solutions' % (solved, range)
-  problemset = json.loads(call('problemset.problems', {}))
+  problemset = json.loads(api_call('problemset.problems', {}))
   problems = problemset['result']['problems']
   stats = problemset['result']['problemStatistics']
   problems = zip(problems, stats)
