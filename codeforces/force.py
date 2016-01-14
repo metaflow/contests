@@ -29,6 +29,8 @@ parser.add_argument('--experiment', action='store_true')
 
 args = parser.parse_args()
 # CREATE TABLE api_cache(url TEXT unique, response TEXT, updated INTEGER);
+# CREATE TABLE problems ("contestId" TEXT, "problemId" TEXT, "rating" INTEGER, "solved" INTEGER )
+
 db = sqlite3.connect('codeforces.db')
 db.text_factory = str
 
@@ -114,9 +116,26 @@ def get_hangle_rating_after(handle, contestId):
       return latest
   return latest
 
-def analyze_contest(contest_id):
+def getProblemEntry(contestId, problemId):
+  return db.cursor()\
+    .execute('''SELECT * FROM problems WHERE contestId=? AND problemId=?''',
+      (contestId, problemId,))\
+    .fetchone()
+
+def knownProblem(contestId, problemId):
+  return (not getProblemEntry(contestId, problemId) is None)
+
+def updateProblemPoints(contestId, problemId, points):
+  cursor = db.cursor()
+  if knownProblem(contestId, problemId):
+    cursor.execute('''UPDATE problems SET rating=? WHERE contestId=? AND problemId=?''', (points, contestId, problemId))
+  else:
+    cursor.execute('''INSERT INTO problems (contestId, problemId, rating, solved) VALUES (?, ?, ?, 0)''', (contestId, problemId, points))
+  db.commit()
+
+def analyze_contest(contestId):
   standings = json.loads(api_call('contest.standings',
-    {'contestId': contest_id}))['result']
+    {'contestId': contestId}))['result']
   problems = standings['problems']
   ps = []
   n = len(problems)
@@ -137,10 +156,12 @@ def analyze_contest(contest_id):
     return
   k = len(standings['rows'])
   m = 0
-  print k, 'handles'
+  print k, 'handles (will take first 1000)'
   for r in standings['rows']:
     # print m, '/', k
     m += 1
+    if (m > 1000):
+      break
     handle = r['party']['members'][0]['handle']
     nothing = True
     for i in range(0, n):
@@ -148,7 +169,7 @@ def analyze_contest(contest_id):
         nothing = False
     if nothing:
       break
-    rating = get_hangle_rating_after(handle, contest_id)
+    rating = get_hangle_rating_after(handle, contestId)
     for i in range(0, n):
       if r['problemResults'][i]['points'] > 0:
         solved_by[i].append(rating)
@@ -161,12 +182,14 @@ def analyze_contest(contest_id):
       sum += j
     ps[i]['median'] = solved_by[i][len(solved_by[i]) / 2]
     ps[i]['average'] = sum / len(solved_by[i])
-  print ps
-    # for r in r['problemResults']:
-    #   if r['points'] > 0:
-
-    #   else:
-    #     print '-'
+    ps[i]['min'] = solved_by[i][0]
+  # print ps
+  for p in ps:
+    if 'average' in p:
+      print p['points'], p['average'], p['median'], p['min']
+      updateProblemPoints(p['contestId'], p['index'], p['average'])
+    else:
+      print p['points'], '-', '-', '-'
 
 # ------ main --------
 if (args.experiment):
