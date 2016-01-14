@@ -47,14 +47,14 @@ def params(values):
 def api_call(method, values):
   url = 'http://codeforces.com/api/' + method
   key = url + params(values)
-  print key
   cursor = db.cursor()
   cursor.execute('''SELECT response FROM api_cache WHERE url=?''', (key,))
   cached = cursor.fetchone()
   if not cached is None:
-    print 'api call cached'
+    # print 'api call cached'
     return cached[0]
     # print 'cached', cached
+  print key
   rand = '123456'
   values['apiKey'] = ApiKey
   values['time'] = int(time.time())
@@ -63,8 +63,8 @@ def api_call(method, values):
   while len(hash) < 128:
     hash = '0' + hash
   values['apiSig'] = rand + hash
-
   url += params(values)
+  time.sleep(0.3)
   req = urllib2.Request(url)
   response = urllib2.urlopen(req)
   s = response.read()
@@ -105,24 +105,78 @@ def openProblem(contestId, index):
   subprocess.call(["date"])
   return
 
+def get_hangle_rating_after(handle, contestId):
+  ratings = json.loads(api_call('user.rating', {'handle': handle}))['result']
+  latest = 0
+  for r in ratings:
+    latest = r['newRating']
+    if r['contestId'] == contestId:
+      return latest
+  return latest
+
+def analyze_contest(contest_id):
+  standings = json.loads(api_call('contest.standings',
+    {'contestId': contest_id}))['result']
+  problems = standings['problems']
+  ps = []
+  n = len(problems)
+  solved_by = []
+  bad = False
+  for p in problems:
+    if not 'points' in p:
+      bad = True
+      break
+    ps.append({
+      'index': p['index'],
+      'name': p['name'],
+      'contestId': p['contestId'],
+      'points': p['points']
+      })
+    solved_by.append([])
+  if bad:
+    return
+  k = len(standings['rows'])
+  m = 0
+  print k, 'handles'
+  for r in standings['rows']:
+    # print m, '/', k
+    m += 1
+    handle = r['party']['members'][0]['handle']
+    nothing = True
+    for i in range(0, n):
+      if r['problemResults'][i]['points'] > 0:
+        nothing = False
+    if nothing:
+      break
+    rating = get_hangle_rating_after(handle, contest_id)
+    for i in range(0, n):
+      if r['problemResults'][i]['points'] > 0:
+        solved_by[i].append(rating)
+  for i in range(0, n):
+    if len(solved_by[i]) == 0:
+      continue
+    solved_by[i].sort()
+    sum = 0
+    for j in solved_by[i]:
+      sum += j
+    ps[i]['median'] = solved_by[i][len(solved_by[i]) / 2]
+    ps[i]['average'] = sum / len(solved_by[i])
+  print ps
+    # for r in r['problemResults']:
+    #   if r['points'] > 0:
+
+    #   else:
+    #     print '-'
+
 # ------ main --------
 if (args.experiment):
-  problemset = json.loads(api_call('problemset.problems', {}))
-  problems = problemset['result']['problems']
-  stats = problemset['result']['problemStatistics']
-  problems = zip(problems, stats)
-  print len(problems), 'problems total'
-  count = 10
-  for p in problems:
-    info = p[0]
-    stats = p[1]
-    if not 'points' in info:
+  contests = json.loads(api_call('contest.list', {}))
+  for c in contests['result']:
+    if c['phase'] != "FINISHED":
       continue
-    print p[0]
-    print p[1]
-    count -= 1
-    if (count < 0):
-      break
+    print c['id'], c['name']
+    analyze_contest(c['id'])
+  # analyze_contest(615)
   exit(0)
 
 if (args.open):
