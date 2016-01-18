@@ -26,8 +26,10 @@ parser.add_argument('-c', '--contest', help='id of contest')
 parser.add_argument('-p', '--problem', help='index of problem')
 
 parser.add_argument('--experiment', action='store_true')
+parser.add_argument('--update-problems', action='store_true')
 
 args = parser.parse_args()
+# print args
 # CREATE TABLE api_cache(url TEXT unique, response TEXT, updated INTEGER);
 # CREATE TABLE problems ("contestId" TEXT, "problemId" TEXT, "rating" INTEGER, "solved" INTEGER )
 
@@ -81,7 +83,6 @@ def problemUrl(contestId, index):
          (contestId, index)
 
 def openProblem(contestId, index):
-  return
   url = problemUrl(contestId, index)
   webbrowser.open(url)
   if not os.path.exists(contestId):
@@ -192,7 +193,7 @@ def analyze_contest(contestId):
       print p['points'], '-', '-', '-'
 
 # ------ main --------
-if (args.experiment):
+if (args.update_problems):
   contests = json.loads(api_call('contest.list', {}))
   for c in contests['result']:
     if c['phase'] != "FINISHED":
@@ -214,31 +215,22 @@ if (args.random):
     range = int(range) * solved / 100
   else:
     range = int(range)
-  print 'searching for problem with %d +- %d solutions' % (solved, range)
-  problemset = json.loads(api_call('problemset.problems', {}))
-  problems = problemset['result']['problems']
-  stats = problemset['result']['problemStatistics']
-  problems = zip(problems, stats)
-
-  matched = []
-  alreadySolved = 0
+  print 'searching for problem with rating %d +- %d solutions' % (solved, range)
+  cursor = db.cursor()
+  cursor.execute('''SELECT contestId, problemId, rating FROM problems WHERE rating >= ? AND rating <= ? AND solved = 0''', (int(solved) - int(range),int(solved) + int(range)))
+  problems = cursor.fetchall()
+  random.shuffle(problems)
   for p in problems:
-    if (int(p[1]['solvedCount']) > int(solved) + int(range)) or \
-       (int(p[1]['solvedCount']) < int(solved) - int(range)):
-       continue
-    if not os.path.exists("%s/%s.cc" % (p[0]['contestId'], p[0]['index'])):
-      matched.append(p)
-    else:
-      alreadySolved += 1
-
-  if len(matched) == 0:
-    print 'nothing'
-    exit(1)
-
-  selected = matched[random.randint(0, len(matched) - 1)]
-  print '%d matched (%d already solved). %s %s solved by %d' % (
-    len(matched), alreadySolved,
-    selected[0]['contestId'], selected[0]['index'], selected[1]['solvedCount'])
-
-  openProblem(str(selected[0]['contestId']), str(selected[0]['index']))
-  exit(0)
+    contestId = p[0]
+    problemId = p[1]
+    rating = p[2]
+    if os.path.exists("%s/%s.cc" % (contestId, problemId)):
+      update = db.cursor()
+      update.execute('''UPDATE problems SET solved = 1 WHERE contestId = ? AND problemId = ?''', (contestId, problemId))
+      db.commit()
+      continue
+    print 'opening %s %s with rating %d' % (contestId, problemId, rating)
+    openProblem(contestId, problemId)
+    exit(0)
+  print 'no matched problems'
+  exit(1)
