@@ -17,11 +17,11 @@ ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
 ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
 
 parser = argparse.ArgumentParser(description='Ladder')
-parser.add_argument('--random', action='store_true')
-parser.add_argument('-s','--solved', help='# of user solved')
-parser.add_argument('-r','--range', help='range - absolute or %', default='2%')
+parser.add_argument('--ladder', action='store_true')
+parser.add_argument('-r','--rating', help='estimated rating')
+parser.add_argument('--range', help='rating range - absolute or %', default='2%')
 
-parser.add_argument('--open', help='open problem', action='store_true')
+parser.add_argument('--open', help='open specific problem', action='store_true')
 parser.add_argument('-c', '--contest', help='id of contest')
 parser.add_argument('-p', '--problem', help='index of problem')
 
@@ -29,6 +29,7 @@ parser.add_argument('--experiment', action='store_true')
 parser.add_argument('--update-problems', action='store_true')
 
 args = parser.parse_args()
+
 # print args
 # CREATE TABLE api_cache(url TEXT unique, response TEXT, updated INTEGER);
 # CREATE TABLE problems ("contestId" TEXT, "problemId" TEXT, "rating" INTEGER, "solved" INTEGER )
@@ -207,8 +208,8 @@ if (args.open):
   openProblem(args.contest, args.problem)
   exit(0)
 
-if (args.random):
-  solved = int(args.solved)
+if (args.ladder):
+  solved = int(args.rating)
   range = args.range
   if '%' in str(range):
     range = range[:range.find('%')]
@@ -234,3 +235,5 @@ if (args.random):
     exit(0)
   print 'no matched problems'
   exit(1)
+
+parser.print_usage()
