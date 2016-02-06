@@ -31,9 +31,6 @@ int main() {
     graph g(n);
     for (auto &u : g) {
       u = make_shared<node>();
-      u->visited = false;
-      u->letter = 'q';
-      u->same = 0;
     }
     for (l i = 0; i < m; i++) {
       l a, b; cin >> a >> b; a--; b--;
@@ -58,15 +55,16 @@ int main() {
       q.emplace(u);
       l marked = 0;
       u->visited = true;
+      u->letter = x;
+      marked++;
       while (!q.empty()) {
         auto v = q.front(); q.pop();
-        v->letter = x;
-        marked++;
         for (auto r : v->adjusted) {
-          if (r->letter == v->letter) v->same++;
+          if (!r->visited || r->letter == v->letter) v->same++;
           if (r->visited) continue;
           r->visited = true;
-          v->same++;
+          r->letter = x;
+          marked++;
           q.emplace(r);
         }
       }

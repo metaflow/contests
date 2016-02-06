@@ -39,40 +39,59 @@ vl factorize_to_primes(vl& primes, l n) {
   return factors;
 }
 
+l penalty(l x, l p, l b) {
+  if (x == 0) return 0;
+  if (x == 1 || x == p - 1) return b;
+  return -1;
+}
+
 l cost(vl& v, l p, l a, l b) {
   l sa = 0, sb = 0;
-  l remove_from = 1;
+  l remove_from = 0;
+  l best_sa = 0;
   l total = 0;
   for (l i = 1; i < v.size(); i++) {
-    sa += a;
-    l x = v[i] % p;
-    if ((x == 1) || (x == p - 1)) {
-      sb += b;
-    } else if (x != 0) {
+    l x = penalty(v[i] % p, p, b);
+    total += x;
+    if (x < 0) {
+      remove_from = i;
       break;
     }
-    if (sb <= sa) {
-      total += sb;
-      sb = 0; sa = 0; remove_from = i + 1;
-    }
+    sa += x - a;
+    best_sa = max(best_sa, sa);
+    sa = max(0LL, sa);
   }
-  sa = 0; sb = 0;
-  l remove_to = v.size() - 1;
-  for (l i = v.size() - 1; i >= remove_from; i--) {
-    sa += a;
-    l x = v[i] % p;
-    if ((x == 1) || (x == p - 1)) {
-      sb += b;
-    } else if (x != 0) {
-      break;
+  if (remove_from) {
+    l remove_to = 0;
+    for (l i = v.size() - 1; i >= remove_from; i--) {
+      l x = penalty(v[i] % p, p, b);
+      if (x < 0) {
+        remove_to = i;
+        break;
+      }
     }
-    if (sb <= sa) {
-      total += sb;
-      sb = 0; sa = 0; remove_to = i - 1;
+    total = (remove_to - remove_from + 1) * a;
+    sa = 0; sb = 0; l t = 0;
+    for (l i = remove_from - 1; i > 0; i--) {
+      l x = penalty(v[i] % p, p, b);
+      total += x;
+      sb += x;
+      sa += a;
+      t = max(sb - sa, t);
     }
+    total -= t;
+    sa = sb = t = 0;
+    for (l i = remove_to + 1; i < v.size() - 1; i++) {
+      l x = penalty(v[i] % p, p, b);
+      total += x;
+      sb += x;
+      sa += a;
+      t = max(sb - sa, t);
+    }
+    total -= t;
+  } else {
+    total -= best_sa;
   }
-  cerr << p << ": " << remove_from << ".." << remove_to << endl;
-  if (remove_from <= remove_to) total += (remove_to - remove_from + 1) * a;
   return total;
 }
 
