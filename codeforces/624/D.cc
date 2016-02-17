@@ -46,7 +46,7 @@ l penalty(l x, l p, l b) {
 }
 
 l cost(vl& v, l p, l a, l b) {
-  l sa = 0, sb = 0;
+  l sa = 0;
   l remove_from = 0;
   l best_sa = 0;
   l total = 0;
@@ -71,22 +71,21 @@ l cost(vl& v, l p, l a, l b) {
       }
     }
     total = (remove_to - remove_from + 1) * a;
-    sa = 0; sb = 0; l t = 0;
+    sa = 0;
+    l t = 0;
     for (l i = remove_from - 1; i > 0; i--) {
       l x = penalty(v[i] % p, p, b);
       total += x;
-      sb += x;
-      sa += a;
-      t = max(sb - sa, t);
+      sa += x - a;
+      t = max(sa, t);
     }
     total -= t;
-    sa = sb = t = 0;
-    for (l i = remove_to + 1; i < v.size() - 1; i++) {
+    sa = t = 0;
+    for (l i = remove_to + 1; i < v.size(); i++) {
       l x = penalty(v[i] % p, p, b);
       total += x;
-      sb += x;
-      sa += a;
-      t = max(sb - sa, t);
+      sa += x - a;
+      t = max(sa, t);
     }
     total -= t;
   } else {
@@ -102,7 +101,7 @@ int main() {
   while (cin >> n >> a >> b) {
     vl v(n);
     l best_cost = (n - 1) * a;
-    cerr << "---" << endl;
+    // cerr << "---" << endl;
     for (l i = 0; i < n; i++) cin >> v[i];
     for (l j = -1; j <= 1; j++) {
       auto f = factorize_to_primes(primes, v[0] + j);
@@ -112,7 +111,7 @@ int main() {
       }
     }
     reverse(v.begin(), v.end());
-    cerr << "---" << endl;
+    // cerr << "---" << endl;
     for (l j = -1; j <= 1; j++) {
       auto f = factorize_to_primes(primes, v[0] + j);
       for (auto p : f) {
