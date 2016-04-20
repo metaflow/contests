@@ -12,84 +12,80 @@ const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
-struct node;
-
-using pnode = shared_ptr<node>;
-using graph = vector<pnode>;
-
 l T = 0;
 
 struct node {
   l state = 0;
   l time = 0;
-  l id;
-  vector<pnode> adjusted;
+  vector<size_t> adjusted;
   vector<bool> edge_color;
 };
 
-vl fill(pnode change, bool color, graph& g, bool& bad) {
+using graph = vector<node>;
+
+vl fill(size_t change, bool color, graph& g, bool& bad, vl& affected) {
   T++;
   vl result;
-  if (change->state != 0) {
+  if (g[change].state != 0) {
     bad = true;
     return result;
   }
-  change->time = T;
-  change->state = 1;
-  queue<pnode> q;
+  affected.emplace_back(change);
+  g[change].time = T;
+  g[change].state = 1;
+  queue<size_t> q;
   q.emplace(change);
   while (!q.empty()) {
-    auto u = q.front(); q.pop();
-    for (l i = 0; i < l(u->adjusted.size()); i++) {
-      auto v = u->adjusted[i];
-      auto c = u->edge_color[i];
-      l t = u->state;
+    auto& u = g[q.front()]; q.pop();
+    l size = u.adjusted.size();
+    for (l i = 0; i < size; i++) {
+      auto v = u.adjusted[i];
+      auto c = u.edge_color[i];
+      l t = u.state;
       if (c != color) t = -t;
-      if (v->state == 0) {
-        v->state = t;
-        v->time = T;
+      if (g[v].state == 0) {
+        affected.emplace_back(v);
+        g[v].state = t;
+        g[v].time = T;
         q.emplace(v);
         continue;
       }
-      if (v->state != t) {
+      if (g[v].state != t) {
         bad = true;
         return result;
       }
     }
   }
-  for (auto u : g) {
-    if (u->time == T && u->state == 1) result.emplace_back(u->id);
-  }
+  for (auto j : affected) if (g[j].state == 1) result.emplace_back(j);
   return result;
-}
-
-void clean(graph& g) {
-  for (auto u : g) if (u->time == T) u->state = 0;
 }
 
 vl try_color(graph& g, bool color) {
   vl result;
-  for (auto& u : g) u->state = 0;
-  for (auto u : g) {
-    if (u->state != 0) continue;
-    for (l i = 0; i < l(u->adjusted.size()); i++) {
-      if (u->edge_color[i] == color) continue;
-
+  for (auto& u : g) u.state = 0;
+  auto n = g.size();
+  for (size_t u = 0; u < n; u++) {
+    if (g[u].state != 0) continue;
+    l size = g[u].adjusted.size();
+    for (l i = 0; i < size; i++) {
+      if (g[u].edge_color[i] == color) continue;
       bool bad = false;
-      auto self = fill(u, color, g, bad);
-      clean(g);
+      vl affected;
+      auto self = fill(u, color, g, bad, affected);
+      for (auto j : affected) g[j].state = 0;
       if (bad) while (self.size() <= g.size()) self.emplace_back(0);
-
+      affected.clear();
       bad = false;
-      auto other = fill(u->adjusted[i], color, g, bad);
+      auto other = fill(g[u].adjusted[i], color, g, bad, affected);
       if (bad) while (other.size() <= g.size()) other.emplace_back(0);
 
       if (self.size() >= other.size()) {
         swap(self, other);
       } else {
-        clean(g);
-        fill(u, color, g, bad);
+        for (auto j : affected) g[j].state = 0;
+        fill(u, color, g, bad, affected);
       }
+
       for (auto i : self) {
         result.emplace_back(i);
       }
@@ -105,18 +101,14 @@ int main() {
   l n, m;
   while (cin >> n >> m) {
     graph g(n);
-    for (l i = 0; i < n; i++) {
-      g[i] = make_shared<node>();
-      g[i]->id = i;
-    }
     for (l i = 0; i < m; i++) {
       l a, b; char c;
       cin >> a >> b >> c; a--; b--;
       bool color = c == 'R';
-      g[a]->adjusted.emplace_back(g[b]);
-      g[a]->edge_color.emplace_back(color);
-      g[b]->adjusted.emplace_back(g[a]);
-      g[b]->edge_color.emplace_back(color);
+      g[a].adjusted.emplace_back(b);
+      g[a].edge_color.emplace_back(color);
+      g[b].adjusted.emplace_back(a);
+      g[b].edge_color.emplace_back(color);
     }
     auto red = try_color(g, true);
     auto blue = try_color(g, false);
@@ -125,14 +117,11 @@ int main() {
       cout << "-1" << endl;
     } else {
       cout << red.size() << endl;
-      if (red.size()) {
-        for (l i = 0; i < l(red.size()); i++) {
-          if (i) cout << " ";
-          cout << (red[i] + 1);
-        }
-        cout << endl;
+      for (l i = 0; i < l(red.size()); i++) {
+        if (i) cout << " ";
+        cout << (red[i] + 1);
       }
-
+      cout << endl;
     }
   }
 }
