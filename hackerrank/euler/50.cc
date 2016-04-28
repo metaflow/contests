@@ -34,20 +34,57 @@ bool is_prime(vl& primes, l n) {
   return true;
 }
 
+l get_seq_at(vl& seq, size_t at, l n, vl& primes) {
+  while (seq.size() <= at) {
+    l x = seq.empty() ? n : seq.back() - 1;
+    if (x % 2 == 0 && x != 2) x--;
+    while (!is_prime(primes, x) && x > 1) x -= 2;
+    assert(x > 1);
+    seq.push_back(x);
+  }
+  return seq[at];
+}
+
+ll solve(l n, vl& primes, vl& sum) {
+  vl seq;
+  l best = 0;
+  l best_x = 0;
+  l right = 0;
+  l size = sum.size();
+  for (l left = 0; left < size; left++) {
+    cerr << left << endl;
+    size_t i = 0;
+    l x = get_seq_at(seq, i, n, primes);
+    while (sum[right] - sum[left] < x) right++;
+    if (right - left <= best) break;
+    while (true) {
+      while (sum[right] - sum[left] > x) right--;
+      assert(right > left);
+      if (right - left <= best) break;
+      if (sum[right] - sum[left] == x) {
+        if (right - left > best) {
+          best = right - left;
+          best_x = x;
+        }
+        break;
+      }
+      i++;
+      x = get_seq_at(seq, i, n, primes);
+    }
+  }
+  // cout << seq.size() << endl;
+  return make_pair(best_x, best);
+}
+
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   vl primes = sieve_primes();
   vl sum(primes.size() + 1);
-  l m = 0;
-  l non_primes = 0, small_non_primes = 0, matches = 0;
-  for (l i = 1; i < sum.size(); i++) sum[i] = sum[i - 1] + primes[i - 1];
-  cout << sum[22] << endl;
+  for (size_t i = 1; i < sum.size(); i++) sum[i] = sum[i - 1] + primes[i - 1];
   l T; cin >> T;
   while (T--) {
     l n; cin >> n;
-    auto p = lower_bound(sum.begin(), sum.end(), n);
-    if (*p > n) p--;
-    while (!is_prime(primes, *p)) p--;
-    cout << *p << " " << std::distance(sum.begin(), p) << endl;
+    auto s = solve(n, primes, sum);
+    cout << s.first << " " << s.second << endl;
   }
 }
