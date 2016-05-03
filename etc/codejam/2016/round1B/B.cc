@@ -14,78 +14,66 @@ const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  l tcc; cin >> tcc;
-  for (l tc = 1; tc <= tcc; tc++) {
+  l T; cin >> T;
+  for (l tc = 1; tc <= T; tc++) {
     cout << "Case #" << tc << ": ";
-    string a, b; cin >> a >> b;
-    l ma = -1, mb = -1;
-    l n = a.size();
-    for (l i = 0; i < n; i++) if (a[i] != '?') { ma = i - 1; break; }
-    for (l i = 0; i < n; i++) if (b[i] != '?') { mb = i - 1; break; }
-    ma = min(ma, mb);
-    l best_a = 0, best_b = 0;
-    string best_as, best_bs;
-    for (l t = 0; t < 5; t++) {
-      auto ta = a;
-      auto tb = b;
-      for (l i = 0; i <= ma; i++) ta[i] = tb[i] = '0';
-      if (ma > -1) {
-        if (t == 1) ta[ma] = '1';
-        if (t == 2) tb[ma] = '1';
-      }
+    string x, y; cin >> x >> y;
+    l n = x.size();
+    l best = -1, best_a = 0, best_b = 0;
+    string answer_x, answer_y;
+    for (l turn = 0; turn <= n * 2; turn++) {
+      l expected_sign = 0;
+      l pos = (turn - 1) / 2;
       l sign = 0;
+      if (turn) expected_sign = 2 * (turn % 2) - 1;
+      string a = x;
+      string b = y;
       for (l i = 0; i < n; i++) {
-        if (ta[i] == '?' && tb[i] == '?') {
-          if (sign < 0) {
-            ta[i] = '9';
-            tb[i] = '0';
-          } else if (sign > 0) {
-            ta[i] = '0';
-            tb[i] = '9';
-          } else {
-            ta[i] = tb[i] = '0';
-          }
-        } else if (ta[i] == '?') {
-          if (sign < 0) {
-            ta[i] = '9';
-          } else if (sign > 0) {
-            ta[i] = '0';
-          } else {
-            ta[i] = tb[i];
-            if ((t == 1 || t == 3) && tb[i] != '9') ta[i] = tb[i] + 1;
-            if ((t == 2 || t == 4) && tb[i] != '0') ta[i] = tb[i] - 1;
-          }
-        } else if (tb[i] == '?') {
-          if (sign < 0) {
-            tb[i] = '0';
-          } else if (sign > 0) {
-            tb[i] = '9';
-          } else {
-            tb[i] = ta[i];
-            if ((t == 1 || t == 3) && ta[i] != '0') tb[i] = ta[i] - 1;
-            if ((t == 2 || t == 4) && ta[i] != '9') tb[i] = ta[i] + 1;
-          }
+        if (i > 0 && sign == 0 && a[i - 1] != b[i - 1]) {
+          sign = (a[i - 1] < b[i - 1]) ? -1 : 1;
         }
-        if (sign != 0 || ta[i] == tb[i]) continue;
-        if (ta[i] < tb[i]) {
-          sign = -1;
-        } else {
-          sign = 1;
+        if (a[i] != '?' && b[i] != '?') continue;
+        bool trial = (pos == i) && (expected_sign != 0);
+        if (a[i] == '?' && b[i] == '?') {
+          a[i] = b[i] = '0';
+          if (sign == 1) { b[i] = '9'; continue; }
+          if (sign == -1) { a[i] = '9'; continue; }
+          if (!trial) continue;
+          if (expected_sign == 1) { a[i] = '1'; } else { b[i] = '1'; }
+          continue;
         }
+        if (a[i] == '?') {
+          if (sign == 1) { a[i] = '0'; continue; }
+          if (sign == -1) { a[i] = '9'; continue; }
+          a[i] = b[i];
+          if (!trial) continue;
+          if (expected_sign == 1 && b[i] != '9') a[i] = b[i] + 1;
+          if (expected_sign == -1 && b[i] != '0') a[i] = b[i] - 1;
+          continue;
+        }
+        if (sign == 1) { b[i] = '9'; continue; }
+        if (sign == -1) { b[i] = '0'; continue; }
+        b[i] = a[i];
+        if (!trial) continue;
+        if (expected_sign == 1 && a[i] != '0') b[i] = a[i] - 1;
+        if (expected_sign == -1 && a[i] != '9') b[i] = a[i] + 1;
       }
-      l x = stol(ta);
-      l y = stol(tb);
-      bool eq = abs(x - y) == abs(best_a - best_b);
-      if (t == 0 ||
-          (abs(x - y) < abs(best_a - best_b)) ||
-          (eq && (best_a > x)) ||
-          (eq && (best_a == x && best_b > y))) {
-        best_as = ta;
-        best_bs = tb;
-        best_a = x;
-        best_b = y;
+      auto va = stol(a);
+      auto vb = stol(b);
+      l d = abs(va - vb);
+      bool take = true;
+      if (best != -1 && d > best) take = false;
+      if (d == best) {
+        if (va > best_a) take = false;
+        if (va == best_a && vb > best_b) take = false;
       }
+      if (!take) continue;
+      best = d;
+      best_a = va;
+      best_b = vb;
+      answer_x = a;
+      answer_y = b;
     }
-    cout << best_as << ' ' << best_bs << endl;
+    cout << answer_x << " " << answer_y << endl;
   }
 }

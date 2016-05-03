@@ -39,7 +39,7 @@ bool solve(vl& chars, vl& solution, int number) {
 }
 
 vl get_mask(string s) {
-  vl result(30);
+  vl result(MAX);
   for (auto c : s) result[c - 'A']++;
   return result;
 }
@@ -48,26 +48,40 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   l tcc;
   cin >> tcc;
-  masks[0] = get_mask("ZERO");
-  masks[1] = get_mask("ONE");
-  masks[2] = get_mask("TWO");
-  masks[3] = get_mask("THREE");
-  masks[4] = get_mask("FOUR");
-  masks[5] = get_mask("FIVE");
-  masks[6] = get_mask("SIX");
-  masks[7] = get_mask("SEVEN");
-  masks[8] = get_mask("EIGHT");
-  masks[9] = get_mask("NINE");
+  struct {
+    string value;
+    char mark;
+    int digit;
+  } traits[] = {
+    {"ZERO", 'Z', 0},
+    {"TWO", 'W', 2},
+    {"FOUR", 'U', 4},
+    {"SIX", 'X', 6},
+    {"FIVE", 'F', 5},
+    {"SEVEN", 'V', 7},
+    {"EIGHT", 'G', 8},
+    {"NINE", 'I', 9},
+    {"THREE", 'R', 3},
+    {"ONE", 'N', 1},
+  };
+
   for (l tc = 0; tc < tcc; tc++) {
-    cerr << "." << endl;
     cout << "Case #" << (tc + 1) << ": ";
-    string s;
-    cin >> s;
-    vl C = get_mask(s);
-    vl solution(10);
-    solve(C, solution, 0);
+    string s; cin >> s;
+    auto ms = get_mask(s);
+    vl counts(10);
+    for (auto t : traits) {
+      l c = ms[t.mark - 'A'];
+      auto m = get_mask(t.value);
+      for (l j = 0; j < MAX; j++) {
+        ms[j] -= m[j] * c;
+      }
+      counts[t.digit] = c;
+    }
     for (l i = 0; i < 10; i++) {
-      for (l j = 0; j < solution[i]; j++) cout << i;
+      for (l j = 0; j < counts[i]; j++) {
+        cout << i;
+      }
     }
     cout << endl;
   }
