@@ -59,44 +59,42 @@ vector<tuple<l,l,l>> solve_brute(l J, l P, l S, l K) {
 }
 
 vector<tuple<l,l,l>> solve(l J, l P, l S, l K) {
-  vvl jp(J, vl(P));
-  vvl ps(P, vl(S));
-  vvl js(J, vl(S));
   vector<tuple<l,l,l>> solution;
   for (l j = 0; j < J; j++)
-  for (l p = 0; p < P; p++) {
-    for (l s = 0; s < S && jp[j][p] < K; s++) {
-      if (ps[p][s] < K && js[j][s] < K) {
-        jp[j][p]++;
-        ps[p][s]++;
-        js[j][s]++;
-        solution.emplace_back(j + 1, p + 1, s + 1);
-      }
-    }
+  for (l p = 0; p < P; p++)
+  for (l s = 0; s < S; s++)
+  if ((j + p + s) % S < K) {
+    solution.emplace_back(j + 1, p + 1, s + 1);
   }
   return solution;
 }
 
 int main() {
-  ios_base::sync_with_stdio(false); cin.tie(0);
+  ios_base::sync_with_stdio(false); cin.tie(0);/*
   for (l J = 1; J <= 3; J++)
   for (l P = J; P <= 3; P++)
   for (l S = P; S <= 3; S++)
-  for (l K = 1; K <= 10; K++) {
+  for (l K = 1; K <= S + 1; K++) {
     auto a = solve_brute(J, P, S, K);
     auto b = solve(J, P, S, K);
+    cout << J << " " << P << " " << S << " " << K << endl;
     if (a.size() != b.size()) {
-      cout << J << " " << P << " " << S << " " << K << endl;
       cout << a.size() << " != " << b.size() << endl;
       return 0;
     }
   }
   cout << "OK" << endl;
-  return 0;
-  /*l tcc; cin >> tcc;
+  return 0;*/
+  l tcc; cin >> tcc;
   for (l tc = 1; tc <= tcc; tc++) {
+    l J, P, S, K;
     cin >> J >> P >> S >> K;
-    cout << "Case #" << tc << ": ";
-    auto solution = solve(J, P, S, K);
-  }*/
+    cout << "Case #" << tc << ": " << (J * P * min(S, K)) << endl;
+      for (l j = 0; j < J; j++)
+      for (l p = 0; p < P; p++)
+      for (l s = 0; s < S; s++)
+      if ((j + p + s) % S < K) {
+        cout << (j + 1) << " " << (p + 1) << " " << (s + 1) << endl;
+      }
+  }
 }
