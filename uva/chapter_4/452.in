@@ -1,0 +1,23 @@
+4
+
+A 5
+B 3 A
+D 2 A
+C 2 B
+F 2 CE
+E 4 DC
+
+A 5
+B 3 A
+D 2 A
+C 2 B
+F 2 CE
+E 4 DC
+
+A 1
+B 3
+
+A 1 B
+A 1 C
+B 2
+C 1

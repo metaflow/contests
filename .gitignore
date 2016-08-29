@@ -3,3 +3,18 @@
 !*.*
 !*/
 codeforces/codeforces.db
+*.o
+
+# Ignore everything
+*
+
+# But not these files...
+# !**.cpp
+# !**.cc
+# !**.out
+# !**.in
+# !**.java
+# !**.iml
+# !**.sample_out
+# !*/
+# !.gitignore
