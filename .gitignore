@@ -4,6 +4,7 @@
 !*/
 codeforces/codeforces.db
 *.o
+.c9
 
 # Ignore everything
 #*
