@@ -19,9 +19,11 @@ int main() {
     string s; cin >> s;
     l h = stol(s.substr(0, 2).c_str());
     l m = stol(s.substr(3, 2).c_str());
-    if (m == 0) h--;
-    h  = (23 - h) % 12 + 1;
-    m = 60 - m;
+    h = 12 - h;
+    if (m != 0) h--;
+    h = (h + 12) % 12;
+    if (!h) h = 12;
+    m = (60 - m) % 60;
     cout << setw(2) << setfill('0') << h << ":" << setw(2) << m << endl;
   }
 }
