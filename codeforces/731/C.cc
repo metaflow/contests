@@ -12,8 +12,14 @@ const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
-bool enable_log = false;
-#define log !(enable_log) ? cerr : cerr
+#define ONLINE_JUDGE
+#if defined ONLINE_JUDGE
+const bool enable_log = false;
+#else
+const bool enable_log = true;
+#endif
+struct VoidStream { void operator&(std::ostream&) { } };
+#define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
 struct node {
   l color;
@@ -32,14 +38,14 @@ l non_majority_size(l u, vector<node>& g, const l k) {
     auto v = q.front(); q.pop();
     total++;
     majority = max(majority, ++colors[g[v].color]);
-    !(enable_log) ? cerr : cerr << "c " << colors[g[v].color] << " " << g[v].color << endl;
+    LOG << "c " << colors[g[v].color] << " " << g[v].color << endl;
     for (auto t : g[v].adjusted) {
       if (g[t].visited) continue;
       g[t].visited = true;
       q.emplace(t);
     }
   }
-  log << total << " - " << majority << endl;
+  LOG << total << " - " << majority << endl;
   return total - majority;
 }
 

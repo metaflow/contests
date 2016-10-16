@@ -12,6 +12,15 @@ const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
+#define ONLINE_JUDGE
+#if defined ONLINE_JUDGE
+const bool enable_log = false;
+#else
+const bool enable_log = true;
+#endif
+struct VoidStream { void operator&(std::ostream&) { } };
+#define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
+
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
 
