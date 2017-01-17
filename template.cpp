@@ -1,9 +1,4 @@
-#include <vector>
-#include <limits>
-#include <algorithm>
-#include <iostream>
-#include <map>
-#include <string>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -18,7 +13,7 @@ const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
 const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
-#define ONLINE_JUDGE
+// #define ONLINE_JUDGE
 #if defined ONLINE_JUDGE
 const bool enable_log = false;
 #else
