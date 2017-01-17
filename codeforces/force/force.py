@@ -130,8 +130,8 @@ def openProblem(contestId, index):
                 for i in s[1].find('pre').strings:
                     out_file.write(str(i).strip())
                     out_file.write('\n')
-    # subprocess.call(["problem", index])
-    # subprocess.call(["date"])
+    subprocess.call(["C:\\Program Files\\Git\\bin\\bash.exe", '-c', '/c/Users/mgoncharov/etc/contests/problem.sh %s' % (index)])
+    subprocess.call(["date"])
 
 
 def now():
