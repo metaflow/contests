@@ -171,7 +171,7 @@ int SplayTree::min() {
     Node *t = root;
     if (!t) return 0;
     while (t->left) t = t->left;
-    return t->key; //TODO
+    return t->key;
 }
 
 void SplayTree::delete_subtree(Node *x) {

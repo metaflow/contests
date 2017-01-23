@@ -105,7 +105,7 @@ int main() {
     }
     for (l i = 0; i < n; i++) {
       for (l j = 0; j < n; j++) {
-        if (i == j) continue; // TODO remove
+        if (i == j) continue;
         l dx = in[i]->x - in[j]->x;
         l dy = in[i]->y - in[j]->y;
         if (dx * dx + dy * dy > dd) continue;

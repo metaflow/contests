@@ -102,7 +102,7 @@ int main() {
     }
     sort(R.begin(), R.end());
     sort(L.begin(), L.end());
-    // TODO there are at most 250^4 ~= 4e9 possible different states at most
+    // there are at most 250^4 ~= 4e9 possible different states at most
     // so it's feasible to cover some of them + prunning ~0.1%
     best = DINF;
     vb r_cached(R.size()), l_cached(L.size());

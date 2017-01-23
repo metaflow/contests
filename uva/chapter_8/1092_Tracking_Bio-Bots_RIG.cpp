@@ -46,7 +46,7 @@ int main() {
         x++;
       }
     }
-    // TODO actually we end up with less then w walls
+    // actually we end up with less then w walls
     // and walls never stick to each other horisontally
     printf("%d %d %lu\n", m, n, walls.size());
     for (auto ww : walls) {
