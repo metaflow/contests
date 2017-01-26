@@ -17,15 +17,15 @@ from bs4 import BeautifulSoup
 
 ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
 ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
+handle = 'mgoncharov'
 
 parser = argparse.ArgumentParser(description='Ladder')
-parser.add_argument('--ladder', action='store_true')
-parser.add_argument('-r', '--rating', help='estimated rating')
+# parser.add_argument('--', help())
+parser.add_argument('-r', '--rating', help='estimated rating, 0 for current value, + - to increase or decrease')
+parser.add_argument('-n', '--next', help='next problem of your estimated rating', action='store_true')
 parser.add_argument('--range', help='rating range - absolute or %', default='2%')
 parser.add_argument('--tag', help='problem tag')
-
 parser.add_argument('--open', help='open specific problem e.g. `500/A`')
-
 parser.add_argument('--update-problems', action='store_true')
 parser.add_argument('--list-tags', action='store_true')
 
@@ -41,6 +41,7 @@ db.cursor().execute('CREATE TABLE IF NOT EXISTS `problem` ( `contest_id` TEXT, `
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `tag` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL UNIQUE )')
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `problem_tag` ( `problem_id` INTEGER NOT NULL, `tag_id` INTEGER NOT NULL, FOREIGN KEY(`problem_id`) REFERENCES problem, FOREIGN KEY(`tag_id`) REFERENCES tag )')
 db.cursor().execute('CREATE UNIQUE INDEX IF NOT EXISTS `unique_cache_url` ON `api_cache` (`url` ASC)')
+db.cursor().execute('CREATE TABLE IF NOT EXISTS `user` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `rating` INTEGER, `handle` TEXT UNIQUE )')
 
 
 def params(values):
@@ -299,12 +300,30 @@ def analyzeContest(contestId):
         db.cursor().execute('''
         UPDATE `problem` SET `rating`=? WHERE `id`=?
         ''', (rating, problemId))
+        # committed later
 
 
 def listTags():
     rows = db.cursor().execute('SELECT `name` FROM `tag` ORDER BY `name`').fetchall()
     for r in rows:
         print(r[0])
+
+def getUserId(handle):
+    row = db.cursor().execute('SELECT `id` FROM `user` WHERE `handle`=?', (handle,)).fetchone()
+    if row:
+        return row[0]
+    id = db.cursor().execute('INSERT INTO `user` (`rating`, `handle`) VALUES(?, ?)', (1300, handle)).lastrowid
+    db.commit()
+    return id
+
+def getUserRating(handle):
+    id = getUserId(handle)
+    return db.cursor().execute('SELECT `rating` FROM `user` WHERE `id`=?', (id,)).fetchone()[0]
+
+def setUserRating(handle, rating):
+    id = getUserId(handle)
+    db.cursor().execute('UPDATE `user` SET `rating`=? WHERE `id`=?', (rating, id, ))
+    db.commit()
 
 def main():
     if (args.update_problems):
@@ -319,8 +338,20 @@ def main():
         openProblem(parts[0], parts[1])
         exit(0)
 
-    if (args.ladder):
-        selectBestProblem()
+    if (args.rating):
+        diff = 0
+        for c in args.rating:
+            if c == '-':
+                diff -= 20
+            if c == '+':
+                diff += 20
+        r = getUserRating(handle)
+        setUserRating(handle, r + diff)
+        print('rating is %d (%s%d)' % (r + diff, ('+' if (diff >= 0) else ''), diff))
+        exit(0)
+
+    if (args.next):
+        selectBestProblem(getUserRating(handle))
         exit(0)
 
     if (args.list_tags):
@@ -333,18 +364,17 @@ def isAlredySolved(contestId, problemIndex):
     return os.path.exists("%s/%s.cc" % (contestId, problemIndex)) or os.path.exists("%s/%s.cpp" % (contestId, problemIndex))
 
 
-def selectBestProblem():
-    solved = int(args.rating)
+def selectBestProblem(rating):
     range = args.range
     if '%' in str(range):
         range = range[:range.find('%')]
-        range = int(range) * solved / 100
+        range = int(range) * rating / 100
     else:
         range = int(range)
-    print('searching for problem with rating %d +- %d' % (solved, range))
+    print('searching for problem with rating %d +- %d' % (rating, range))
     query = '''SELECT p.`id`, `contest_id`, `problem_index`, `rating` FROM `problem` p '''
     where = '''WHERE (rating >= ?) AND (rating <= ?) AND (solved = 0) '''
-    query_args = [solved - range, solved + range, ]
+    query_args = [rating - range, rating + range, ]
     if args.tag:
         print('and tag "%s"' % (args.tag, ))
         query += 'JOIN `problem_tag` pt ON (pt.problem_id=p.id) JOIN tag t ON (t.id=pt.tag_id) '

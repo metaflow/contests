@@ -22,6 +22,6 @@ int main() {
         if (s.find(a, i + 1) != string::npos) best = max(best, j);
       }
     }
-    cout << best << endl;
+    cout << best << "\n";
   }
 }
