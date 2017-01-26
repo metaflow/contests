@@ -5,6 +5,7 @@
 codeforces/codeforces.db
 *.o
 .c9
+*.exe
 
 # Ignore everything
 #*
