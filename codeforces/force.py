@@ -1,4 +1,4 @@
-#!/usr/bin/python
+
 import time
 import urllib
 import urllib.parse
@@ -37,11 +37,14 @@ db = sqlite3.connect('codeforces.db')
 db.text_factory = str
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `api_cache` (url TEXT unique, response TEXT, updated INTEGER)')
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `contest` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL UNIQUE )')
-db.cursor().execute('CREATE TABLE IF NOT EXISTS `problem` ( `contest_id` TEXT, `problem_index` TEXT, `rating` INTEGER DEFAULT null, `solved` INTEGER NOT NULL DEFAULT 0, `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `points` INTEGER )')
+db.cursor().execute('''CREATE TABLE IF NOT EXISTS `problem` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `contest_id` TEXT,
+`problem_index` TEXT, `rating` INTEGER DEFAULT null,
+`points` INTEGER )''')
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `tag` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL UNIQUE )')
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `problem_tag` ( `problem_id` INTEGER NOT NULL, `tag_id` INTEGER NOT NULL, FOREIGN KEY(`problem_id`) REFERENCES problem, FOREIGN KEY(`tag_id`) REFERENCES tag )')
 db.cursor().execute('CREATE UNIQUE INDEX IF NOT EXISTS `unique_cache_url` ON `api_cache` (`url` ASC)')
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `user` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `rating` INTEGER, `handle` TEXT UNIQUE )')
+db.cursor().execute('CREATE TABLE IF NOT EXISTS `user_problem` ( `user_id` INTEGER NOT NULL, `problem_id` INTEGER NOT NULL, `solved` INTEGER, `opened` INTEGER)')
 
 
 def params(values):
@@ -105,8 +108,19 @@ def problemUrl(contestId, index):
     return 'http://codeforces.com/contest/%s/problem/%s' % \
            (contestId, index)
 
+def getProblemId(contestId, problemName):
+    row = db.cursor().execute('''SELECT id FROM problem
+    WHERE contest_id=? AND problem_index=?''', [contestId, problemName]).fetchone()
+    if row is None:
+        return None
+    return row[0]
 
 def openProblem(contestId, index):
+    problemId = getProblemId(contestId, index)
+    if problemId:
+        status = getProblemStatus(problemId)
+        status['opened'] = now()
+        saveProblemStatus(status)
     url = problemUrl(contestId, index)
     webbrowser.open(url)
     if not os.path.exists(contestId):
@@ -130,7 +144,6 @@ def openProblem(contestId, index):
                     out_file.write('\n')
     subprocess.call(["C:\\Program Files\\Git\\bin\\bash.exe", '-c', '/c/Users/mgoncharov/etc/contests/problem.sh %s' % (index)])
     subprocess.call(["date"])
-
 
 def now():
     return int(time.time())
@@ -363,8 +376,34 @@ def main():
 def isAlredySolved(contestId, problemIndex):
     return os.path.exists("%s/%s.cc" % (contestId, problemIndex)) or os.path.exists("%s/%s.cpp" % (contestId, problemIndex))
 
+def problemStatusRow(problemId):
+    print((getUserId(handle),problemId,))
+    return db.cursor().execute('''SELECT problem_id, user_id, solved, opened
+    FROM user_problem
+    WHERE `user_id`=? AND `problem_id`=?''', (getUserId(handle),problemId,)).fetchone()
+
+def getProblemStatus(id):
+    row = problemStatusRow(id)
+    if row is None:
+        db.cursor().execute('''INSERT INTO user_problem (user_id, problem_id)
+        VALUES (?, ?)''', (getUserId(handle), id))
+        db.commit()
+        row = problemStatusRow(id)
+    return {'problem_id': row[0],
+            'user_id': row[1],
+            'solved': row[2],
+            'opened': row[3]}
+
+def saveProblemStatus(status):
+    db.cursor().execute('''
+    UPDATE user_problem
+    SET solved=?, opened=?
+    WHERE problem_id=? AND user_id=?''',
+    (status['solved'], status['opened'], status['problem_id'], status['user_id']))
+    db.commit()
 
 def selectBestProblem(rating):
+    userId = getUserId(handle)
     range = args.range
     if '%' in str(range):
         range = range[:range.find('%')]
@@ -372,9 +411,10 @@ def selectBestProblem(rating):
     else:
         range = int(range)
     print('searching for problem with rating %d +- %d' % (rating, range))
-    query = '''SELECT p.`id`, `contest_id`, `problem_index`, `rating` FROM `problem` p '''
-    where = '''WHERE (rating >= ?) AND (rating <= ?) AND (solved = 0) '''
-    query_args = [rating - range, rating + range, ]
+    query = '''SELECT p.`id`, `contest_id`, `problem_index`, `rating` FROM `problem` p
+    LEFT JOIN user_problem up ON up.problem_id = p.id AND up.solved IS NULL '''
+    where = '''WHERE (rating >= ?) AND (rating <= ?) AND (up.user_id = ?)'''
+    query_args = [rating - range, rating + range, userId]
     if args.tag:
         print('and tag "%s"' % (args.tag, ))
         query += 'JOIN `problem_tag` pt ON (pt.problem_id=p.id) JOIN tag t ON (t.id=pt.tag_id) '
@@ -386,14 +426,17 @@ def selectBestProblem(rating):
     for p in problems:
         id = p[0]
         contestId = p[1]
-        problemId = p[2]
+        problemName = p[2]
         rating = p[3]
-        if isAlredySolved(contestId, problemId):
-            print('%s.%s is already solved' % (contestId, problemId))
-            db.cursor().execute('''UPDATE problems SET solved = 1 WHERE `id`= ?''', (id,))
-            db.commit()
+        statusRow = problemStatusRow(id)
+        if isAlredySolved(contestId, problemName) and (not statusRow):
+            print('%s.%s looks like already solved' % (contestId, problemName))
+            status = getProblemStatus(id)
+            status.solved = 0
+            status.attepted = 0
+            saveProblemStatus(status)
             continue
-        print('opening %s.%s with rating %d' % (contestId, problemId, rating))
+        print('opening %s.%s with rating %d' % (contestId, problemName, rating))
         openProblem(contestId, problemId)
         exit(0)
     print('no matched problems')
@@ -441,4 +484,3 @@ def updateProblems():
 
 if __name__ == '__main__':
     main()
-
