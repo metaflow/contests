@@ -22,16 +22,17 @@ handle = 'mgoncharov'
 parser = argparse.ArgumentParser(description='Ladder')
 # parser.add_argument('--', help())
 parser.add_argument('-r', '--rating', help='estimated rating, 0 for current value, + - to increase or decrease')
-parser.add_argument('-n', '--next', help='next problem of your estimated rating', action='store_true')
 parser.add_argument('--range', help='rating range - absolute or %', default='2%')
 parser.add_argument('--tag', help='problem tag')
-parser.add_argument('--open', help='open specific problem e.g. `500/A`')
+parser.add_argument('--open', '-o', help='open specific problem e.g. `500.A`, `last` or `next`')
+parser.add_argument('--done', '-d', help='mark last opened problem as solved, can be combined with --open', action='store_true')
 parser.add_argument('--update-problems', action='store_true')
 parser.add_argument('--list-tags', action='store_true')
 
 args = parser.parse_args()
 
-# print args
+# print(args)
+# exit(0)
 
 db = sqlite3.connect('codeforces.db')
 db.text_factory = str
@@ -114,6 +115,11 @@ def getProblemId(contestId, problemName):
     if row is None:
         return None
     return row[0]
+
+def getProblemInfo(problemId):
+    return db.cursor().execute('''
+    SELECT contest_id, problem_index FROM problem WHERE id=?
+    ''', (problemId, )).fetchone()
 
 def openProblem(contestId, index):
     problemId = getProblemId(contestId, index)
@@ -338,18 +344,20 @@ def setUserRating(handle, rating):
     db.cursor().execute('UPDATE `user` SET `rating`=? WHERE `id`=?', (rating, id, ))
     db.commit()
 
+def getLastProblemId():
+    return db.cursor().execute('''SELECT up.problem_id FROM user_problem up
+    WHERE up.user_id = ? ORDER BY up.opened DESC LIMIT 1''',
+                               (getUserId(handle), )).fetchone()[0]
+
 def main():
     if (args.update_problems):
         updateProblems()
         exit(0)
 
-    if (args.open):
-        parts = args.open.split('/')
-        if len(parts) != 2:
-            parser.print_usage()
-            exit(0)
-        openProblem(parts[0], parts[1])
-        exit(0)
+    if (args.done):
+        status = getProblemStatus(getLastProblemId())
+        status['solved'] = now()
+        saveProblemStatus(status)
 
     if (args.rating):
         diff = 0
@@ -360,27 +368,38 @@ def main():
                 diff += 20
         r = getUserRating(handle)
         setUserRating(handle, r + diff)
-        print('rating is %d (%s%d)' % (r + diff, ('+' if (diff >= 0) else ''), diff))
-        exit(0)
+        print('current rating is %d (%s%d)' % (r + diff, ('+' if (diff >= 0) else ''), diff))
 
-    if (args.next):
-        selectBestProblem(getUserRating(handle))
+    if (args.open):
+        if args.open == 'last':
+            parts = getProblemInfo(getLastProblemId())
+        elif args.open == 'next':
+            selectBestProblem(getUserRating(handle))
+            exit(0)
+        else:
+            parts = args.open.split('.')
+        if len(parts) != 2:
+            parser.print_usage()
+            exit(0)
+        openProblem(parts[0], parts[1])
         exit(0)
 
     if (args.list_tags):
         listTags()
         exit(0)
 
-    parser.print_usage()
+    if (not args.done and not args.rating):
+        parser.print_usage()
 
-def isAlredySolved(contestId, problemIndex):
+def isProblemFileExist(contestId, problemIndex):
     return os.path.exists("%s/%s.cc" % (contestId, problemIndex)) or os.path.exists("%s/%s.cpp" % (contestId, problemIndex))
 
 def problemStatusRow(problemId):
-    print((getUserId(handle),problemId,))
-    return db.cursor().execute('''SELECT problem_id, user_id, solved, opened
+    return db.cursor().execute('''
+    SELECT problem_id, user_id, solved, opened
     FROM user_problem
-    WHERE `user_id`=? AND `problem_id`=?''', (getUserId(handle),problemId,)).fetchone()
+    WHERE `user_id`=? AND `problem_id`=?''',
+    (getUserId(handle),problemId,)).fetchone()
 
 def getProblemStatus(id):
     row = problemStatusRow(id)
@@ -411,10 +430,14 @@ def selectBestProblem(rating):
     else:
         range = int(range)
     print('searching for problem with rating %d +- %d' % (rating, range))
-    query = '''SELECT p.`id`, `contest_id`, `problem_index`, `rating` FROM `problem` p
-    LEFT JOIN user_problem up ON up.problem_id = p.id AND up.solved IS NULL '''
-    where = '''WHERE (rating >= ?) AND (rating <= ?) AND (up.user_id = ?)'''
-    query_args = [rating - range, rating + range, userId]
+    query = '''
+    SELECT p.`id`, `contest_id`, `problem_index`, `rating`
+    FROM `problem` p
+    LEFT JOIN user_problem up ON (up.problem_id = p.id)
+    AND (up.solved IS NULL)
+    AND (up.user_id = ?)'''
+    where = '''WHERE (rating >= ?) AND (rating <= ?)'''
+    query_args = [userId, rating - range, rating + range, ]
     if args.tag:
         print('and tag "%s"' % (args.tag, ))
         query += 'JOIN `problem_tag` pt ON (pt.problem_id=p.id) JOIN tag t ON (t.id=pt.tag_id) '
@@ -429,7 +452,7 @@ def selectBestProblem(rating):
         problemName = p[2]
         rating = p[3]
         statusRow = problemStatusRow(id)
-        if isAlredySolved(contestId, problemName) and (not statusRow):
+        if isProblemFileExist(contestId, problemName) and (not statusRow):
             print('%s.%s looks like already solved' % (contestId, problemName))
             status = getProblemStatus(id)
             status.solved = 0
@@ -437,7 +460,7 @@ def selectBestProblem(rating):
             saveProblemStatus(status)
             continue
         print('opening %s.%s with rating %d' % (contestId, problemName, rating))
-        openProblem(contestId, problemId)
+        openProblem(contestId, problemName)
         exit(0)
     print('no matched problems')
     exit(1)
