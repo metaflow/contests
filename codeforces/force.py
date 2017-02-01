@@ -355,9 +355,14 @@ def main():
         exit(0)
 
     if (args.done):
-        status = getProblemStatus(getLastProblemId())
-        status['solved'] = now()
-        saveProblemStatus(status)
+        id = getLastProblemId()
+        status = getProblemStatus(id)
+        if status['solved']:
+            print(getProblemInfo(id), "already marked as solved")
+        else:
+            print(getProblemInfo(id), "maked as solved")
+            status['solved'] = now()
+            saveProblemStatus(status)
 
     if (args.rating):
         diff = 0
