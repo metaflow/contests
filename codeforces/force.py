@@ -360,7 +360,7 @@ def main():
         if status['solved']:
             print(getProblemInfo(id), "already marked as solved")
         else:
-            print(getProblemInfo(id), "maked as solved")
+            print(getProblemInfo(id), "marked as solved")
             status['solved'] = now()
             saveProblemStatus(status)
 
