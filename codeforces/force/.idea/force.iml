@@ -88,7 +88,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../83" />
       <excludeFolder url="file://$MODULE_DIR$/../gym" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.6.0 (C:\ProgramData\Anaconda3\python.exe)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">
