@@ -11,7 +11,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 const int INF = numeric_limits<int>::max();
 const double EPS = 1e-10;
-const l e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
+const l e0 = 1, e5 = 100000, e6 = 1000000, e7 = 10000000, e9 = 1000000000;
 
 // #define ONLINE_JUDGE
 #if defined ONLINE_JUDGE
