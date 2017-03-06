@@ -25,44 +25,33 @@ struct VoidStream { void operator&(std::ostream&) { } };
 const l MAX = 19;
 bool M[MAX][MAX];
 l DP[MAX][e0 << MAX]; // number of Hamiltonian paths
-l n, from;
-// TODO
+
 l popcnt(l value) { return __builtin_popcount(value); }
 bool bit_set(l mask, l i) { return mask & (e0 << i); }
 
-l hamiltonian_paths(l to, l mask) {
-  if (to == from) return (mask == (e0 << from)) ? 1 : 0;
-  l& r = DP[to][mask];
-  if (r == -1) {
-    r = 0;
-    for (l i = from; i < n; i++) {
-      if (bit_set(mask, i) and M[i][to])
-        r += hamiltonian_paths(i, mask ^ (e0 << to));
-    }
-  }
-  return r;
-}
-
-
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
+  l n, from;
   while (cin >> n) {
     fill(&M[0][0], &M[MAX][0], false);
-    fill(&DP[0][0], &DP[MAX][0], -1);
+    fill(&DP[0][0], &DP[MAX][0], 0);
     l m; cin >> m;
     for (l i = 0; i < m; i++) {
       l x, y; cin >> x >> y; x--; y--;
       M[x][y] = M[y][x] = true;
     }
+    for (l i = 0; i < n; i++) DP[i][e0 << i] = 1;
     l total = 0;
-    // compiler explorer
-    for (l mask = 0; mask < (e0 << n); mask++) {
-      if (popcnt(mask) < 3) continue;
+    for (l mask = 1; mask < (e0 << n); mask++) {
       from = -1;
+      for (l i = 0; i < n; i++) if (mask & (e0 << i)) { from = i; break; }
       for (l i = 0; i < n; i++) {
-        if (not bit_set(mask, i)) continue;
-        if (from == -1) { from = i; continue; }
-        if (M[from][i]) total += hamiltonian_paths(i, mask);
+        if (DP[i][mask] == 0) continue;
+        if ((popcnt(mask) > 2) and M[from][i]) total += DP[i][mask];
+        for (l j = from + 1; j < n; j++) {
+          if (M[i][j] and ((mask | (e0 << j)) != mask))
+            DP[j][mask | (e0 << j)] += DP[i][mask];
+        }
       }
     }
     cout << (total / 2) << '\n';
