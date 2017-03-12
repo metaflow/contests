@@ -37,7 +37,7 @@ args = parser.parse_args()
 db = sqlite3.connect('codeforces.db')
 db.text_factory = str
 db.cursor().execute('CREATE TABLE IF NOT EXISTS `api_cache` (url TEXT unique, response TEXT, updated INTEGER)')
-db.cursor().execute('CREATE TABLE IF NOT EXISTS `contest` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL UNIQUE )')
+db.cursor().execute('CREATE TABLE IF NOT EXISTS `contest` ( `id` TEXT NOT NULL UNIQUE, `name` TEXT)')
 db.cursor().execute('''CREATE TABLE IF NOT EXISTS `problem` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `contest_id` TEXT,
 `problem_index` TEXT, `rating` INTEGER DEFAULT null,
 `points` INTEGER )''')
@@ -159,8 +159,7 @@ def day():
 
 # contest -> { handle -> new rating }
 def getNewRanksAfter(contestId):
-    j = loadJson('contest.ratingChanges',
-                        {'contestId': contestId})
+    j = loadJson('contest.ratingChanges', {'contestId': contestId})
     # {
     #     "status": "OK",
     #     "result": [
@@ -178,7 +177,7 @@ def getNewRanksAfter(contestId):
         return None
     result = {}
     for r in j['result']:
-        result[r['handle']] = r['newRating']
+        result[r['handle']] = int(r['newRating'])
     return result
 
 def getTagId(tag):
@@ -192,7 +191,6 @@ def getTagId(tag):
     """, (tag, )).lastrowid
 
 def saveProblem(p):
-    # print('save problem', p)
     # {
     #     "contestId": 566,
     #     "index": "A",
@@ -212,7 +210,6 @@ def saveProblem(p):
         SELECT `id` FROM `problem` WHERE (`contest_id`=?) AND (`problem_index`=?)
     ''', (p['contestId'], p['index'])).fetchone()
     if row:
-        print('problem %s.%s already exists' % (p['contestId'], p['index']))
         return row[0]
     cursor = db.cursor()
     points = 1
@@ -229,22 +226,18 @@ def saveProblem(p):
             ''', (id, getTagId(t)))
     return id
 
-def rateProblem(index, ranks, rows):
-    ranks_of_solvers = []
+def rateProblem(index, rows, solvedOne):
+    solved = 0
     for r in rows:
-        if int(r['problemResults'][index]['points']) == 0:
-            # have not solved the problem
-            continue
         for member in r['party']['members']:
-            if member['handle'] in ranks:
-                ranks_of_solvers.append(ranks[member['handle']])
-            else:
-                print('rank of %s is not found' % (member, ))
-    ranks_of_solvers.sort()
-    n = len(ranks_of_solvers)
-    if n == 0:
+            if int(r['problemResults'][index]['points']) != 0:
+                solved += 1
+    k = len(solvedOne)
+    if solved == 0:
         return None
-    return ranks_of_solvers[int((n * 5) / 100)] # 95 %
+    if 2 * solved > k:
+        return solvedOne[0]
+    return solvedOne[- 2 * solved]
 
 
 def analyzeContest(contestId):
@@ -307,9 +300,19 @@ def analyzeContest(contestId):
         print('no rank changes')
         return True  # not every contest changes ranks
     rows = standings['rows']
+    solvedOne = []
+    for r in rows:
+        for member in r['party']['members']:
+            for p in r['problemResults']:
+                if p['points'] != 0:
+                    if member['handle'] in ranks:
+                        solvedOne.append(ranks[member['handle']])
+                    break
+    solvedOne.sort()
+    solvedOne = solvedOne[(len(solvedOne) * 2 // 100):]
     for i in range(len(problems)):
         p = problems[i]
-        rating = rateProblem(i, ranks, rows)
+        rating = rateProblem(i, rows, solvedOne)
         if not rating:
             continue
         problemId = saveProblem(p)
@@ -498,15 +501,15 @@ def updateProblems():
         # maybe results are not ready yet
         if (c['durationSeconds'] + c['startTimeSeconds'] + day() > now()):
             continue
-        row = db.cursor().execute('SELECT `id` FROM `contest` WHERE `name`=?', (c['id'],)).fetchone()
+        row = db.cursor().execute('SELECT `id` FROM `contest` WHERE `id`=?', (c['id'],)).fetchone()
         if row:
             # print('analyzed')
             continue
         print(c['id'], c['name'])
         analyzeContest(c['id'])
         db.cursor().execute('''
-            INSERT INTO `contest` (`name`) VALUES (?)
-            ''', (c['id'],))
+            INSERT INTO `contest` (`id`, `name`) VALUES (?, ?)
+            ''', (c['id'],c['name'],))
         db.commit()
 
 
