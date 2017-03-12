@@ -24,73 +24,103 @@ struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
 const l Z = 26;
+l MAX;
 struct node;
 using pnode = shared_ptr<node>;
 struct edge {
   pnode to;
-  l count = 0, length = 1;
+  l count = 0;
+  l string_index, p, length;
 };
 struct node {
-  map<l, edge> edges;
-  pnode parent;
-  l p;
-  unordered_map<l, l> memo;
+  vl at = vl(Z + 1);
+  vector<edge> edges = vector<edge>(Z);
+  vvl memo = vvl(Z);
 };
 
-void insert(pnode u, string& s, size_t p) {
-  if (p >= s.size()) return;
-  l v = s[p] - 'a';
-  auto& e = u->edges[v];
+void insert(pnode u, l x, size_t p, vvl& vs) {
+  if (p >= vs[x].size()) return;
+  auto& e = u->edges[vs[x][p]];
   if (not e.to) {
     e.to = make_shared<node>();
-    e.to->p = v;
-    e.to->parent = u;
-  }
-  e.count++;
-  insert(e.to, s, p + 1);
-}
-
-void compact(pnode u) {
-  if (u->parent) {
-    l next = -1;
-    for (l i = 0; i < Z; i++) {
-      if (u->edges[i].count) next = i;
-    }
-    auto& pe = u->parent->edges[u->p];
-    if (next > -1 && pe.count == u->edges[next].count) {
-      auto v = u->edges[next].to;
-      pe.length += u->edges[next].length;
-      pe.to = v;
-      v->parent = u->parent;
-      v->p = u->p;
-      compact(v);
+    e.count = 1;
+    e.string_index = x;
+    e.p = p;
+    e.length = vs[x].size() - p;
+  } else {
+    e.count++;
+    l n = min(e.length, (l)(vs[x].size() - p));
+    for (l i = 1; i < n; i++) {
+      l a = vs[e.string_index][i + e.p];
+      l b = vs[x][i + p];
+      if (a == b) continue;
+      auto v = make_shared<node>();
+      auto& e1 = v->edges[a];
+      e1.to = e.to;
+      e1.count = e.count - 1;
+      // e1.s = e.s.substr(i);
+      e1.string_index = e.string_index;
+      e1.p = e.p + i;
+      e1.length = e.length - i;
+      e.to = v;
+      // e.s.resize(i);
+      e.length = i;
+      insert(v, x, p + i, vs);
       return;
     }
+    // s ends in the middle of the edge
+    if (n < e.length) {
+      auto v = make_shared<node>();
+      l a = vs[e.string_index][n + e.p];
+      auto& e1 = v->edges[a];
+      e1.to = e.to;
+      e1.count = e.count - 1;
+      // e1.s = e.s.substr(n);
+      e1.string_index = e.string_index;
+      e1.p = e.p + n;
+      e1.length = e.length - n;
+      e.to = v;
+      // e.s.resize(n);
+      e.length = n;
+    } else {
+      insert(e.to, x, p + n, vs);
+    }
   }
-  for (auto& e : u->edges) if (e.second.to) compact(e.second.to);
 }
 
 l count(pnode u, l at, l k) {
   if (at >= Z or k < 2) return 0;
   auto& e = u->edges[at];
-  if (e.count < 2) return count(u, at + 1, k);
-  l key = k * Z + at;
-  if (u->memo.count(key) == 0) {
-    l r = count(u, at + 1, k);
+  l& r = u->memo[at][k];
+  if (r == 0) {
+    r = count(u, u->at[at + 1], k);
     for (l j = 2; j <= min(e.count, k); j++) {
       r = max(r, j * (j - 1) * e.length / 2 +
-              count(e.to, 0, j) + count(u, at + 1, k - j));
+              count(u, u->at[at + 1], k - j) +
+              count(e.to, e.to->at[0], j));
     }
-    u->memo[key] = r;
   }
-  return u->memo[key];
+  return r;
+}
+
+void process(pnode u) {
+  l t = Z;
+  u->at[Z] = Z;
+  for (l i = Z - 1; i >= 0; i--) {
+    if (u->edges[i].count > 1) {
+      u->memo[i].resize(MAX);
+      t = i;
+      process(u->edges[i].to);
+    }
+    u->at[i] = t;
+  }
 }
 
 l solve(vector<string>& v, l k) {
-  pnode root = make_shared<node>();
-  for (auto& s : v) insert(root, s, 0);
-  compact(root);
-  return count(root, 0, k);
+  // pnode root = make_shared<node>();
+  // for (auto& s : v) insert(root, 0, 0, v);
+  // return count(root, 0, k);
+  return 0;
 }
 
 
@@ -171,12 +201,17 @@ int main() {
   // return 0;
   l n, k;
   while (cin >> n >> k) {
+    MAX = k + 1;
     pnode root = make_shared<node>();
+    vvl v(n);
     for (l i = 0; i < n; i++) {
-      string s; cin >> s;
-      insert(root, s, 0);
+      string s;
+      cin >> s;
+      v[i].resize(s.size());
+      for (l j = 0; j < s.size(); j++) v[i][j] = s[j] - 'a';
+      insert(root, i, 0, v);
     }
-    compact(root);
-    cout << count(root, 0, k) << '\n';
+    process(root);
+    cout << count(root, root->at[0], k) << '\n';
   }
 }
