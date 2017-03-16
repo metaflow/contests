@@ -19,15 +19,15 @@ ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
 ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
 handle = 'mgoncharov'
 
-parser = argparse.ArgumentParser(description='Ladder')
+parser = argparse.ArgumentParser(description='codeforces problem picker', formatter_class=argparse.RawTextHelpFormatter)
 # parser.add_argument('--', help())
-parser.add_argument('-r', '--rating', help='estimated rating, 0 for current value, + - to increase or decrease')
-parser.add_argument('--range', help='rating range - absolute or %', default='2%')
+parser.add_argument('--rating', '-r', help='your current estimated elo, any string\n`+` and `-` characters increase or decrease rating 20 points\ne.g. `+++` will add 60 points\n`=` (or any string w/o +-) does not change elo and shows current')
+parser.add_argument('--open', '-o', help='open problem\n`last` - last opened\n`next` - unsolved problem with your current rating\n`502.B` - B from contest 500\n`1830` - with specific rating')
+parser.add_argument('--range', help='rating selection range - absolute or %%, e.g. `2%%` (default), `32`', default='2%')
 parser.add_argument('--tag', help='problem tag')
-parser.add_argument('--open', '-o', help='open specific problem e.g. `500.A`, `last` or `next`')
-parser.add_argument('--done', '-d', help='mark last opened problem as solved, can be combined with --open', action='store_true')
-parser.add_argument('--update-problems', action='store_true')
-parser.add_argument('--list-tags', action='store_true')
+parser.add_argument('--list-tags', action='store_true', help='list all tags available')
+parser.add_argument('--done', '-d', help='mark last opened problem as solved', action='store_true')
+parser.add_argument('--update-problems', action='store_true', help='update problem set from codeforces.com')
 
 args = parser.parse_args()
 
