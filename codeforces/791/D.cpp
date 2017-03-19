@@ -27,6 +27,8 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 struct node {
   vl adjusted;
+  bool visited = false;
+  vl steps;
 };
 
 struct edge {
@@ -63,23 +65,22 @@ void dfs(graph& g, l ei) {
   for (l r : to.adjusted) {
     if (g.edges[r].to == e.from) continue;
     dfs(g, r);
-    F(i, 0, k) e.steps[i] += g.edges[r].steps[(i + k - 1) % k];
+    F(i, 0, k) e.steps[(i + 1) % k] += g.edges[r].steps[i];
     e.count += g.edges[r].count;
   }
   e.steps[0] += e.count;
+  F(i, 0, k) g.nodes[e.from].steps[i] += e.steps[i];
 }
 
 void bdfs(graph& g, l ei) {
   auto& e = g.edges[ei];
   auto& o = g.edges[e.opposite];
-  auto& to = g.nodes[o.to];
-  o.count = 1;
-  for (l r : to.adjusted) {
-    if (g.edges[r].to == o.from) continue;
-    F(i, 0, k) o.steps[i] += g.edges[r].steps[(i + k - 1) % k];
-    o.count += g.edges[r].count;
-  }
+  auto& u = g.nodes[o.to];
+  o.count = g.nodes.size() - e.count;
+  o.steps = u.steps;
+  F(i, 0, k) o.steps[(i + 1) % k] = u.steps[i] - e.steps[i];
   o.steps[0] += o.count;
+  F(i, 0, k) g.nodes[o.from].steps[i] += o.steps[i];
   for (const auto r : g.nodes[o.from].adjusted) {
     if (r != e.opposite) bdfs(g, r);
   }
@@ -91,12 +92,13 @@ int main() {
   while (cin >> n >> k) {
     graph g;
     g.nodes.resize(n);
+    for (auto& u : g.nodes) { u.steps.resize(k, 0); }
     F(i, 0, n - 1) {
       l a, b; cin >> a >> b; a--; b--;
       connect(g, a, b);
     }
-    for (auto e : g.nodes[0].adjusted) dfs(g, e);
-    for (auto e : g.nodes[0].adjusted) bdfs(g, e);
+    for (auto ei : g.nodes[0].adjusted) dfs(g, ei);
+    for (auto ei : g.nodes[0].adjusted) bdfs(g, ei);
     l sum = 0;
     for (const auto e : g.edges) sum += e.steps[0];
     cout << sum / 2 << '\n';
