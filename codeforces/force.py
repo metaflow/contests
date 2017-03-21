@@ -13,6 +13,7 @@ import random
 import webbrowser
 import sqlite3
 import subprocess
+import math
 from bs4 import BeautifulSoup
 
 ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
@@ -226,6 +227,10 @@ def saveProblem(p):
             ''', (id, getTagId(t)))
     return id
 
+# probability that r1 beats r2
+def win_probability(r1, r2):
+    return 1.0 / (1.0 + math.pow(10.0, (r2-r1) / 400.0))
+
 def rateProblem(index, rows, solvedOne):
     solved = 0
     for r in rows:
@@ -235,10 +240,18 @@ def rateProblem(index, rows, solvedOne):
     k = len(solvedOne)
     if solved == 0:
         return None
-    if 2 * solved > k:
-        return solvedOne[0]
-    return solvedOne[- 2 * solved]
-
+    low = solvedOne[0]
+    high = solvedOne[-1]
+    step = (high - low) // 2
+    while (step > 0):
+        m = low + step
+        total = 0.0
+        for r in solvedOne:
+            total += win_probability(float(r), float(m))
+        if total > solved:
+            low = m
+        step = step // 2
+    return low
 
 def analyzeContest(contestId):
     standings = loadJson('contest.standings', {'contestId': contestId})
@@ -301,15 +314,19 @@ def analyzeContest(contestId):
         return True  # not every contest changes ranks
     rows = standings['rows']
     solvedOne = []
+    # only interested in people who solved at least one correctly
     for r in rows:
         for member in r['party']['members']:
-            for p in r['problemResults']:
-                if p['points'] != 0:
-                    if member['handle'] in ranks:
-                        solvedOne.append(ranks[member['handle']])
-                    break
+            if member['handle'] in ranks:
+                solvedOne.append(ranks[member['handle']])
+            # for p in r['problemResults']:
+                # if p['points'] != 0:
+                    # if member['handle'] in ranks:
+                    # break
+            # break
     solvedOne.sort()
-    solvedOne = solvedOne[(len(solvedOne) * 2 // 100):]
+    # remove outsiders
+    # solvedOne = solvedOne[(len(solvedOne) * 2 // 100):]
     for i in range(len(problems)):
         p = problems[i]
         rating = rateProblem(i, rows, solvedOne)
