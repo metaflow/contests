@@ -1,0 +1,68 @@
+PROBLEM STATEMENT
+
+Let p[] be an infinite array containing all prime numbers in ascending order.
+That is, p[0]=2, p[1]=3, p[2]=5, p[3]=7, and so on.   
+
+
+
+You are given a vector <int> a.
+Each a[i] is the exponent of the prime p[i] in the factorization of a large number X.
+Formally, X = p[0]^a[0] * p[1]^a[1] * ... * p[n-1]^a[n-1], where n is the number of elements of a.   
+
+
+
+Compute the number of sequences of positive integers such that each integer is greater than 1 and the product of all elements of the sequence is exactly X.
+Return that number modulo 1,000,000,007.   
+
+
+DEFINITION
+Class:OrderedProduct
+Method:count
+Parameters:vector <int>
+Returns:int
+Method signature:int count(vector <int> a)
+
+
+CONSTRAINTS
+-a will contain between 1 and 50 elements, inclusive.  
+-Each element of a will be between 1 and 50, inclusive.  
+
+
+EXAMPLES
+
+0)
+{1, 1}
+
+Returns: 3
+
+Here, X = 2^1 * 3^1 = 6.
+There are three valid sequences: (2,3), (3,2), and (6).
+
+1)
+{2}
+
+Returns: 2
+
+We have X = 2^2 = 4.
+The two valid sequences are (2,2) and (4).
+
+2)
+{1, 1, 1, 1, 1}
+
+Returns: 541
+
+
+
+3)
+{23, 49, 12}
+
+Returns: 316396073
+
+Watch out for integer overflow.
+
+4)
+{2, 5, 4, 2, 3, 1, 3, 1, 4, 6}
+
+Returns: 225466557
+
+
