@@ -1,0 +1,73 @@
+PROBLEM STATEMENT
+We have a convex polygon in the XY plane.
+The vertices of the polygon are the points (x[0], y[0]), (x[1], y[1]), ... in clockwise order.
+You are given the vector <int>s x and y.
+
+In order to make the implementation simpler the polygon and its representation satisfy some additional constraints.
+Please read the Constraints section carefully.
+
+A three-dimensional solid is obtained by rotating this polygon around the Y axis.
+Compute and return the volume of the resulting solid.
+
+
+DEFINITION
+Class:PolygonRotation
+Method:getVolume
+Parameters:vector <int>, vector <int>
+Returns:double
+Method signature:double getVolume(vector <int> x, vector <int> y)
+
+
+NOTES
+-The returned value must have an absolute or relative error less than 1e-9.
+
+
+CONSTRAINTS
+-x will contain between 3 and 50 elements, inclusive.
+-y will contain the same number of elements as x.
+-Each element of x and y will be between -100 and 100, inclusive.
+-The polygon will be convex.
+-All vertices of the polygon will be distinct.
+-The polygon will have exactly two vertices on the Y axis. Let's denote them (0, Ymin) and (0, Ymax) with Ymin < Ymax.
+-The vertices will be listed in clockwise order, starting with (0, Ymax).
+-The y-coordinates of all vertices will be between Ymin and Ymax, inclusive.
+-No three points will lie on the same line.
+
+
+EXAMPLES
+
+0)
+{0, 1, 1, 0}
+{1, 1, 0, 0}
+
+Returns: 3.141592653589793
+
+The polygon is a square with sides parallel to the coordinate axes.
+One of the sides of the square belongs to the Y axis.
+The resulting solid of revolution is a right cylinder of height 1 and radius 1.
+
+1)
+{0, 1, 0, -1}
+{2, 1, 0, 1}
+
+Returns: 2.0943951023931953
+
+This polygon is also a square.
+Each of its sides is angled at 45 degrees to the coordinate axes.
+The resulting solid of revolution is the union of two cones, each with base radius 1 and height 1.
+
+2)
+{0, 3, 0, -2, -2}
+{2, 0, -3, -1, 1}
+
+Returns: 49.91641660703782
+
+
+
+3)
+{0, 3, 3, 0, -1, -1}
+{2, 2, -2, -2, -1, 1}
+
+Returns: 113.09733552923255
+
+
