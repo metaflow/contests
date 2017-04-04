@@ -25,7 +25,6 @@ const bool enable_log = true;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
-// TODO: component size
 struct disjoint_set { // set of [0..n-1]
   vl parent;
   l components_count_;

@@ -24,7 +24,6 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 const l MAX_N = 300000;
 const l MAX_M = 200;
-// TODO: move
 l acc[MAX_N + 1];
 l intervals[MAX_M];
 
