@@ -9,7 +9,7 @@ do
   # /usr/bin/time --format "time %U" $1/$2 < $i > $i.o
   if [ -f $i.out ];
   then
-      if diff $i.o $i.out > /dev/null
+      if diff --strip-trailing-cr $i.o $i.out > /dev/null
       then
           echo "OK " $i;
       else
