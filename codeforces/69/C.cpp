@@ -27,12 +27,12 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  ifstream fin("C.in"); cin.rdbuf(fin.rdbuf());
-  ofstream fout("C.in.o"); cout.rdbuf(fout.rdbuf());
+  // ifstream fin("C.in"); cin.rdbuf(fin.rdbuf());
+  // ofstream fout("C.in.o"); cout.rdbuf(fout.rdbuf());
   l friendCount, basicCount, compositeCount, purchases;
-  l tt = 0;
-  tt ++;
-  cout << tt << endl;
+  // l tt = 0;
+  // tt ++;
+  // cout << tt << endl;
   while (cin >> friendCount >> basicCount >> compositeCount >> purchases) {
     map<string, l> names;
     F(i, 0, basicCount) {
