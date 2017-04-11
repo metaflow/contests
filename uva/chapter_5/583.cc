@@ -1,51 +1,79 @@
-#include<bits/stdc++.h>
+
+#include <bits/stdc++.h>
+
 using namespace std;
 
-using vi = vector<int>;
-using ii = pair<int,int>;
-using ll = long long;
-using llu = unsigned long long;
+using vi = vector<int>; using vvi = vector<vi>;
+using ii = pair<int,int>; using vii = vector<ii>;
+using l = long long; using vl = vector<l>; using vvl = vector<vl>;
+using ll = pair<l,l>; using vll = vector<ll>; using vvll = vector<vll>;
+using lu = unsigned long long;
+using vb = vector<bool>; using vvb = vector<vb>;
+using vd = vector<double>; using vvd = vector<vd>;
 const int INF = numeric_limits<int>::max();
+const double EPS = 1e-10;
+const l e0=1, e3=1000, e5=100000, e6=e3*e3, e7=10*e6, e8=10*e7, e9=10*e8;
+#define ALL(x) begin(x), end(x)
+#define F(a,b,c) for (l a = l(b); a < l(c); a++)
+#define B(a,b,c) for (l a = l(b); a > l(c); a--)
 
-vector<ll> primes;
+// #define ONLINE_JUDGE
+#if defined ONLINE_JUDGE
+const bool enable_log = false;
+#else
+const bool enable_log = true;
+#endif
+struct VoidStream { void operator&(std::ostream&) { } };
+#define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
-void sieve() {
-  bitset<50000> b;
-  primes.emplace_back(2);
-  for (ll i = 3; i < b.size(); i += 2) {
-    if (b[i]) continue;
+const l MAX_PRIME = 50000;
+// returns vector of v[i] = `biggest prime divisor of i`
+vl sieve_primes(vl& primes) {
+  vl next_div(MAX_PRIME, 1);
+  for (l i = 2; i < MAX_PRIME; i++) {
+    if (next_div[i] != 1) continue;
     primes.emplace_back(i);
-    for (ll j = i * i; j < b.size(); j += i) b.set(j);
+    for (l j = i; j < MAX_PRIME; j += i) next_div[j] = i;
   }
+  return next_div;
 }
 
-vi factorize(ll n) {
-  vi r;
-  auto i = primes.begin();
-  while (i != primes.end() && (*i)*(*i) <= n) {
-    while (n % *i == 0) {
-      r.emplace_back(*i);
-      n /= *i;
-    }
-    i++;
+// not sorted
+vl factorize_to_primes(l n, vl& primes, vl& next_div) {
+  auto p = primes.begin();
+  vl result;
+  while (n >= MAX_PRIME and p != primes.end()) {
+    while (n % *p == 0) { result.emplace_back(*p); n /= *p; }
+    p++;
   }
-  if (n != 1) r.emplace_back(n);
-  return r;
+  if (n >= MAX_PRIME) {
+    result.emplace_back(n);
+    n = 1;
+  }
+  while (n != 1) {
+    result.emplace_back(next_div[n]);
+    n /= next_div[n];
+  }
+  return result;
 }
+
 int main() {
-  sieve();
-  ll n;
+  ios_base::sync_with_stdio(false); cin.tie(0);
+  vl primes;
+  auto next_div = sieve_primes(primes);
+  l n;
   while (cin >> n, n) {
-    auto r = factorize(abs(n));
-    printf("%lld = ", n);
-    if (n < 0) printf("-1 x ");
+    auto r = factorize(abs(n), primes, next_div);
+    sort(ALL(r));
+    cout << n << " = ";
+    if (n < 0) cout << "-1 x ";
     auto i = r.begin();
     while (true) {
-      printf("%d", *i);
+      cout << *i;
       i++;
       if (i == r.end()) break;
-      printf(" x ");
+      cout << " x ";
     }
-    printf("\n");
+    cout << '\n';
   }
 }
