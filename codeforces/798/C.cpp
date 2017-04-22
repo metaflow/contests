@@ -29,7 +29,39 @@ const bool enable_log = true;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
+l gcd(l a, l b) {
+  while (b) { l t = b; b = a % b; a = t; }
+  return a;
+}
+
+l lcm(l a, l b) { return a * b / gcd(a, b); }
+
+
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-
+  l n;
+  while (cin >> n) {
+    vl v(n);
+    l g = 0;
+    l answer = 0;
+    bool prev_odd = false;
+    F(i, 0, n) {
+      cin >> v[i];
+      if (v[i] % 2) {
+        if (prev_odd) {
+          prev_odd = false;
+          answer++;
+        } else {
+          prev_odd = true;
+        }
+      } else {
+        if (prev_odd) answer += 2;
+        prev_odd = false;
+      }
+      g = gcd(g, v[i]);
+    }
+    if (prev_odd) answer += 2;
+    if (g > 1) answer = 0;
+    cout << "YES" << lf << answer << lf;
+  }
 }

@@ -1,8 +1,4 @@
-// #define ONLINE_JUDGE
 #include <bits/stdc++.h>
-#if !defined(ONLINE_JUDGE)
-#include "prettyprint.h"
-#endif
 
 using namespace std;
 
@@ -21,6 +17,7 @@ const char lf = '\n';
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(b); a > l(c); a--)
 
+// #define ONLINE_JUDGE
 #if defined ONLINE_JUDGE
 const bool enable_log = false;
 #else
@@ -31,5 +28,20 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-
+  l n;
+  while (cin >> n) {
+    l sum = 0;
+    l neg = INF, pos = INF;
+    F(i, 0, n) {
+      l x; cin >> x;
+      if (x > 0) {
+        sum += x;
+        if (x % 2) pos = min(pos, x);
+      } else {
+        if (x % 2) neg = min(neg, -x);
+      }
+    }
+    if (sum % 2 == 0) sum = max(sum - pos, sum - neg);
+    cout << sum << lf;
+  }
 }

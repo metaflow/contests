@@ -1,8 +1,5 @@
 // #define ONLINE_JUDGE
 #include <bits/stdc++.h>
-#if !defined(ONLINE_JUDGE)
-#include "prettyprint.h"
-#endif
 
 using namespace std;
 
@@ -31,5 +28,12 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-
+  string s;
+  while (cin >> s) {
+    l mismatches = 0;
+    F(i, 0, s.size() / 2) {
+      if (s[i] != s[s.size() - i - 1]) mismatches++;
+    }
+    cout << ((mismatches == 1 or (mismatches == 0 and s.size() % 2)) ? "YES" : "NO") << lf;
+  }
 }

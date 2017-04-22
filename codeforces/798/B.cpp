@@ -1,7 +1,6 @@
 // #define ONLINE_JUDGE
 #include <bits/stdc++.h>
 #if !defined(ONLINE_JUDGE)
-#include "prettyprint.h"
 #endif
 
 using namespace std;
@@ -31,5 +30,27 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-
+  l n;
+  while (cin >> n) {
+    vector<string> v(n);
+    F(i, 0, n) cin >> v[i];
+    l best = INF;
+    F(i, 0, n) {
+      string ss = v[i] + v[i];
+      l k = 0;
+      l t = 0;
+      vl w;
+      F(j, 0, n) {
+        auto p = ss.find(v[j]);
+        if (p == string::npos) { t = INF; break; }
+        w.emplace_back(p);
+        k = max(k, (l)p);
+      }
+      if (t == 0) {
+        for (auto r : w) t += k - r;
+      }
+      best = min(best, t);
+    }
+    cout << ((best == INF) ? -1 : best) << lf;
+  }
 }
