@@ -73,92 +73,53 @@ bool dfs(vl v, l p, vl cc) {
   return false;
 }
 
-bool solve(vl& v, l p, vl& cc) {
-  if (p == -1) return true;
-  l n = v.size();
-  v.resize(0);
-  if (cc[B]) {
-    v.emplace_back(B);
-    cc[B]--;
-  }
-  while (cc[RY] and (v.empty() or v.back() != RY)) {
-    v.emplace_back(RY);
-    cc[RY]--;
-    if (cc[B]) {
-      v.emplace_back(B);
-      cc[B]--;
-    }
-  }
-  if (cc[RY]) return false;
-
-  if (cc[R]) {
-    v.emplace_back(R);
-    cc[R]--;
-  }
-  while (cc[BY] and (v.empty() or v.back() != BY)) {
-    v.emplace_back(BY);
-    cc[BY]--;
-    if (cc[R]) {
-      v.emplace_back(R);
-      cc[R]--;
-    }
-  }
-  if (cc[BY]) return false;
-
-  if (cc[Y]) {
-    v.emplace_back(Y);
-    cc[Y]--;
-  }
-  while (cc[RB] and (v.empty() or v.back() != RB)) {
-    v.emplace_back(RB);
-    cc[RB]--;
-    if (cc[Y]) {
-      v.emplace_back(Y);
-      cc[Y]--;
-    }
-  }
-  if (cc[RB]) return false;
-
-  while (cc[R] + cc[B] + cc[Y]) {
+bool place_colors(vl& v, vl& c, vl place) {
+  while (1) {
     l t = 0;
+    for (l i : place) t += c[i];
+    if (not t) break;
     vl next;
-    l m = v.size();
-    F(i, 0, m) {
-      l j = (i + 1) % m;
-      next.emplace_back(v[i]);
-      F(k, 0, 8) {
-        if (not cc[k]) continue;
-        if ((v[i] & k) == 0 and cc[v[i]]) {
-          next.emplace_back(k);
-          cc[k]--;
-          next.emplace_back(v[i]);
-          cc[v[i]]--;
-          t++;
+    F(j, 0, v.size()) {
+      next.emplace_back(v[j]);
+      for (l i : place) {
+        if (not c[i]) continue;
+        if (v[j] & i) continue;
+        if (c[v[j]]) {
+          next.emplace_back(i);
+          next.emplace_back(v[j]);
+          c[v[j]]--;
+          c[i]--;
           break;
         }
-        if (cc[k] and (v[i] & k) == 0 and (v[j] & k) == 0) {
-          next.emplace_back(k);
-          cc[k]--;
-          t++;
-          break;
-        }
+        l k = (j + 1) % v.size();
+        if (v[k] & i) continue;
+        next.emplace_back(i);
+        c[i]--;
+        break;
       }
     }
-    if (t == 0) return false;
-    swap(v, next);
+    if (next.size() == v.size()) return false;
+    swap(next, v);
   }
-  F(i, 0, n) {
-    l j = (i + 1) % n;
-    if (v[i] & v[j]) return false;
+  return true;
+}
+
+bool solve(vl& v, l p, vl& c) {
+  v.resize(0);
+  for(l i : {R, B, Y}) if (c[i]) {
+    v.emplace_back(i);
+    c[i]--;
   }
+  if (not place_colors(v, c, {RB, BY, RY})) return false;
+  if (not place_colors(v, c, {R, B, Y})) return false;
+  if (v[0] & v.back()) return false;
   return true;
 }
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   if (0) {
-    F(i, 0, 100) {
-      LOG << '.' << endl;
+    F(i, 0, 10000) {
       vl c(8);
       c[R] = random_in_range(0, 5);
       c[B] = random_in_range(0, 5);
@@ -167,11 +128,17 @@ int main() {
       c[RY] = random_in_range(0, 5);
       c[BY] = random_in_range(0, 5);
       l n = accumulate(all(c), 0);
+      if (n < 3) continue;
       vl v(n), w(n);
       auto y = c;
       auto cc = c;
-      if (solve(v, n - 1, y) != dfs(w, n - 1, c)) {
-        cout << "failed " << cc << endl;
+      auto r1 = solve(v, n - 1, y);
+      auto r2 = dfs(w, n - 1, c);
+      if (r1 != r2) {
+        cout << "failed " << cc << endl
+             << r1 << ' ' << r2 << endl;
+        cout << v << endl;
+        cout << w << endl;
         return 1;
       }
     }
