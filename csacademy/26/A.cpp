@@ -1,5 +1,6 @@
+// #define ONLINE_JUDGE
 #include <bits/stdc++.h>
-#if defined(LOCAL)
+#if !defined(ONLINE_JUDGE)
 #include "prettyprint.h"
 #endif
 
@@ -20,15 +21,27 @@ const char lf = '\n';
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(b); a > l(c); a--)
 
-#if defined(LOCAL)
-const bool enable_log = true;
-#else
+#if defined ONLINE_JUDGE
 const bool enable_log = false;
+#else
+const bool enable_log = true;
 #endif
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-
+  l n, k;
+  while (cin >> n >> k) {
+    l answer = -1;
+    F(i, 0, n) {
+      string s; cin >> s;
+      set<char> u;
+      for (char c : s) u.emplace(c);
+      if (u.size() <= k) {
+        answer = max(answer, (l)s.size());
+      }
+    }
+    cout << answer << lf;
+  }
 }
