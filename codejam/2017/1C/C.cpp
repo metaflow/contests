@@ -56,22 +56,71 @@ struct Case {
 };
 
 Case solve(Case c) {
-  auto& p = c.p;
-  auto& n = c.n;
-  auto& k = c.k;
-  auto& u = c.u;
+  auto p = c.p;
+  auto n = c.n;
+  auto k = c.k;
+  auto u = c.u;
   sort(all(p));
-  double sum = p[0];
-  l j = 1;
+  l start = n - k;
+  l j = start;
+  double sum = p[j];
+  j++;
   while (j < n and ((sum + u) / j > p[j])) { sum += p[j]; j++; }
-  F(i, 0, j) p[i] = (sum + u) / j;
+  l q = j - start;
+  double s = min(u, q - sum);
+  F(i, start, j) p[i] = (sum + s) / q;
   double v = prob(p, k);
+
+  p = c.p;
+  sort(all(p));
+  start = 0;
+  j = 0;
+  sum = p[j];
+  j++;
+  while (j < n and ((sum + u) / j > p[j])) { sum += p[j]; j++; }
+  q = j - start;
+  s = min(u, q - sum);
+  F(i, start, j) p[i] = (sum + s) / q;
+  v = max(v, prob(p, k));
+
   c.answer = v;
   return c;
 }
 
+bool equal_double(double x, double y) {
+  if (abs(x - y) < EPS) return true;
+  // Is x or y too close to zero?
+  if (abs(x) < EPS || abs(y) < EPS) return false;
+  // Check relative precision.
+  return (abs((x - y) / x) < EPS) && (abs((x - y) / y) < EPS);
+}
+
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
+
+  if (0) {
+    vector<vvd> best_p(1000);
+    vd best(1000);
+    F(i, 0, 101) F(j, 0, 101) F(k, 0, 61) {
+      vd p; p.emplace_back(i); p.emplace_back(j); p.emplace_back(k + 40);
+      for (auto& t : p) t /= 100;
+      double v = prob(p, 2);
+      if (equal_double(best[i + j + k], v)) {
+        best_p[i + j + k].emplace_back(p);
+      } else if (v > best[i + j + k]) {
+        best[i + j + k] = v;
+        best_p[i + j + k].clear();
+        best_p[i + j + k].emplace_back(p);
+      }
+    }
+    F(i, 0, 301) {
+      LOG << i << ":" << best[i] << endl;
+      for (auto p : best_p[i]) LOG << p << endl;
+    }
+    return 0;
+  }
+
+
   l tcc; cin >> tcc;
   vector<Case> cc(tcc);
   F(i, 0, tcc) {
