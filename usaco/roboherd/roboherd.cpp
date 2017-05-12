@@ -44,24 +44,34 @@ l binary_search_lower(l a, l b, function<bool(l)> f) {
   return a;
 }
 
+l c;
+l target_count;
+l max_cost;
+vvl v;
 // # <= max_cost
-l count_cost(vvl& v, l p, l max_cost, l cost) {
-  if (cost > max_cost) return 0;
-  if (p == -1) return 1;
-  if (cost == max_cost) return 1;
-  l r = 0;
-  for (const auto x : v[p]) {
-    r += count_cost(v, p - 1, max_cost, cost + x);
+bool count_cost(l p, l cost) {
+  // if (cost > max_cost) return false;
+  if (p == -1 or (v[p].size() > 0 and cost + v[p][1] > max_cost)) {
+    c++;
+    return (c >= target_count);
   }
-  return r;
+  for (const auto x : v[p]) {
+    if (cost + x > max_cost) break;
+    if (count_cost(p - 1, cost + x))
+      return true;
+  }
+  return false;
 }
 
-l sum_negative_cost(vvl& v, l p, l max_cost, l cost) {
-  if (cost >= max_cost) return 0;
-  if (p == -1) return max_cost - cost;
-  if (cost == max_cost) return 0;
+l sum_negative_cost(l p, l cost) {
+  // if (cost >= max_cost) return 0;
+  if (p == -1 or (v[p].size() > 0 and cost + v[p][1] >= max_cost))
+    return max_cost - cost;
   l r = 0;
-  for (const auto x : v[p]) r += sum_negative_cost(v, p - 1, max_cost, cost + x);
+  for (const auto x : v[p]) {
+    if (x + cost >= max_cost) break;
+    r += sum_negative_cost(p - 1, cost + x);
+  }
   return r;
 }
 
@@ -69,17 +79,15 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   ifstream fin("roboherd.in"); cin.rdbuf(fin.rdbuf());
   ofstream fout("roboherd.out"); cout.rdbuf(fout.rdbuf());
-  l n, k;
-  cin >> n >> k;
-  vvl v(n);
+  l n;
+  cin >> n >> target_count;
+  v.resize(n);
   l base_cost = 0;
   l hi = 0;
   F(i, 0, n) {
     l s; cin >> s;
-    F(j, 0, s) {
-      l x; cin >> x;
-      v[i].emplace_back(x);
-    }
+    v[i].resize(s);
+    F(j, 0, s) cin >> v[i][j];
     sort(all(v[i]));
     l t = v[i][0];
     base_cost += t;
@@ -93,9 +101,13 @@ int main() {
       }
       return a.size() > b.size();
     });
-  l cost = binary_search_lower(0, hi, [&](l x) {
-      return count_cost(v, n - 1, x, 0) >= k;
+  max_cost = binary_search_lower(0, hi, [&](l x) {
+      c = 0;
+      max_cost = x;
+      return count_cost(n - 1, 0);
     });
-  l answer = base_cost * k + cost * k - sum_negative_cost(v, n - 1, cost, 0);
+  l answer = base_cost * target_count
+    + max_cost * target_count
+    - sum_negative_cost(n - 1, 0);
   cout << answer << lf;
 }
