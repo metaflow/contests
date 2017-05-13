@@ -77,8 +77,7 @@ struct hash<tuple<l,l,l>> {
 };
 }
 
-// TODO: cong
-l mod(l x, l mod) {
+l cong(l x, l mod) {
   return (x % mod + mod) % mod;
 }
 

@@ -25,7 +25,7 @@ const bool enable_log = true;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
-bool equal_double(double x, double y) { // TODO: update template
+bool equal_double(double x, double y) {
   if (abs(x - y) < EPS) return true;
   // Is x or y too close to zero?
   if (abs(x) < EPS || abs(y) < EPS) return false;

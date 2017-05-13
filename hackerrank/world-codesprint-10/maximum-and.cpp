@@ -28,7 +28,6 @@ const bool enable_log = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
-// TODO add to integers snippet
 // return gcd(a, b) and set x, y: a * x + b * y = gcd(a, b)
 l extended_euclid(l a, l b, l& x, l& y) {
   if (b == 0) { x = 1; y = 0; return a; }
