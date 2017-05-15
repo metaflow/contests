@@ -1,4 +1,5 @@
-
+# pip install beautifulsoup4
+# 
 import time
 import urllib
 import urllib.parse
@@ -16,9 +17,9 @@ import subprocess
 import math
 from bs4 import BeautifulSoup
 
-ApiKey = '714a0baaad6b2ea7d18e46363e9ba8583ec26e12'
-ApiSecret = '837468f7d6dd95fb25821e344c5c99a11074146d'
-handle = 'mgoncharov'
+ApiKey = os.environ['CODEFORCES_API_KEY']
+ApiSecret = os.environ['CODEFORCES_API_SECRET']
+handle = os.environ['CODEFORCES_HANDLE']
 
 parser = argparse.ArgumentParser(description='codeforces problem picker', formatter_class=argparse.RawTextHelpFormatter)
 # parser.add_argument('--', help())
@@ -75,6 +76,7 @@ def apiCall(method, values, expire=0):
         # print 'cached', cached
     print(key)
     rand = '123456'
+    now = int(time.time())
     values['apiKey'] = ApiKey
     values['time'] = int(time.time())
     hash = rand + '/' + method + params(values) + '#' + ApiSecret
@@ -96,7 +98,7 @@ def apiCall(method, values, expire=0):
   ''', (key,))
     cursor.execute('''
     INSERT INTO api_cache(url, response, updated) VALUES (?,?,?)
-    ''', (key, s, values['time']))
+    ''', (key, s, now))
     db.commit()
     return s
 
@@ -182,6 +184,8 @@ def getNewRanksAfter(contestId):
     return result
 
 def getTagId(tag):
+    if 'name' in tag:
+        tag = tag['name']
     id = db.cursor().execute("""
     SELECT id FROM `tag` WHERE (`name`=?)
     """, (tag, )).fetchone()
@@ -272,6 +276,7 @@ def analyzeContest(contestId):
     #                     "dfs and similar",
     #                     "strings",
     #                     "trees"
+    #                     {"name": "binary search"}
     #                 ]
     #             },
     #         ,...]
@@ -398,16 +403,19 @@ def main():
     if (args.open):
         if args.open == 'last':
             parts = getProblemInfo(getLastProblemId())
-        elif args.open == 'next':
+            openProblem(parts[0], parts[1])
+            exit(0)
+        if args.open == 'next':
             selectBestProblem(getUserRating(handle))
             exit(0)
-        else:
+        if '.' in args.open:
             parts = args.open.split('.')
-        if len(parts) != 2:
-            parser.print_usage()
+            if len(parts) == 2:
+                openProblem(parts[0], parts[1])
+                exit(0)
+        else:
+            selectBestProblem(int(args.open))
             exit(0)
-        openProblem(parts[0], parts[1])
-        exit(0)
 
     if (args.list_tags):
         listTags()
