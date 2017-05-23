@@ -30,5 +30,26 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  // solution
+  l tcc; cin >> tcc;
+  F(tc, 1, tcc + 1) {
+    l n, m, q;
+    cin >> n >> m >> q;
+    vl seats(n);
+    vl cust(m);
+    F(i, 0, q) {
+      l x, y; cin >> x >> y; x--; y--;
+      seats[x]++;
+      cust[y]++;
+    }
+    l r = 0;
+    for (auto i : cust) r = max(r, i);
+    l sum = 0;
+    F(i, 0, n) {
+      sum += seats[i];
+      r = max(r, (sum + i) / (i + 1));
+    }
+    l p = 0;
+    for (l i : seats) p += max((l)0, i - r);
+    cout << "Case #" << tc << ": " << r << ' ' << p << lf;
+  }
 }

@@ -19,6 +19,7 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(b); a > l(c); a--)
+#define TT make_tuple
 
 #if defined(LOCAL)
 const bool enable_log = true;
@@ -30,5 +31,25 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  // solution
+  l tcc; cin >> tcc;
+  while (tcc--) {
+    l n, target;
+    cin >> n >> target;
+    deque<ll> q;
+    l delta = 0;
+    l answer = INF;
+    F(i, 0, n) {
+      l a; cin >> a;
+      delta += a; a -= delta;
+      ll p(a, i);
+      while (not q.empty() and q.back() < p) q.pop_back();
+      q.emplace_back(p);
+      while (not q.empty() and q.front().first + delta >= target) {
+        answer = min(answer, i - q.front().second + 1);
+        q.pop_front();
+      }
+    }
+    if (answer == INF) answer = -1;
+    cout << answer << lf;
+  }
 }

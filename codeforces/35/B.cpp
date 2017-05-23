@@ -30,6 +30,7 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
+  // solution
   ifstream fin("input.txt"); cin.rdbuf(fin.rdbuf());
   ofstream fout("output.txt"); cout.rdbuf(fout.rdbuf());
   l n, m, r;

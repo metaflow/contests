@@ -31,6 +31,7 @@ bool bit_set(l mask, l i) { return mask & (e0 << i); }
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
+  // solution
   l n, from;
   while (cin >> n) {
     fill(&M[0][0], &M[MAX][0], false);

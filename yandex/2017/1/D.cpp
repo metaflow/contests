@@ -30,5 +30,49 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-
+  l n;
+  while (cin >> n) {
+    vll W, D, L;
+    F(i, 0, n) {
+      char c; l a, b;
+      cin >> c >> a >> b;
+      switch(c) {
+      case 'W': W.emplace_back(a + b, b); break;
+      case 'D': D.emplace_back(a + b, b); break;
+      case 'L': L.emplace_back(a + b, b); break;
+      }
+    }
+    l m = 0;
+    l t = 0;
+    for (auto i : W) t += i.first;
+    m = max(m, t);
+    t = 0;
+    for (auto i : D) t += i.first;
+    m = max(m, t);
+    t = 0;
+    for (auto i : L) t += i.first;
+    m = max(m, t);
+    vl dw(m + 1, 0);
+    auto dd = dw, dl = dw;
+    for (auto p : W) for(l i = m; i >= 0; i--) {
+      l x = i + p.first;
+      if (x > m) continue;
+      dw[x] = max(dw[x], dw[i] + p.second);
+    }
+    for (auto p : D) for(l i = m; i >= 0; i--) {
+        l x = i + p.first;
+        if (x > m) continue;
+        dd[x] = max(dd[x], dd[i] + p.second);
+      }
+    for (auto p : L) for(l i = m; i >= 0; i--) {
+        l x = i + p.first;
+        if (x > m) continue;
+        dl[x] = max(dl[x], dl[i] + p.second);
+      }
+    l answer = 0;
+    F(i, 0, m + 1) {
+      answer = max(answer, dw[i] + dd[i] + dl[i] - i);
+    }
+    cout << answer << lf;
+  }
 }

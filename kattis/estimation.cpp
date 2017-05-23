@@ -31,4 +31,40 @@ struct VoidStream { void operator&(std::ostream&) { } };
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   // solution
+  l n, k;
+  cin >> n >> k;
+  vl v(n); F(i, 0, n) cin >> v[i];
+  vvl cost(n, vl(n));
+  F(i, 0, n) {
+    priority_queue<l> lower;
+    priority_queue<l, vl, greater<l>> upper;
+    l sum_lower = 0, sum_upper = 0;
+    F(j, i, n) {
+      lower.emplace(v[j]);
+      sum_lower += v[j];
+      if (lower.size() > upper.size() + 1 or
+          (not upper.empty() and upper.top() < lower.top())) {
+        l x = lower.top();
+        lower.pop();
+        upper.emplace(x);
+        sum_lower -= x;
+        sum_upper += x;
+      }
+      if (upper.size() > lower.size()) {
+        l x = upper.top();
+        upper.pop();
+        lower.emplace(x);
+        sum_upper -= x;
+        sum_lower += x;
+      }
+      l median = lower.top();
+      cost[i][j] = (lower.size() * median - sum_lower) +
+        (sum_upper - upper.size() * median);
+    }
+  }
+  vl dp(n + 1, INF);
+  dp[0] = 0;
+  F(m, 0, k) B(i, n - 1, -1) F(j, i, n)
+    dp[j + 1] = min(dp[j + 1], dp[i] + cost[i][j]);
+  cout << dp[n] << lf;
 }
