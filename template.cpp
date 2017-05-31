@@ -23,8 +23,10 @@ const char lf = '\n';
 
 #if defined(LOCAL)
 bool local = true;
+#define L(x...) log(x)
 #else
 bool local = false;
+#define L(x, ...) (x)
 #endif
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr

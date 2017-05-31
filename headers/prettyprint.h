@@ -440,6 +440,33 @@ namespace std
     }
 }
 
+template<typename T>
+void _print_stream(std::stringstream& ss, T&& arg) {
+  ss << std::forward<T>(arg);
+}
 
+template<typename T, typename... Ts>
+void _print_stream(std::stringstream& ss, T&& arg, Ts&&... args) {
+  ss << std::forward<T>(arg) << " ";
+  _print_stream(ss, std::forward<Ts>(args)...);
+}
+
+template<typename T>
+T log(T&& arg) {
+  std::stringstream ss;
+  _print_stream(ss, std::forward<T>(arg));
+  std::cerr << ss.str() << std::endl;
+  return arg;
+}
+
+template<typename T, typename... Ts>
+T log(T&& arg, Ts&&... args) {
+  std::stringstream ss;
+  _print_stream(ss, std::forward<T>(arg));
+  ss << ' ';
+  _print_stream(ss, std::forward<Ts>(args)...);
+  std::cerr << ss.str() << std::endl;
+  return arg;
+}
 
 #endif  // H_PRETTY_PRINT

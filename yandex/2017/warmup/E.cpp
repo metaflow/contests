@@ -1,6 +1,6 @@
-#define ONLINE_JUDGE
 #include <bits/stdc++.h>
-#if !defined(ONLINE_JUDGE)
+#undef LOCAL
+#if defined(LOCAL)
 #include "prettyprint.h"
 #endif
 
@@ -21,10 +21,12 @@ const char lf = '\n';
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(b); a > l(c); a--)
 
-#if defined ONLINE_JUDGE
-const bool enable_log = false;
-#else
+#if defined(LOCAL)
 const bool enable_log = true;
+#define L(x...) log(x)
+#else
+const bool enable_log = false;
+#define L(x, ...) (x)
 #endif
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
@@ -115,8 +117,8 @@ tuple<point, bool> circumscribed_circle(point a, point b, point c) {
   point d = a + (ab * 0.5);
   point z = d - e;
   double w = - (x ^ z) / (x ^ y);
-  point o = d + (y * w);
-  return make_tuple(o, true);
+  point o = (d + (y * w));
+  return L(make_tuple(o, true));
 }
 
 
