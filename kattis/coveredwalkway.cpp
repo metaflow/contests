@@ -23,10 +23,10 @@ const char lf = '\n';
 #if defined(LOCAL)
 bool local = true;
 #else
-bool local = false; // TODO:
+bool local = false;
 #endif
 struct VoidStream { void operator&(std::ostream&) { } };
-#define LOG !(local) ? (void) 0 : VoidStream() & cerr // TODO: or //? 
+#define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
 l cost(ll solution, l x) {
   l d = solution.first - x;

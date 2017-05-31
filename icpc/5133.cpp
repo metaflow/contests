@@ -22,7 +22,7 @@ const char lf = '\n';
 #define B(a,b,c) for (l a = l(b); a > l(c); a--)
 
 #if defined(LOCAL)
-bool local = true; // TODO
+bool local = true;
 #else
 bool local = false;
 #endif

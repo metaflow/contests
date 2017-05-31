@@ -30,7 +30,7 @@ struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(enable_log) ? (void) 0 : VoidStream() & cerr
 
 // RSQ for range [1, n]
-struct BIT { // TODO
+struct BIT {
   vl tree;
   l max_p;
   BIT(size_t n) {

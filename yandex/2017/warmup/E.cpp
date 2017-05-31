@@ -81,7 +81,7 @@ l segment_intersection(point a, point b, point c, point d, point& o1, point &o2)
   if (abs(t) < EPS) {
     if (abs(x ^ y) < EPS) {
       vector<point> v = {a, b, c, d};
-      sort(all(v)); // TODO
+      sort(all(v));
       o1 = v[1];
       o2 = v[2];
       return 2;
@@ -99,7 +99,6 @@ ostream& operator << (ostream& s, const point& p) {
   return s;
 }
 
-// TODO circle around triangle <position, if found>
 tuple<point, bool> circumscribed_circle(point a, point b, point c) {
   point ac = c - a;
   point ab = b - a;

@@ -34,7 +34,7 @@ l binary_search_lower(l a, l b, function<bool(l)> f) {
   while (count > 0) {
     l step = count / 2;
     l m = a + step;
-    if (f(m)) { // TODO
+    if (f(m)) {
       count = step;
     } else {
       a = m + 1;

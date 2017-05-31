@@ -97,7 +97,6 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   l tcc; cin >> tcc;
   fill(&dp[0][0][0], &dp[MAX][0][0], 0);
-  // TODO to discrete
   vvl C(MAX, vl(MAX));
   F(n, 0, MAX) {
     C[n][0] = 1;

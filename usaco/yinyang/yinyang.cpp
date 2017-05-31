@@ -13,7 +13,7 @@ using lu = unsigned long long;
 using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
-const l INF = numeric_limits<int>::max(); // TODO: type
+const l INF = numeric_limits<int>::max();
 const double EPS = 1e-10; static constexpr auto PI = acos(-1);
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
@@ -37,10 +37,9 @@ using graph = vector<pnode>;
 
 struct node {
   bool visited;
-  bool blocked;
+  l subtreeSize = 1; bool blocked;
   vector<pedge> adjusted;
   pnode parent;
-  l subtreeSize = 1;
   l id;
 };
 
@@ -84,7 +83,7 @@ void dfs(pnode u, l value, vl& with, vl& without, vl& seen, l offset) {
 }
 
 l solveFor(pnode u, l n) {
-  vl withTotal(n * 2 + 1), withoutTotal(n * 2 + 1); // TODO alias mll
+  vl withTotal(n * 2 + 1), withoutTotal(n * 2 + 1);
   // LOG << "solve " << u->id << endl;
   l result = 0;
   for (auto e : u->adjusted) {
@@ -109,7 +108,6 @@ l solveFor(pnode u, l n) {
   return result;
 }
 
-// TODO: centroid decomposition
 l decompose(pnode u) {
   u->parent = nullptr;
   dfsSubtreeSize(u);
@@ -141,10 +139,8 @@ l decompose(pnode u) {
 
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-// #if not defined(LOCAL) // TODO: move to template
   ifstream fin("yinyang.in"); cin.rdbuf(fin.rdbuf());
   ofstream fout("yinyang.out"); cout.rdbuf(fout.rdbuf());
-// #endif
   // solution
   l n;
   while (cin >> n) {

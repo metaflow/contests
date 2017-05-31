@@ -35,7 +35,6 @@ l random_in_range(l a, l b) {
   return uniform_int_distribution<l>(a, b - 1)(source);
 }
 
-// TODO:
 double random_double() {
   return uniform_real_distribution<double>(0, 1)(source);
 }
@@ -104,7 +103,7 @@ l segment_intersection(point a, point b, point c, point d, point& o1, point &o2)
   if (abs(t) < EPS) {
     if (abs(x ^ y) < EPS) {
       vector<point> v = {a, b, c, d};
-      sort(all(v)); // TODO
+      sort(all(v));
       o1 = v[1];
       o2 = v[2];
       return 2;
