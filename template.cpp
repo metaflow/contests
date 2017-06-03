@@ -1,7 +1,9 @@
-#include <bits/stdc++.h>
 #if defined(LOCAL)
-#include "prettyprint.h"
+#define PROBLEM_NAME "#PROBLEM_NAME"
+const double _max_double_error = 1e-9;
+#include "testutils.h"
 #endif
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -23,7 +25,7 @@ const char lf = '\n';
 
 #if defined(LOCAL)
 bool local = true;
-#define L(x...) log(x)
+#define L(x...) debug(x)
 #else
 bool local = false;
 #define L(x, ...) (x)
@@ -31,7 +33,16 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
+void solve(istream& in, ostream& out) {
+
+}
+
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
-  // solution
+  cout << fixed << setprecision(15);
+#if defined(LOCAL)
+  maybe_run_tests(cin, cout);
+#else
+  solve(cin, cout);
+#endif
 }

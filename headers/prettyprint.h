@@ -21,6 +21,8 @@
 #include <unordered_set>
 #include <utility>
 #include <valarray>
+#include <iostream>
+#include <sstream>
 
 namespace pretty_print
 {
@@ -447,12 +449,12 @@ void _print_stream(std::stringstream& ss, T&& arg) {
 
 template<typename T, typename... Ts>
 void _print_stream(std::stringstream& ss, T&& arg, Ts&&... args) {
-  ss << std::forward<T>(arg) << " ";
+  ss << std::forward<T>(arg) << ' ';
   _print_stream(ss, std::forward<Ts>(args)...);
 }
 
 template<typename T>
-T log(T&& arg) {
+T debug(T&& arg) {
   std::stringstream ss;
   _print_stream(ss, std::forward<T>(arg));
   std::cerr << ss.str() << std::endl;
@@ -460,11 +462,12 @@ T log(T&& arg) {
 }
 
 template<typename T, typename... Ts>
-T log(T&& arg, Ts&&... args) {
+T debug(T&& arg, Ts&&... args) {
   std::stringstream ss;
   _print_stream(ss, std::forward<T>(arg));
-  ss << ' ';
-  _print_stream(ss, std::forward<Ts>(args)...);
+  ss << arg << ' ';
+  // std::cout << arg;
+  _print_stream(ss, std::forward<T>(arg), std::forward<Ts>(args)...);
   std::cerr << ss.str() << std::endl;
   return arg;
 }
