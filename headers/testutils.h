@@ -1,7 +1,7 @@
 #ifndef _TESTUTILS_H
 #define _TESTUTILS_H
+#include "rnd.h"
 #include "prettyprint.h"
-// #include "testlib.h"
 #include "dirent.h"
 #include <bits/stdc++.h>
 
@@ -13,16 +13,24 @@ bool _test_equal_double(double expected, double actual, double allowed_error) {
   using namespace std;
   const double e = 1E-15;
   if (abs(expected - actual) <= allowed_error + e) return true;
-  // Is x or y too close to zero?
-  // if (abs(x) < EPS || abs(y) < EPS) return false;
-  // Check relative precision.
-  // return (abs((x - y) / x) < EPS) && (abs((x - y) / y) < EPS);
   double a = expected * (1.0 - allowed_error);
   double b = expected * (1.0 + allowed_error);
   if (a > b) swap(a, b);
   return (actual + e >= a) && (actual <= b + e);
 }
 
+
+bool _file_exist(string name) {
+  ifstream f(name);
+  return f.good();
+}
+
+void _copy_content(string from, string to) {
+  ifstream f(from);
+  ofstream t(to);
+  char c;
+  while (f.get(c)) t.put(c);
+}
 
 vector<string> _tokenize_file(string fname) {
   using namespace std;
@@ -89,15 +97,15 @@ pair<string, bool> _compare_lines(vector<string> ve, vector<string> va) {
   return make_pair("", true);
 }
 
-bool _compare_output(string in, string out_expected, string out_actual) {
-  using namespace std;
-  TEST_LOG << in;
+bool _compare_output(string in, string out_expected, string out_actual,
+                     long duration_ms, ostream& out) {
+  out << in;
   if (out_expected == "") {
-    TEST_LOG << " output:" << '\n';
+    out << " output:" << '\n';
     ifstream f(out_actual);
     string s;
     while (getline(f, s)) {
-      TEST_LOG << s << '\n';
+      out << s << '\n';
     }
     return true;
   }
@@ -125,10 +133,10 @@ bool _compare_output(string in, string out_expected, string out_actual) {
   ok = ok and i >= expected.size() and j >= actual.size() and
              not actual.empty() and actual.back() == "\n";
   if (ok) {
-    TEST_LOG << ": passed\n";
+    out << ": passed " << duration_ms << " ms" << endl;
     return true;
   }
-  TEST_LOG << ": failed\n";
+  out << ": failed\n";
   while (i < expected.size()) {
     string s;
     while (i < expected.size() and expected[i] != "\n") s += expected[i++];
@@ -149,12 +157,12 @@ bool _compare_output(string in, string out_expected, string out_actual) {
   we += 2;
   for (auto t : diff) {
     string s = get<0>(t);
-    TEST_LOG << s;
-    for (int k = (int)s.size(); k < we; k++) TEST_LOG << ' ';
+    out << s;
+    for (int k = (int)s.size(); k < we; k++) out << ' ';
     s = get<1>(t);
-    TEST_LOG << s;
-    for (int k = (int)s.size(); k < wa; k++) TEST_LOG << ' ';
-    TEST_LOG << ' ' << get<2>(t) << '\n';
+    out << s;
+    for (int k = (int)s.size(); k < wa; k++) out << ' ';
+    out << ' ' << get<2>(t) << '\n';
   }
   if (actual.empty() or actual.back() != "\n") {
     TEST_LOG << "no '\n' and the end of output" << '\n';
@@ -242,19 +250,82 @@ void _run_tests() {
     ifstream fin(get<1>(c));
     string o = name + ".output";
     ofstream fout(o);
+    using namespace std::chrono;
+    auto t1 = high_resolution_clock::now();
     solve(fin, fout);
+    auto t2 = high_resolution_clock::now();
+    long ms = duration_cast<milliseconds>(t2 - t1).count();
     fin.close();
     fout.close();
-    if (_compare_output(get<1>(c), get<2>(c), o)) continue;
+    if (_compare_output(get<1>(c), get<2>(c), o, ms, TEST_LOG)) continue;
     if (failure.empty()) failure = get<1>(c);
   }
   _write_last_input(failure);
 }
 
+#if defined(RANDOM_TEST)
+void generate(long long size, ostream& out);
+void solve_brute(istream& cin, ostream& cout);
+
+int _random_test_size_from = 1;
+int _random_test_size_to = 20;
+int _random_test_count = 100;
+void _random_test() {
+  string problem_name = PROBLEM_NAME;
+  string input_file_name = problem_name + ".in.random";
+  string expected_output = problem_name + ".out.random";
+  string actual_output = problem_name + ".output";
+  for (int size = _random_test_size_from; size < _random_test_size_to; size++) {
+    cerr << '.';
+    for (int tc = 0; tc < _random_test_count; tc++) {
+      {
+        ofstream in(input_file_name);
+        generate(size, in);
+      }
+      {
+        ifstream in(input_file_name);
+        ofstream out(actual_output);
+        solve(in, out);
+      }
+      {
+        ifstream in(input_file_name);
+        ofstream out(expected_output);
+        solve_brute(in, out);
+      }
+      stringstream ss;
+      if (_compare_output("random", expected_output, actual_output, 0, ss)) {
+        continue;
+      }
+      // create new test case
+      int i = 1;
+      string name_in = problem_name + ".in" + to_string(i);
+      string name_out = problem_name + ".out" + to_string(i);
+      while (1) {
+        name_in = problem_name + ".in" + to_string(i);
+        name_out = problem_name + ".out" + to_string(i);
+        if (not _file_exist(name_in) and not _file_exist(name_out)) {
+          _copy_content(input_file_name, name_in);
+          _copy_content(expected_output, name_out);
+          break;
+        }
+        i++;
+      }
+      cerr << ss.str() << '\n';
+      cerr << name_in << ' ' << name_out << " created\n";
+      return;
+    }
+  }
+  cerr << "random: passed" << '\n';
+}
+#endif
+
 void maybe_run_tests(istream& in, ostream& out) {
   auto run = getenv("RUN_TESTS");
   if (run) {
     _run_tests();
+#if defined(RANDOM_TEST)
+    _random_test();
+#endif
   } else {
     solve(in, out);
   }

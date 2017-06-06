@@ -1,6 +1,5 @@
 #if defined(LOCAL)
-// #define RANDOM_TEST
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "A"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #endif
@@ -34,8 +33,24 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
-void solve(istream& cin, ostream& cout) {
-
+void solve(istream& in, ostream& out) {
+  l n;
+  while (in >> n) {
+    vl v(n); F(i, 0, n) in >> v[i];
+    vvl dp(n + 1, vl(10));
+    F(j, 1, 10) dp[0][j] = -INF;
+    F(i, 0, n) {
+      l x = v[i];
+      dp[i + 1] = dp[i];
+      F(j, 0, 10) {
+        dp[i + 1][(x + j) % 10] = max(dp[i + 1][(x + j) % 10],
+                                      dp[i][j] + x);
+      }
+    }
+    l answer = 0;
+    F(j, 1, 10) answer = max(answer, dp[n][j]);
+    out << answer << endl;
+  }
 }
 
 int main() {

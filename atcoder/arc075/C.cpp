@@ -1,6 +1,5 @@
 #if defined(LOCAL)
-// #define RANDOM_TEST
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "C"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #endif
@@ -34,8 +33,39 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
-void solve(istream& cin, ostream& cout) {
+l f(vl& v, l a, l b, l K) { // [a, b)
+  if (a >= b) return 0;
+  if (b - a == 1) return (v[a] >= K) ? 1 : 0;
+  l m = a + (b - a) / 2;
+  vl left, right;
+  l t = 0, j = 0;
+  l r = f(v, a, m, K) + f(v, m, b, K);
+  B(i, m - 1, a - 1) {
+    t += v[i];
+    j++;
+    left.emplace_back(K * j - t);
+  }
+  t = 0; j = 0;
+  F(i, m, b) {
+    j++;
+    t += v[i];
+    right.emplace_back(t - K * j);
+  }
+  sort(all(right));
+  for (auto i : left) {
+    auto p = lower_bound(all(right), i);
+    r += distance(p, right.end());
+  }
+  return r;
+}
 
+void solve(istream& cin, ostream& cout) {
+  l N, K;
+  while (cin >> N >> K) {
+    vl v(N); F(i, 0, N) cin >> v[i];
+    l answer = f(v, 0, N, K);
+    cout << answer << lf;
+  }
 }
 
 int main() {

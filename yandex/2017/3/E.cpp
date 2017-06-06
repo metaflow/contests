@@ -1,6 +1,5 @@
 #if defined(LOCAL)
-// #define RANDOM_TEST
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "E"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #endif
@@ -35,7 +34,16 @@ struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
 void solve(istream& cin, ostream& cout) {
-
+  l x1, y1, x2, y2;
+  while (cin >> x1 >> y1 >> x2 >> y2) {
+    l dx = abs(x1 - x2);
+    l dy = abs(y1 - y2);
+    if (dx > dy) swap(dx, dy);
+    l answer = dx * 2;
+    dy -= dx;
+    answer += (dy / 2) * 2 + dy;
+    cout << answer << lf;
+  }
 }
 
 int main() {
