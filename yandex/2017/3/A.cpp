@@ -34,36 +34,40 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
+l dfs(vl& a, l i, vl& b, l j, vl& freq, vvl& dp) {
+  l n = a.size();
+  if (j == n and i == n) return 0;
+  l r = dp[i][j];
+  if (r == -1) {
+    r = INF;
+    if (j == n) {
+      if (freq[a[i]] == 0) return r;
+      freq[a[i]]--;
+      return dfs(a, i + 1, b, j, freq, dp);
+    }
+    if (a[i] == b[j]) return r = dfs(a, i + 1, b, j + 1, freq, dp);
+    if (freq[a[i]]) {
+      freq[a[i]]--;
+      r = dfs(a, i + 1, b, j, freq, dp);
+      freq[a[i]]++;
+    }
+    freq[b[j]]++;
+    r = min(r, 1 + dfs(a, i, b, j + 1, freq, dp));
+  }
+  return r;
+}
+
 void solve(istream& cin, ostream& cout) {
   string s, q;
   while (cin >> s >> q) {
     l n = s.size();
+    vl a(n), b(n);
+    F(i, 0, n) a[i] = s[i] - 'a';
+    F(i, 0, n) b[i] = q[i] - 'a';
+    vvl dp(n + 1, vl(n + 1, -1));
     vl freq(26);
-    for (auto c : s) freq[c - 'a']++;
-    for (auto c : q) freq[c - 'a']--;
-    bool ok = true;
-    for (auto i : freq) ok = ok and i == 0;
-    if (not ok) {
-      cout << -1 << lf;
-      continue;
-    }
-    l i = 0, j = 0;
-    l answer = 0;
-    while (j < n) {
-      if (s[i] == q[j]) {
-        i++;
-        j++;
-        continue;
-      }
-      if (freq[s[i] - 'a']) {
-        i++;
-        freq[s[i] - 'a']--;
-      } else {
-        freq[q[j] - 'a']++;
-        j++;
-        answer++;
-      }
-    }
+    l answer = dfs(a, 0, b, 0, freq, dp);
+    if (answer == INF) answer = -1;
     cout << answer << lf;
   }
 }
@@ -77,7 +81,7 @@ void solve_brute(istream& cin, ostream& cout) {
   queue<pair<string, l>> q;
   q.emplace(s, 0);
   l answer = -1;
-  while (1) {
+  while (not q.empty()) {
     string a; l w; tie(a, w) = q.front(); q.pop();
     if (w > n) break;
     if (a == r) {
@@ -85,10 +89,10 @@ void solve_brute(istream& cin, ostream& cout) {
       break;
     }
     F(i, 0, n) {
-      F(j, i + 2, n) {
+      F(j, i + 2, n + 1) {
         string b = a;
         b[i] = a[j - 1];
-        F(k, i + 1, j) b[i] = a[i - 1];
+        F(k, i + 1, j) b[k] = a[k - 1];
         q.emplace(b, w + 1);
       }
     }
@@ -97,7 +101,7 @@ void solve_brute(istream& cin, ostream& cout) {
 }
 
 void generate(l size, ostream& cout) {
-  string s = rnd.next_string(size);
+  string s = rnd.next_string(size, "abcdefghijklmnopqrstuvwxyz");
   string t = s;
   shuffle(all(t), rnd.source);
   cout << s << lf << t << endl;
@@ -109,8 +113,11 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   cout << fixed << setprecision(15);
 #if defined(LOCAL)
+  _random_test_size_to = 7;
+  _random_test_count = 10000;
   maybe_run_tests(cin, cout);
 #else
   solve(cin, cout);
 #endif
+  return 0;
 }

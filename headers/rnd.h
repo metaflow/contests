@@ -31,6 +31,15 @@ public:
     return s;
   }
 
+  string next_string(int length, string an) {
+    string s = "";
+    for (int i = 0; i < length; i++) {
+      s += an[next(0, an.size())];
+    }
+    return s;
+  }
+
+
   // return (size - 1) edges connecting nodes [0, n)
   vector<pair<int, int>> tree(int size) {
     vector<int> v(size);

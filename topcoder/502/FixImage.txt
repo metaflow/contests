@@ -1,0 +1,91 @@
+PROBLEM STATEMENT
+You are given an image represented as a vector <string> alteredImage. alteredImage contains only '.' and '#' characters, representing white and black pixels, respectively. For the purposes of this problem, two black pixels are directly connected if they share a common edge. Two black pixels A and B are connected indirectly if there exists a path of black pixels A = P0, P1, ..., Pk = B, such that Pi and Pi + 1 are directly connected for all i. A block is a set of black pixels where every two pixels in the set are directly or indirectly connected, and no other black pixel can be added to the block while maintaining that property.  A block is considered smooth if for each pair of pixels A and B in the block, there exists a path of black pixels between A and B with length equal to the manhattan distance between A and B.
+The manhattan distance between two pixels A and B with coordinates (xA, yA) and (xB, yB), respectively, is the sum of the (absolute) differences of their coordinates(i.e. |xA - xB| + |yA - yB|).
+Our friend sent us an image where all the black blocks are smooth. Due to some transmission errors, some black pixels were transmitted as white (but all white pixels remained white). Your task is to retrieve the original image. Find the minimum number of pixels you have to change from white to black so that every black block is smooth and return the original image in the same format as the altered one. The solution with the minimum number of changes will always be unique.
+
+DEFINITION
+Class:FixImage
+Method:originalImage
+Parameters:vector <string>
+Returns:vector <string>
+Method signature:vector <string> originalImage(vector <string> alteredImage)
+
+
+CONSTRAINTS
+-alteredImage will contain between 1 and 50 elements, inclusive.
+-Each element of alteredImage will contain between 1 and 50 elements, inclusive.
+-Each element of alteredImage will contain the same number of characters.
+-alteredImage will contain only the characters '.' and '#'.
+
+
+EXAMPLES
+
+0)
+{"....",
+ ".##.",
+ ".##.",
+ "...."}
+
+Returns: {"....", ".##.", ".##.", "...." }
+
+This block is smooth.
+
+1)
+{".....",
+ ".###.",
+ ".#.#.",
+ ".###.",
+ "....."}
+
+Returns: {".....", ".###.", ".###.", ".###.", "....." }
+
+This block is not smooth.  We need to make the center pixel black.
+
+2)
+{".......",
+ ".###...",
+ ".#..##.",
+ ".###.#.",
+ ".....#."}
+
+Returns: {".......", ".###...", ".#####.", ".#####.", ".....#." }
+
+This image consists of two blocks. The right one is smooth. We make the left one smooth by changing the white pixels inside it, but now our image consists of only one block which is not smooth. To make it smooth we need to change one more white square.
+
+3)
+ {".................",
+ "#####.#..#..#####",
+ "..#...#..#....#..",
+ "..#...#..###..#..",
+ "................."}
+
+Returns: {".................", "#####.#..#..#####", "..#...#..#....#..", "..#...#..###..#..", "................." }
+
+These smooth blocks spell out the word "TILT".
+
+4)
+ {"###.####",
+  "#.#.#..#",
+  ".#...#.#",
+  ".#####.#",
+  "......#.",
+  "########"}
+
+Returns: {"########", "########", "########", "########", "########", "########" }
+
+
+
+5)
+{"..###..",
+ "..#.#..",
+ "##...##",
+ "#.....#",
+ "#.....#",
+ "#.....#",
+ "##...##",
+ "..#.#..",
+ "..###.."}
+
+Returns: {"..###..", "..###..", "##...##", "##...##", "##...##", "##...##", "##...##", "..###..", "..###.." }
+
+
