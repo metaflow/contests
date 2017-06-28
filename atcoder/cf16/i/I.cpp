@@ -117,7 +117,6 @@ void f(vb& active, vl& xx, vl& yy, vl& angles) {
     while (not active[d]) d = (d + 1) % n;
     if (d < c) break;
   }
-  // LOG << a << ' ' << b << ' ' << c << ' ' << d << endl; // TODO << with ' ' macro
   if (angles[b] + angles[c] == 0) {
     active[b] = false; active[c] = false;
     f(active, xx, yy, angles);

@@ -1,6 +1,8 @@
 #if defined(LOCAL)
+const double _max_double_error = 1e-10;
 #define PROBLEM_NAME "TESTERS"
 #include "prettyprint.h"
+#include "testutils.h"
 #endif
 #include <bits/stdc++.h>
 
@@ -226,6 +228,7 @@ void solve(istream& in, ostream& out) {
   in >> n;
   graph g(n);
   F(i, 0, n) {
+    debug(i, i);
     g[i] = make_shared<node>();
     g[i]->id = i + 1;
   }
@@ -245,5 +248,9 @@ void solve(istream& in, ostream& out) {
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   cout << fixed << setprecision(15);
+#if defined(LOCAL)
+  maybe_run_tests(cin, cout);
+#else
   solve(cin, cout);
+#endif
 }

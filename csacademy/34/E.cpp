@@ -34,6 +34,68 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
+struct point {
+  l x, y;
+  point() {}
+  point(l _x, l _y) : x(_x), y(_y) {}
+  // scalar multiplication
+  l operator * (const point & o) {
+    return x * o.x + y * o.y;
+  }
+  point operator * (const l m) {
+    return point(x * m, y * m);
+  }
+  // vector multiplication
+  l operator ^ (const point & o) {
+    return x * o.y - y * o.x;
+  }
+  point operator - (const point& o) {
+    return point(x - o.x, y - o.y);
+  }
+  point operator + (const point& o) {
+    return point(x + o.x, y + o.y);
+  }
+  // squared distance
+  // TODO: same type as coordinate
+  l operator >> (const point& o) {
+    point d = (*this - o);
+    return d * d;
+  }
+  double distance(const point& o) {
+    return sqrt(*this >> o);
+  }
+  bool operator < (const point& o) const {
+    if (o.x != x) return x < o.x;
+    return y < o.y;
+  }
+};
+
+// 0 - no intersection, 1 - point o1, 2 - segment [o1, o2]
+l segment_intersection(point a, point b, point c, point d, point& o1, point &o2) {
+  point x = c - a, y = d - a, z = b - a;
+  double t = (x ^ z) + (z ^ y);
+  if (abs(t) < EPS) {
+    if (abs(x ^ y) < EPS) {
+      vector<point> v = {a, b, c, d};
+      sort(all(v));
+      o1 = v[1];
+      o2 = v[2];
+      return 2;
+    } else {
+      return 0;
+    }
+  }
+  t = (x ^ y) / t;
+  if (t < 0 or t > 1) return 0;
+  o1 = o2 = a + z * t;
+  return 1;
+}
+ostream& operator << (ostream& s, const point& p) {
+  s << "(" << p.x << ", " << p.y << ")";
+  return s;
+}
+
+
 l sign(l n) {
   if (n < 0) return -1;
   if (n == 0) return 0;
@@ -116,16 +178,9 @@ const l MOD = e9 + 7;
 void solve(istream& cin, ostream& cout) {
   l n, k;
   while (cin >> n >> k) {
-    vll points(n);
-    F(i, 0, n) cin >> points[i].first >> points[i].second;
-    ll o; cin >> o.first >> o.second;
-    vd aa;
-    F(i, 0, n) {
-      double a = atan2(points[i].second - o.second, points[i].first - o.first);
-      aa.emplace_back(a);
-      aa.emplace_back(a + 2 * PI);
-    }
-    sort(all(aa));
+    vector<point> pp(n);
+    F(i, 0, n) cin >> pp[i].x >> pp[i].y;
+    point o; cin >> o.x >> o.y;
     l j = 0;
     l answer = nCr(n, k, MOD);
     vl c(n - k + 2); // c[i] = C((i + k - 1), k - 1)
@@ -136,7 +191,8 @@ void solve(istream& cin, ostream& cout) {
                       MOD);
     }
     F(i, 0, n) {
-      while ((j + 1) < 2*n and aa[j + 1] < aa[i] + PI + EPS) j++;
+      while (((pp[i] - o) ^ (pp[cong(j + 1, n)] - o)) >= 0) j++;
+      // debug(i, j);
       if (j - i < k - 1) continue;
       answer = cong(answer - c[j - i - k + 1], MOD);
     }

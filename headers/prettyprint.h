@@ -443,31 +443,20 @@ namespace std
 }
 
 template<typename T>
-void _print_stream(std::stringstream& ss, T&& arg) {
+void _out_to_stream(std::stringstream& ss, T&& arg) {
   ss << std::forward<T>(arg);
 }
 
-template<typename T, typename... Ts>
-void _print_stream(std::stringstream& ss, T&& arg, Ts&&... args) {
+template<typename T, typename... O>
+void _out_to_stream(std::stringstream& ss, T&& arg, O&&... args) {
   ss << std::forward<T>(arg) << ' ';
-  _print_stream(ss, std::forward<Ts>(args)...);
+  _out_to_stream(ss, std::forward<O>(args)...);
 }
 
-template<typename T>
-T debug(T&& arg) {
+template<typename T, typename... O>
+T debug(T&& arg, O&&... args) {
   std::stringstream ss;
-  _print_stream(ss, std::forward<T>(arg));
-  std::cerr << ss.str() << std::endl;
-  return arg;
-}
-
-template<typename T, typename... Ts>
-T debug(T&& arg, Ts&&... args) {
-  std::stringstream ss;
-  _print_stream(ss, std::forward<T>(arg));
-  ss << arg << ' ';
-  // std::cout << arg;
-  _print_stream(ss, std::forward<T>(arg), std::forward<Ts>(args)...);
+  _out_to_stream(ss, std::forward<T>(arg), std::forward<O>(args)...);
   std::cerr << ss.str() << std::endl;
   return arg;
 }
