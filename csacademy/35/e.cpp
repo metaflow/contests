@@ -49,6 +49,7 @@ bool fill(vvl& M) {
     }
     if (t) return false;
   }
+  // mj++;
   mj++;
   l k = 0;
   while (mj < m) {

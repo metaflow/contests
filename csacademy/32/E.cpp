@@ -34,7 +34,6 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
-// TODO: update this template
 bool equal_double(double x, double y) {
   if (abs(x - y) < EPS) return true;
   // Is x or y too close to zero?

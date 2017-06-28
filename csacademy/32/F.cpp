@@ -41,7 +41,6 @@ struct BIT {
     max_p = n;
     tree.resize(n + 1);
   };
-  // TODO:
   void reset(size_t n) {
     max_p = n;
     tree.clear();

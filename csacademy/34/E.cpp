@@ -56,7 +56,6 @@ struct point {
     return point(x + o.x, y + o.y);
   }
   // squared distance
-  // TODO: same type as coordinate
   l operator >> (const point& o) {
     point d = (*this - o);
     return d * d;

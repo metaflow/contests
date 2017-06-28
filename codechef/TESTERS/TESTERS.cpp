@@ -85,13 +85,12 @@ struct BIT {
 };
 
 const l MAX_PRIME = 2000;
-// returns vector of v[i] = biggest prime divisor of i
+// returns vector of v[i] = smallest prime divisor of i or 1
 vl sieve_primes(vl& primes) {
   vl next_div(MAX_PRIME, 1);
   for (l i = 2; i < MAX_PRIME; i++) {
     if (next_div[i] != 1) continue;
     primes.emplace_back(i);
-    // TODO: update template
     for (l j = i; j < MAX_PRIME; j += i) if (next_div[j] == 1) next_div[j] = i;
   }
   return next_div;
@@ -132,7 +131,7 @@ l divisorsSum(vl& factors) {
   v.emplace_back(1);
   l p = 0;
   while (p < factors.size()) {
-    l a = factors[p]; // TODO L(v.size(), "size")
+    l a = factors[p];
     l k = v.size();
     l m = 1;
     while (p < factors.size() and factors[p] == a) {
