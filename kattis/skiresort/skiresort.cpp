@@ -45,10 +45,12 @@ struct node {
   bool visited;
   vector<pnode> forward;
   vector<pnode> backward;
-  // dominating tree
   l level;
-  vector<pnode> up; // up[i] is 2^i away up from this node
-  vector<pnode> down;
+  vector<pnode> up;
+  // dominator tree
+  l dt_level;
+  vector<pnode> dt_up; // up[i] is 2^i away up from this node
+  vector<pnode> dt_down;
 };
 
 void connect(pnode &a, pnode &b) {
@@ -75,45 +77,116 @@ void toposort(graph g) {
   }
 }
 
-pnode lca(pnode a, pnode b) {
-  if (a->level < b->level) swap(a, b);
-  while (a->level > b->level) {
+pnode dt_lca(pnode a, pnode b) {
+  if (a->dt_level < b->dt_level) swap(a, b);
+  while (a->dt_level > b->dt_level) {
     l k = 0;
-    while (k + 1 < a->up.size() and a->up[k + 1]->level >= b->level) k++;
-    a = a->up[k];
+    while (k + 1 < a->dt_up.size() and a->dt_up[k + 1]->dt_level >= b->dt_level) k++;
+    a = a->dt_up[k];
   }
   while (a != b) {
     l k = 0;
-    while (k + 1 < a->up.size() and a->up[k + 1] != b->up[k + 1]) k++;
-    a = a->up[k];
-    b = b->up[k];
+    while (k + 1 < a->dt_up.size() and a->dt_up[k + 1] != b->dt_up[k + 1]) k++;
+    a = a->dt_up[k];
+    b = b->dt_up[k];
   }
   return a;
 }
 
-void build_domination_tree(graph g) {
+void build_domination_tree(graph& g) {
   l n = g.size();
   vl v(n);
   iota(all(v), 0);
+  // bfs?
   sort(all(v), [&](l a, l b) {return g[a]->order < g[b]->order;});
-  g[0]->level = 0;
+  g[0]->dt_level = 0;
   F(i, 1, n) {
     l j = v[i];
     auto u = g[j]->backward[0];
     F(k, 1, g[j]->backward.size()) {
-      u = lca(u, g[j]->backward[k]);
+      u = dt_lca(u, g[j]->backward[k]);
     }
-    g[j]->up.emplace_back(u);
-    g[j]->level = u->level + 1;
-    u->down.emplace_back(g[j]);
+    g[j]->dt_up.emplace_back(u);
+    g[j]->dt_level = u->dt_level + 1;
+    u->dt_down.emplace_back(g[j]);
     l s = 1;
     auto t = u;
-    while (t->up.size() > s) {
-      t = t->up[s];
+    while (t->dt_up.size() > s) {
+      t = t->dt_up[s];
       s *= 2;
-      g[j]->up.emplace_back(t);
+      g[j]->dt_up.emplace_back(t);
     }
   }
+}
+
+pair<vvb, vvb> build_reachability(graph& g) {
+  vector<pnode> special;
+  for (auto u : g) {
+    F(k, 1, u->backward.size()) {
+      special.emplace_back(u->backward[k]);
+    }
+  }
+  l n = g.size();
+  l m = special.size();
+  vvb from_special(m, vb(n));
+  vvb to_special(m, vb(n));
+  for (auto u : special) L(u->id, "special");
+  F(i, 0, m) {
+    queue<pnode> q;
+    q.emplace(special[i]);
+    while (not q.empty()) {
+      auto u = q.front(); q.pop();
+      from_special[i][u->id] = true;
+      for (auto v : u->forward) q.emplace(v);
+    }
+    q.emplace(special[i]);
+    while (not q.empty()) {
+      auto u = q.front(); q.pop();
+      to_special[i][u->id] = true;
+      for (auto v : u->backward) q.emplace(v);
+    }
+  }
+  return make_pair(move(from_special), move(to_special));
+}
+
+void build_uplift(graph& g) {
+  queue<pnode> q;
+  g[0]->level = 0;
+  q.emplace(g[0]);
+  while (not q.empty()) {
+    auto u = q.front(); q.pop();
+    for (auto v : u->forward) {
+      if (v->backward[0] != u) continue;
+      auto t = u;
+      v->up.emplace_back(t);
+      v->level = u->level + 1;
+      l k = 1;
+      while (t->up.size() > k) {
+        t = t->up[k];
+        v->up.emplace_back(t);
+        k *= 2;
+      }
+      q.emplace(v);
+    }
+  }
+}
+
+// a -> b
+bool reachable(pnode a, pnode b, pair<vvb, vvb>& special) {
+  auto t = b;
+  while (t->level > a->level) {
+    l k = 0;
+    while (k + 1 < t->up.size() and t->up[k + 1]->level >= a->level) k++;
+    t = t->up[k];
+  }
+  if (a == t) return true;
+  auto& from_special = special.first;
+  auto& to_special = special.second;
+  l m = from_special.size();
+  F(i, 0, m) {
+    if (to_special[i][a->id] and from_special[i][b->id]) return true;
+  }
+  return false;
 }
 
 void solve(istream& cin, ostream& cout) {
@@ -130,6 +203,8 @@ void solve(istream& cin, ostream& cout) {
   }
   toposort(g);
   build_domination_tree(g);
+  build_uplift(g);
+  auto special = build_reachability(g);
   /* out dominating tree
   for (auto u : g) {
     cerr << u->id + 1 << ' ' << u->level << ": ";
