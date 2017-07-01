@@ -49,8 +49,8 @@ struct node {
   vector<pnode> up;
   // dominator tree
   l dt_level;
-  vector<pnode> dt_up; // up[i] is 2^i away up from this node
-  vector<pnode> dt_down;
+  vector<pnode> dt_up;
+  // vector<pnode> dt_children;
 };
 
 void connect(pnode &a, pnode &b) {
@@ -97,7 +97,6 @@ void build_domination_tree(graph& g) {
   l n = g.size();
   vl v(n);
   iota(all(v), 0);
-  // bfs?
   sort(all(v), [&](l a, l b) {return g[a]->order < g[b]->order;});
   g[0]->dt_level = 0;
   F(i, 1, n) {
@@ -108,7 +107,7 @@ void build_domination_tree(graph& g) {
     }
     g[j]->dt_up.emplace_back(u);
     g[j]->dt_level = u->dt_level + 1;
-    u->dt_down.emplace_back(g[j]);
+    // u->dt_down.emplace_back(g[j]);
     l s = 1;
     auto t = u;
     while (t->dt_up.size() > s) {
@@ -130,7 +129,6 @@ pair<vvb, vvb> build_reachability(graph& g) {
   l m = special.size();
   vvb from_special(m, vb(n));
   vvb to_special(m, vb(n));
-  for (auto u : special) L(u->id, "special");
   F(i, 0, m) {
     queue<pnode> q;
     q.emplace(special[i]);
@@ -157,9 +155,9 @@ void build_uplift(graph& g) {
     auto u = q.front(); q.pop();
     for (auto v : u->forward) {
       if (v->backward[0] != u) continue;
+      v->level = u->level + 1;
       auto t = u;
       v->up.emplace_back(t);
-      v->level = u->level + 1;
       l k = 1;
       while (t->up.size() > k) {
         t = t->up[k];
@@ -189,6 +187,93 @@ bool reachable(pnode a, pnode b, pair<vvb, vvb>& special) {
   return false;
 }
 
+bool any_reachable(pnode a, vector<pnode>& b, pair<vvb, vvb>& special) {
+  for (auto t : b) if (reachable(a, t, special)) return true;
+  return false;
+}
+
+// r -> result ~ 0+ ~> a
+pnode dt_predecessor(pnode r, pnode a) {
+  l target = r->dt_level + 1;
+  while (a->dt_level > target) {
+    l k = 0;
+    while (k + 1 < a->dt_up.size() and a->dt_up[k + 1]->dt_level >= target) k++;
+    a = a->dt_up[k];
+  }
+  return a;
+}
+
+l ways(l K, graph& g, pnode root,
+       vector<pnode>& targets,
+       vector<pnode>& tabu,
+       pair<vvb, vvb>& special) {
+  if (K > targets.size()) return 0;
+  auto s = targets[0];
+  F(i, 1, targets.size()) s = dt_lca(s, targets[i]);
+  assert(s->level >= root->level);
+  if (K == 1) {
+    // find first above s (inclusive) that does not reaches any of tabu
+    if (any_reachable(s, tabu, special)) return 0;
+    auto t = s;
+    l max_k = INF;
+    while (t != root) {
+      l k = min(max_k, (l)(t->dt_up.size() - 1));
+      while (k >= 0) {
+        if (not any_reachable(t->dt_up[k], tabu, special)) {
+          t = t->dt_up[k];
+          break;
+        }
+        k--;
+        max_k = min(max_k, k);
+      }
+      if (k == -1) break;
+    }
+    if (t->dt_level < root->dt_level) t = root;
+    return s->dt_level - t->dt_level + 1;
+  }
+  set<l> predecessors;
+  map<l, vector<pnode>> ptargets;
+  map<l, vl> results;
+  for (auto u : targets) {
+    auto t = dt_predecessor(root, u);
+    predecessors.emplace(t->id);
+    ptargets[t->id].emplace_back(u);
+  }
+  l free_k = K - predecessors.size();
+  if (free_k < 0) return 0;
+  for (auto p : predecessors) {
+    vector<pnode> new_tabu = tabu;
+    for (auto t : predecessors) if (t != p) new_tabu.emplace_back(g[t]);
+    F(i, 0, min((l) ptargets[p].size(), free_k + 1)) {
+      results[p].emplace_back(ways(i + 1, g, g[p], ptargets[p], new_tabu, special));
+    }
+  }
+  // split free k
+  l answer = 0;
+  l m = predecessors.size();
+  vl pp; for (auto p : predecessors) pp.emplace_back(p);
+  vl dist(m);
+  while (dist.back() <= free_k) {
+    l sum = 0;
+    F(i, 0, m) sum += dist[i];
+    bool ok = sum == free_k;
+    if (ok) F(i, 0, m) ok = ok and (dist[i] < results[pp[i]].size());
+    if (ok) {
+      l t = 1;
+      F(i, 0, m) t *= results[pp[i]][dist[i]];
+      answer += t;
+    }
+    l j = 0;
+    dist[0]++;
+    while (j + 1 < m and dist[j] > free_k) {
+      dist[j] = 0;
+      j++;
+      dist[j]++;
+    }
+  }
+  return answer;
+}
+
 void solve(istream& cin, ostream& cout) {
   l N, M, Q;
   cin >> N >> M >> Q;
@@ -205,12 +290,17 @@ void solve(istream& cin, ostream& cout) {
   build_domination_tree(g);
   build_uplift(g);
   auto special = build_reachability(g);
-  /* out dominating tree
-  for (auto u : g) {
-    cerr << u->id + 1 << ' ' << u->level << ": ";
-    for (auto v : u->down) cerr << v->id + 1 << ' ';
-    cerr << lf;
-    }*/
+  F(i, 0, Q) {
+    l K, A;
+    cin >> K >> A;
+    vector<pnode> targets(A);
+    F(j, 0, A) {
+      l x; cin >> x; x--;
+      targets[j] = g[x];
+    }
+    vector<pnode> tabu;
+    cout << ways(K, g, g[0], targets, tabu, special) << lf;
+  }
 }
 
 int main() {
