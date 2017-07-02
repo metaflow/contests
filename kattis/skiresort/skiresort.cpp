@@ -79,18 +79,16 @@ void toposort(graph& g) {
 
 pnode dt_lca(pnode a, pnode b) {
   if (a->dt_level < b->dt_level) swap(a, b);
-  l mk = INF;
+  l k = INF;
   while (a->dt_level > b->dt_level) {
-    l k = min(mk, (l)(a->dt_up.size()) - 1);
+    k = min(k, (l)(a->dt_up.size()) - 1);
     while (k > 0 and a->dt_up[k]->dt_level < b->dt_level) k--;
-    mk = k;
     a = a->dt_up[k];
   }
-  mk = INF;
+  k = INF;
   while (a != b) {
-    l k = min(mk, (l)(a->dt_up.size()) - 1);
+    k = min(k, (l)(a->dt_up.size()) - 1);
     while (k > 0 and a->dt_up[k] == b->dt_up[k]) k--;
-    mk = k;
     a = a->dt_up[k];
     b = b->dt_up[k];
   }
@@ -176,13 +174,12 @@ void build_uplift(graph& g) {
 
 // a -> b
 bool reachable(pnode a, pnode b, vvb& from_special, vvb& to_special) {
+  // TODO check order
   auto t = b;
-  l mk = INF;
+  l k = INF;
   while (t->level > a->level) {
-    l k = t->up.size() - 1;
-    k = min(mk, k);
+    k = min(k, (l)t->up.size() - 1);
     while (k > 0 and t->up[k]->level < a->level) k--;
-    mk = k;
     t = t->up[k];
   }
   if (a == t) return true;
@@ -202,11 +199,10 @@ bool any_reachable(pnode a, vector<pnode>& b, vvb& from_special, vvb& to_special
 pnode dt_predecessor(pnode r, pnode a) {
   // assert(a != r);
   l target = r->dt_level + 1;
-  l mk = INF;
+  l k = INF;
   while (a->dt_level > target) {
-    l k = min(mk, (l)a->dt_up.size() - 1);
+    k = min(k, (l)a->dt_up.size() - 1);
     while (k > 0 and a->dt_up[k]->dt_level < target) k--;
-    mk = k;
     a = a->dt_up[k];
   }
   return a;
@@ -229,16 +225,15 @@ l ways(l K, graph& g, pnode root,
     if (any_reachable(t, tabu, from_special, to_special)) {
       if (any_reachable(s, tabu, from_special, to_special)) return 0;
       t = s;
-      l max_k = INF;
+      l k = INF;
       while (t != root) {
-        l k = min(max_k, (l)(t->dt_up.size() - 1));
+        k = min(k, (l)(t->dt_up.size() - 1));
         while (k >= 0) {
           if (not any_reachable(t->dt_up[k], tabu, from_special, to_special)) {
             t = t->dt_up[k];
             break;
           }
           k--;
-          max_k = min(max_k, k);
         }
         if (k == -1) break;
       }
