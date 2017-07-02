@@ -62,17 +62,21 @@ void toposort(graph& g) {
   l n = g.size();
   vl out(n);
   queue<pnode> q;
-  l p = n;
   F(i, 0, n) {
     out[i] = g[i]->forward.size();
-    if (out[i] == 0) q.emplace(g[i]);
+    if (out[i] == 0) {
+      q.emplace(g[i]);
+      g[i]->order = n;
+    }
   }
   while (not q.empty()) {
     auto u = q.front(); q.pop();
-    u->order = p--;
     for (auto v : u->backward) {
       out[v->id]--;
-      if (out[v->id] == 0) q.emplace(v);
+      if (out[v->id] == 0) {
+        v->order = u->order - 1;
+        q.emplace(v);
+      }
     }
   }
 }
@@ -107,15 +111,14 @@ void build_domination_tree(graph& g) {
     F(k, 1, g[j]->backward.size()) {
       u = dt_lca(u, g[j]->backward[k]);
     }
-    g[j]->dt_up.emplace_back(u);
     g[j]->dt_level = u->dt_level + 1;
-    // u->dt_down.emplace_back(g[j]);
     auto t = u;
     l k = 0;
+    g[j]->dt_up.emplace_back(t);
     while (t->dt_up.size() > k) {
       t = t->dt_up[k];
-      if (k) k *= 2; else k++;
       g[j]->dt_up.emplace_back(t);
+      if (k) k *= 2; else k++;
     }
   }
 }
@@ -174,7 +177,7 @@ void build_uplift(graph& g) {
 
 // a -> b
 bool reachable(pnode a, pnode b, vvb& from_special, vvb& to_special) {
-  // TODO check order
+  if (b->order <= a->order) return false;
   auto t = b;
   l k = INF;
   while (t->level > a->level) {
