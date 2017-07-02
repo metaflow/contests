@@ -58,7 +58,7 @@ void connect(pnode &a, pnode &b) {
   b->backward.emplace_back(a);
 }
 
-void toposort(graph g) {
+void toposort(graph& g) {
   l n = g.size();
   vl out(n);
   queue<pnode> q;
@@ -79,14 +79,18 @@ void toposort(graph g) {
 
 pnode dt_lca(pnode a, pnode b) {
   if (a->dt_level < b->dt_level) swap(a, b);
+  l mk = INF;
   while (a->dt_level > b->dt_level) {
-    l k = 0;
-    while (k + 1 < a->dt_up.size() and a->dt_up[k + 1]->dt_level >= b->dt_level) k++;
+    l k = min(mk, (l)(a->dt_up.size()) - 1);
+    while (k > 0 and a->dt_up[k]->dt_level < b->dt_level) k--;
+    mk = min(k, mk);
     a = a->dt_up[k];
   }
+  mk = INF;
   while (a != b) {
-    l k = 0;
-    while (k + 1 < a->dt_up.size() and a->dt_up[k + 1] != b->dt_up[k + 1]) k++;
+    l k = min(mk, (l)(a->dt_up.size()) - 1);
+    while (k > 0 and a->dt_up[k] == b->dt_up[k]) k--;
+    mk = min(mk, k);
     a = a->dt_up[k];
     b = b->dt_up[k];
   }
@@ -118,7 +122,7 @@ void build_domination_tree(graph& g) {
   }
 }
 
-pair<vvb, vvb> build_reachability(graph& g) {
+void build_reachability(graph& g, vvb& from_special, vvb& to_special) {
   vector<pnode> special;
   for (auto u : g) {
     F(k, 1, u->backward.size()) {
@@ -127,9 +131,11 @@ pair<vvb, vvb> build_reachability(graph& g) {
   }
   l n = g.size();
   l m = special.size();
-  vvb from_special(m, vb(n));
-  vvb to_special(m, vb(n));
+  from_special.resize(m);
+  to_special.resize(m);
   F(i, 0, m) {
+    from_special[i].resize(n);
+    to_special[i].resize(n);
     queue<pnode> q;
     q.emplace(special[i]);
     while (not q.empty()) {
@@ -144,7 +150,6 @@ pair<vvb, vvb> build_reachability(graph& g) {
       for (auto v : u->backward) q.emplace(v);
     }
   }
-  return make_pair(move(from_special), move(to_special));
 }
 
 void build_uplift(graph& g) {
@@ -170,16 +175,17 @@ void build_uplift(graph& g) {
 }
 
 // a -> b
-bool reachable(pnode a, pnode b, pair<vvb, vvb>& special) {
+bool reachable(pnode a, pnode b, vvb& from_special, vvb& to_special) {
   auto t = b;
+  l mk = INF;
   while (t->level > a->level) {
-    l k = 0;
-    while (k + 1 < t->up.size() and t->up[k + 1]->level >= a->level) k++;
+    l k = t->up.size() - 1;
+    k = min(mk, k);
+    while (k > 0 and t->up[k]->level < a->level) k--;
+    mk = min(mk, k);
     t = t->up[k];
   }
   if (a == t) return true;
-  auto& from_special = special.first;
-  auto& to_special = special.second;
   l m = from_special.size();
   F(i, 0, m) {
     if (to_special[i][a->id] and from_special[i][b->id]) return true;
@@ -187,17 +193,20 @@ bool reachable(pnode a, pnode b, pair<vvb, vvb>& special) {
   return false;
 }
 
-bool any_reachable(pnode a, vector<pnode>& b, pair<vvb, vvb>& special) {
-  for (auto t : b) if (reachable(a, t, special)) return true;
+bool any_reachable(pnode a, vector<pnode>& b, vvb& from_special, vvb& to_special) {
+  for (auto t : b) if (reachable(a, t, from_special, to_special)) return true;
   return false;
 }
 
 // r -> result ~ 0+ ~> a
 pnode dt_predecessor(pnode r, pnode a) {
+  // assert(a != r);
   l target = r->dt_level + 1;
+  l mk = INF;
   while (a->dt_level > target) {
-    l k = 0;
-    while (k + 1 < a->dt_up.size() and a->dt_up[k + 1]->dt_level >= target) k++;
+    l k = min(mk, (l)a->dt_up.size() - 1);
+    while (k > 0 and a->dt_up[k]->dt_level < target) k--;
+    mk = min(mk, k);
     a = a->dt_up[k];
   }
   return a;
@@ -206,38 +215,46 @@ pnode dt_predecessor(pnode r, pnode a) {
 l ways(l K, graph& g, pnode root,
        vector<pnode>& targets,
        vector<pnode>& tabu,
-       pair<vvb, vvb>& special) {
+       vvb& from_special, vvb& to_special) {
   if (K > targets.size()) return 0;
   auto s = targets[0];
-  F(i, 1, targets.size()) s = dt_lca(s, targets[i]);
-  assert(s->level >= root->level);
+  F(i, 1, targets.size()) {
+    s = dt_lca(s, targets[i]);
+    if (s == root) break;
+  }
+  // assert(s->level >= root->level);
   if (K == 1) {
     // find first above s (inclusive) that does not reaches any of tabu
-    if (any_reachable(s, tabu, special)) return 0;
-    auto t = s;
-    l max_k = INF;
-    while (t != root) {
-      l k = min(max_k, (l)(t->dt_up.size() - 1));
-      while (k >= 0) {
-        if (not any_reachable(t->dt_up[k], tabu, special)) {
-          t = t->dt_up[k];
-          break;
+    if (any_reachable(s, tabu, from_special, to_special)) return 0;
+    auto t = root;
+    if (any_reachable(t, tabu, from_special, to_special)) {
+      t = s;
+      l max_k = INF;
+      while (t != root) {
+        l k = min(max_k, (l)(t->dt_up.size() - 1));
+        while (k >= 0) {
+          if (not any_reachable(t->dt_up[k], tabu, from_special, to_special)) {
+            t = t->dt_up[k];
+            break;
+          }
+          k--;
+          max_k = min(max_k, k);
         }
-        k--;
-        max_k = min(max_k, k);
+        if (k == -1) break;
       }
-      if (k == -1) break;
+      if (t->dt_level < root->dt_level) t = root;
     }
-    if (t->dt_level < root->dt_level) t = root;
     return s->dt_level - t->dt_level + 1;
   }
   set<l> predecessors;
   map<l, vector<pnode>> ptargets;
   map<l, vl> results;
   for (auto u : targets) {
-    auto t = dt_predecessor(root, u);
+    if (s == u) return 0;
+    auto t = dt_predecessor(s, u);
     predecessors.emplace(t->id);
     ptargets[t->id].emplace_back(u);
+    if (predecessors.size() > K) return 0;
   }
   l free_k = K - predecessors.size();
   if (free_k < 0) return 0;
@@ -245,10 +262,11 @@ l ways(l K, graph& g, pnode root,
     vector<pnode> new_tabu = tabu;
     for (auto t : predecessors) if (t != p) new_tabu.emplace_back(g[t]);
     F(i, 0, min((l) ptargets[p].size(), free_k + 1)) {
-      results[p].emplace_back(ways(i + 1, g, g[p], ptargets[p], new_tabu, special));
+      results[p].emplace_back(ways(i + 1, g, g[p], ptargets[p], new_tabu,
+                                   from_special, to_special));
     }
   }
-  // split free k
+  // split free K
   l answer = 0;
   l m = predecessors.size();
   vl pp; for (auto p : predecessors) pp.emplace_back(p);
@@ -289,7 +307,10 @@ void solve(istream& cin, ostream& cout) {
   toposort(g);
   build_domination_tree(g);
   build_uplift(g);
-  auto special = build_reachability(g);
+  vvb from_special, to_special;
+  build_reachability(g, from_special, to_special);
+  // assert(from_special.size() < 60);
+  // if (N > 1000) assert(Q < 50000);
   F(i, 0, Q) {
     l K, A;
     cin >> K >> A;
@@ -299,7 +320,8 @@ void solve(istream& cin, ostream& cout) {
       targets[j] = g[x];
     }
     vector<pnode> tabu;
-    cout << ways(K, g, g[0], targets, tabu, special) << lf;
+    cout << ways(K, g, g[0], targets, tabu, from_special, to_special) << lf;
+    if (i == 5000) assert(N < 1000);
   }
 }
 
