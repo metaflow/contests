@@ -83,14 +83,14 @@ pnode dt_lca(pnode a, pnode b) {
   while (a->dt_level > b->dt_level) {
     l k = min(mk, (l)(a->dt_up.size()) - 1);
     while (k > 0 and a->dt_up[k]->dt_level < b->dt_level) k--;
-    mk = min(k, mk);
+    mk = k;
     a = a->dt_up[k];
   }
   mk = INF;
   while (a != b) {
     l k = min(mk, (l)(a->dt_up.size()) - 1);
     while (k > 0 and a->dt_up[k] == b->dt_up[k]) k--;
-    mk = min(mk, k);
+    mk = k;
     a = a->dt_up[k];
     b = b->dt_up[k];
   }
@@ -112,11 +112,11 @@ void build_domination_tree(graph& g) {
     g[j]->dt_up.emplace_back(u);
     g[j]->dt_level = u->dt_level + 1;
     // u->dt_down.emplace_back(g[j]);
-    l s = 1;
     auto t = u;
-    while (t->dt_up.size() > s) {
-      t = t->dt_up[s];
-      s *= 2;
+    l k = 0;
+    while (t->dt_up.size() > k) {
+      t = t->dt_up[k];
+      if (k) k *= 2; else k++;
       g[j]->dt_up.emplace_back(t);
     }
   }
@@ -163,11 +163,11 @@ void build_uplift(graph& g) {
       v->level = u->level + 1;
       auto t = u;
       v->up.emplace_back(t);
-      l k = 1;
+      l k = 0;
       while (t->up.size() > k) {
         t = t->up[k];
         v->up.emplace_back(t);
-        k *= 2;
+        if (k) k *= 2; else k++;
       }
       q.emplace(v);
     }
@@ -182,7 +182,7 @@ bool reachable(pnode a, pnode b, vvb& from_special, vvb& to_special) {
     l k = t->up.size() - 1;
     k = min(mk, k);
     while (k > 0 and t->up[k]->level < a->level) k--;
-    mk = min(mk, k);
+    mk = k;
     t = t->up[k];
   }
   if (a == t) return true;
@@ -206,7 +206,7 @@ pnode dt_predecessor(pnode r, pnode a) {
   while (a->dt_level > target) {
     l k = min(mk, (l)a->dt_up.size() - 1);
     while (k > 0 and a->dt_up[k]->dt_level < target) k--;
-    mk = min(mk, k);
+    mk = k;
     a = a->dt_up[k];
   }
   return a;
@@ -225,9 +225,9 @@ l ways(l K, graph& g, pnode root,
   // assert(s->level >= root->level);
   if (K == 1) {
     // find first above s (inclusive) that does not reaches any of tabu
-    if (any_reachable(s, tabu, from_special, to_special)) return 0;
     auto t = root;
     if (any_reachable(t, tabu, from_special, to_special)) {
+      if (any_reachable(s, tabu, from_special, to_special)) return 0;
       t = s;
       l max_k = INF;
       while (t != root) {
@@ -321,7 +321,6 @@ void solve(istream& cin, ostream& cout) {
     }
     vector<pnode> tabu;
     cout << ways(K, g, g[0], targets, tabu, from_special, to_special) << lf;
-    if (i == 5000) assert(N < 1000);
   }
 }
 
