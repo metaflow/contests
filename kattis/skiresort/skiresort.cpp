@@ -47,8 +47,36 @@ struct node {
   pnode parent;
   l level;
   vector<pnode> up;
-  // l k1, q1;
+  l q1, k1;
 };
+
+vvi rmq_preprocess(vi& A) {
+  l n = A.size();
+  vvi R(1, vi(n));
+  for (l i = 0; i < n; i++) R[0][i] = i;
+  for (l k = 1; 2 * k <= n; k = k << 1) {
+    vi V;
+    for (l i = 0; i + 2 * k <= n; i++) {
+      if (A[R.back()[i]] < A[R.back()[i + k]]) {
+        V.emplace_back(R.back()[i]);
+      } else {
+        V.emplace_back(R.back()[i + k]);
+      }
+    }
+    R.emplace_back(V);
+  }
+  return R;
+}
+
+// range minimum query [from, to)
+l rmq(l from, l to, vi& A, vvi& P) {
+  l q = P.size() - 1;
+  l k = (l)1 << q;
+  while (k > (to - from)) { k = k >> 1; q--; }
+  l i = P[q][from];
+  l j = P[q][to - k];
+  return (A[i] < A[j]) ? i : j;
+}
 
 void connect(pnode &a, pnode &b) {
   a->adjusted.emplace_back(b);
@@ -105,6 +133,7 @@ void build_binary_lift(graph& g) {
 
 pnode lift(pnode a, l n) {
   l k = 0;
+  // assert(n >= 0);
   while (n) {
     if (n % 2) a = a->up[k];
     k++;
@@ -157,6 +186,24 @@ graph build_dominator_tree(graph& g) {
   return dt;
 }
 
+struct EulerianWalk {
+  vi ids, levels;
+  vvi positions; // id -> positions in ids / levels
+  vvi rmq;
+};
+
+void walk(EulerianWalk& w, pnode root) {
+  w.positions[root->id].emplace_back(w.ids.size());
+  w.ids.emplace_back(root->id);
+  w.levels.emplace_back(root->level);
+  for (auto u : root->adjusted) {
+    walk(w, u);
+    w.positions[root->id].emplace_back(w.ids.size());
+    w.ids.emplace_back(root->id);
+    w.levels.emplace_back(root->level);
+  }
+}
+
 void build_reachability(graph& g, vvb& from_special, vvb& to_special) {
   vector<pnode> special;
   for (auto u : g) {
@@ -194,6 +241,7 @@ bool reachable(pnode a, pnode b, vvb& from_special, vvb& to_special) {
   }
   if (from_special.size()) {
     l m = from_special[0].size();
+    assert(m < 60);
     F(i, 0, m) {
       if (to_special[a->id][i] and from_special[b->id][i]) return true;
     }
@@ -210,47 +258,102 @@ l count_k1(l r_id, l a_id, graph& g, graph& dt,
            vl& tabu_id, vvb& from_special, vvb& to_special) {
   // find first above s (inclusive) that does not reaches any of tabu
   auto t = r_id;
-  vector<pnode> tabu;
-  for (auto i : tabu_id) tabu.emplace_back(g[i]);
-  if (any_reachable(g[t], tabu, from_special, to_special)) {
-    t = a_id;
-    if (any_reachable(g[t], tabu, from_special, to_special)) return 0;
-    l k = dt[t]->up.size() - 1;
-    while (k >= 0) {
-      if (not any_reachable(g[dt[t]->up[k]->id], tabu, from_special, to_special)) {
-        t = dt[t]->up[k]->id;
+  if (not tabu_id.empty()) {
+    vector<pnode> tabu;
+    for (auto i : tabu_id) tabu.emplace_back(g[i]);
+    if (any_reachable(g[t], tabu, from_special, to_special)) {
+      t = a_id;
+      if (any_reachable(g[t], tabu, from_special, to_special)) return 0;
+      l k = dt[t]->up.size() - 1;
+      // assert(k < 20);
+      while (k >= 0) {
+        // assert(dt[t]->up.size() > k);
+        l x = dt[t]->up[k]->id;
+        if (not any_reachable(g[x], tabu, from_special, to_special)) {
+          t = x;
+        }
+        k--;
       }
-      k--;
+      if (dt[t]->level < dt[r_id]->level) t = r_id;
     }
-    if (dt[t]->level < dt[r_id]->level) t = r_id;
   }
   return dt[a_id]->level - dt[t]->level + 1;
 }
 
 l ways(l K, l Q, graph& g, graph& dt, l root_id,
-       vector<pnode>& targets,
+       vll& targets,
        vl& tabu_id,
-       vvb& from_special, vvb& to_special) {
+       vvb& from_special, vvb& to_special, EulerianWalk& w) {
   if (K > targets.size()) return 0;
-  auto& root = dt[root_id];
-  // if (K == 1 and root->q1 == Q) {
-    // return root->k1;
-  // }
-  auto s = targets[0];
-  F(i, 1, targets.size()) {
-    s = lca(s, targets[i]);
-    if (s == root) break;
+  assert(tabu_id.size() < 4);
+  if (K == 1 and dt[root_id]->q1 == Q) {
+    return dt[root_id]->k1;
   }
-  // assert(s->level >= root->level);
+  // auto& root = dt[root_id];
+  l s_id = w.ids[rmq(targets.begin()->first, targets.back().first + 1, w.levels, w.rmq)];
+  // auto s = dt[s_id];
   if (K == 1) {
-    // root->q1 = Q;
-    // root->k1 = count_k1(root_id, s->id, g, dt, tabu_id, from_special, to_special);
-    // return root->k1;
-    return count_k1(root_id, s->id, g, dt, tabu_id, from_special, to_special);
+    dt[root_id]->q1 = Q;
+    dt[root_id]->k1 = count_k1(root_id, s_id, g, dt, tabu_id, from_special, to_special);
+    // return count_k1(root_id, s_id, g, dt, tabu_id, from_special, to_special);
+    return dt[root_id]->k1;
   }
-  set<l> predecessors;
-  map<l, vector<pnode>> ptargets;
-  map<l, vl> results;
+  // l n = targets.size();
+  vl group_roots;
+  vector<vll> group_targets;
+  l k = 0;
+  while (k < targets.size()) {
+    vll group;
+    l t = *upper_bound(all(w.positions[s_id]), targets[k].first);
+    if (s_id == targets[k].second) return 0;
+    while (k < targets.size() and targets[k].first < t) {
+      group.emplace_back(targets[k]);
+      k++;
+    }
+    group_roots.emplace_back(w.ids[t - 1]);
+    group_targets.emplace_back(group);
+    if (group_roots.size() > K) return 0;
+  }
+  l m = group_roots.size();
+  l free_k = K - m;
+  if (free_k < 0) return 0;
+  vvl group_results(m);
+  F(i, 0, m) {
+    auto new_tabu = tabu_id;
+    F(j, 0, m) if (j != i) new_tabu.emplace_back(group_roots[j]);
+    F(j, 0, min((l) group_targets[i].size(), free_k + 1)) {
+      group_results[i].emplace_back(ways(j + 1, Q, g, dt,
+                                         group_roots[i],
+                                         group_targets[i],
+                                         new_tabu, from_special, to_special, w));
+    }
+  }
+  // split free K
+  l answer = 0;
+  vl dist(m);
+  while (dist.back() <= free_k) {
+    l sum = 0;
+    F(i, 0, m) sum += dist[i];
+    bool ok = sum == free_k;
+    if (ok) F(i, 0, m) ok = ok and (dist[i] < group_results[i].size());
+    if (ok) {
+      l t = 1;
+      F(i, 0, m) t *= group_results[i][dist[i]];
+      answer += t;
+    }
+    l j = 0;
+    dist[0]++;
+    while (j + 1 < m and dist[j] > free_k) {
+      dist[j] = 0;
+      j++;
+      dist[j]++;
+    }
+  }
+  /*
+  auto s = dt[s_id];
+  unordered_set<l> predecessors;
+  unordered_map<l, vector<pnode>> ptargets;
+  unordered_map<l, vl> results;
   for (auto u : targets) {
     if (s == u) return 0;
     auto t = lift(u, u->level - s->level - 1);
@@ -266,7 +369,7 @@ l ways(l K, l Q, graph& g, graph& dt, l root_id,
     for (auto t : predecessors) if (t != p) new_tabu.emplace_back(t);
     F(i, 0, min((l) ptargets[p].size(), free_k + 1)) {
       results[p].emplace_back(ways(i + 1, Q, g, dt, p, ptargets[p], new_tabu,
-                                   from_special, to_special));
+                                   from_special, to_special, w));
     }
   }
   // split free K
@@ -292,6 +395,7 @@ l ways(l K, l Q, graph& g, graph& dt, l root_id,
       dist[j]++;
     }
   }
+  */
   return answer;
 }
 
@@ -312,16 +416,23 @@ void solve(istream& cin, ostream& cout) {
   build_binary_lift(g);
   vvb from_special, to_special;
   build_reachability(g, from_special, to_special);
+  EulerianWalk w;
+  w.positions.resize(N);
+  walk(w, dt[0]);
+  w.rmq = rmq_preprocess(w.levels);
   F(i, 0, Q) {
     l K, A;
     cin >> K >> A;
-    vector<pnode> targets(A);
+    // vector<pnode> targets(A);
+    vll targets(A);
     F(j, 0, A) {
       l x; cin >> x; x--;
-      targets[j] = dt[x];
+      targets[j].first = w.positions[x][0];
+      targets[j].second = x;
     }
+    sort(all(targets));
     vl tabu;
-    cout << ways(K, i + 1, g, dt, 0, targets, tabu, from_special, to_special)
+    cout << ways(K, i + 1, g, dt, 0, targets, tabu, from_special, to_special, w)
          << lf;
   }
 }
