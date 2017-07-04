@@ -147,7 +147,7 @@ pnode lca(pnode a, pnode b) {
   a = lift(a, a->level - b->level);
   if (a == b) return a;
   for (l k = a->up.size() - 1; k >= 0; k--) {
-    if (a->up.size() > k and a->up[k] != b->up[k]) {
+    if (/*a->up.size() > k and */a->up[k] != b->up[k]) {
       a = a->up[k];
       b = b->up[k];
     }
@@ -320,7 +320,10 @@ l ways(l K, l Q, graph& g, graph& dt, l root_id,
   vvl group_results(m);
   F(i, 0, m) {
     auto new_tabu = tabu_id;
-    F(j, 0, m) if (j != i) new_tabu.emplace_back(group_roots[j]);
+    F(j, 0, m) {
+      if (j != i and g[group_roots[j]]->topo_order > g[group_roots[i]]->topo_order)
+        new_tabu.emplace_back(group_roots[j]);
+    }
     F(j, 0, min((l) group_targets[i].size(), free_k + 1)) {
       group_results[i].emplace_back(ways(j + 1, Q, g, dt,
                                          group_roots[i],
