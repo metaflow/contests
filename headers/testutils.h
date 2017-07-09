@@ -364,7 +364,7 @@ void _random_test() {
         solve_brute(in, out);
       }
       stringstream ss;
-      if (_compare_output("random", expected_output, actual_output, 0, ss)) {
+      if (_compare_output("random", expected_output, actual_output, 0, 0, ss)) {
         continue;
       }
       // create new test case

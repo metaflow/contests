@@ -35,67 +35,6 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
-void find_edges(l xfrom, l xto, vll& p, vlll& edges) {
-  if (xto <= xfrom) return;
-  l xmid = (xfrom + xto) / 2;
-  l start = lower_bound(all(p), make_pair(xfrom, -INF)) - p.begin();
-  l mid = upper_bound(all(p), make_pair(xmid, +INF)) - p.begin();
-  l finish = upper_bound(all(p), make_pair(xto, +INF)) - p.begin();
-  L(start, mid, finish, p);
-  if (mid - start > 0 and finish - mid > 0) {
-    L("non empty");
-    vll L, R;
-    F(i, start, mid) L.emplace_back(p[i].second, i);
-    F(i, mid, finish) R.emplace_back(p[i].second, i);
-    sort(all(L));
-    sort(all(R));
-    {
-      // y asc
-      l best_sum = INF;
-      l best_i = -1;
-      l k = 0;
-      F(i, 0, L.size()) {
-        l z = p[L[i].second].second - p[L[i].second].first;
-        while (k < R.size() and R[k].first <= L[i].first) {
-          l t = p[R[k].second].first - p[R[k].second].second;
-          if (t < best_sum) {
-            best_sum = t;
-            best_i = R[k].second;
-          }
-          k++;
-        }
-        if (best_sum + z < get<0>(edges[i])) {
-          get<0>(edges[i]) = best_sum + z;
-          get<2>(edges[i]) = best_i;
-        }
-      }
-    }
-    {
-      // y desc
-      l best_sum = INF;
-      l best_i = -1;
-      l k = R.size() - 1;
-      B(i, 0, L.size()) {
-        l z = p[L[i].second].second + p[L[i].second].first;
-        while (k >= 0 and R[k].first >= L[i].first) {
-          l t = p[R[k].second].first + p[R[k].second].second;
-          if (t < best_sum) {
-            best_sum = t;
-            best_i = R[k].second;
-          }
-          k--;
-        }
-        if (best_sum + z < get<0>(edges[i])) {
-          get<0>(edges[i]) = best_sum + z;
-          get<2>(edges[i]) = best_i;
-        }
-      }
-    }
-  }
-  find_edges(xfrom, xmid, p, edges);
-  find_edges(xmid + 1, xto, p, edges);
-}
-
 struct disjoint_set { // set of [0..n-1]
   vl parent;
   l components_count_;
@@ -123,86 +62,245 @@ struct disjoint_set { // set of [0..n-1]
 
 struct Graph {
   vvl adj;
+  vvl W;
   vvl up;
+  vvl wup;
   vl depth;
-  vvl w;
 
   Graph(l n) {
     adj.resize(n);
     depth.resize(n);
-    w.resize(n);
+    W.resize(n);
     l k = 0;
     while ((1 << k) <= n) k++;
     up.resize(k, vl(n, -1));
+    wup.resize(k, vl(n));
   }
 
   void build_up(l a) {
     F(i, 1, up.size()) {
-      l t = up[i - 1][up[i - 1][a]];
+      l p = up[i - 1][a];
+      l t = up[i - 1][p];
       if (t == -1) break;
       up[i][a] = t;
+      wup[i][a] = max(wup[i - 1][a], wup[i - 1][p]);
     }
   }
 
-  l walk(l a, l d) {
+  ll walk(l a, l d) {
     l k = 0;
+    l w = 0;
     while (d > 0) {
-      if (d % 2) a = up[k][a];
+      if (d % 2) {
+        w = max(w, wup[k][a]);
+        a = up[k][a];
+      }
       d /= 2;
       k++;
     }
-    return a;
+    return make_pair(a, w);
   }
 
-  l lca(l a, l b) {
-    a = walk(a, depth[a] - depth[b]);
-    b = walk(b, depth[b] - depth[a]);
-    if (a == b) return a;
+  ll lca(l a, l b) {
+    l w = 0, t;
+    tie(a, t) = walk(a, depth[a] - depth[b]);
+    w = max(w, t);
+    tie(b, t) = walk(b, depth[b] - depth[a]);
+    w = max(w, t);
+    if (a == b) return make_pair(a, w);
     B(i, 0, up.size()) {
       if (up[i][a] != up[i][b]) {
+        w = max(w, wup[i][a]);
         a = up[i][a];
+        w = max(w, wup[i][b]);
         b = up[i][b];
       }
     }
-    return up[0][a];
+    w = max(w, max(wup[0][a], wup[0][b]));
+    return make_pair(up[0][a], w);
+  }
+
+  void dfs(l a) {
+    l m = adj[a].size();
+    F(i, 0, m) {
+      l b = adj[a][i];
+      if (up[0][a] == b) continue;
+      depth[b] = depth[a] + 1;
+      up[0][b] = a;
+      wup[0][b] = W[a][i];
+      build_up(b);
+      dfs(b);
+    }
   }
 };
+
+#if defined(RANDOM_TEST)
+// TODO add random set size 
+
+default_random_engine source(chrono::system_clock::now().time_since_epoch().count());
+
+// [a, b)
+l random_in_range(l a, l b) {
+  return uniform_int_distribution<l>(a, b - 1)(source);
+}
+
+double random_double() {
+  return uniform_real_distribution<double>(0, 1)(source);
+}
+
+bool random_bool() {
+  return random_in_range(0, 2) == 1;
+}
+
+string random_string(int length) {
+  string s = "";
+  string an = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for (int i = 0; i < length; i++) {
+    s += an[random_in_range(0, an.size())];
+  }
+  return s;
+}
+
+void solve_brute(istream& cin, ostream& cout) {
+  l tcc, n; cin >> tcc >> n;
+  vll pp(n);
+  F(i, 0, n) cin >> pp[i].first >> pp[i].second;
+  vlll edges; // (min distance, from, to)
+  F(i, 0, n) F(j, 0, n) {
+    if (i == j) continue;
+    edges.emplace_back(abs(pp[i].first - pp[j].first) +
+                       abs(pp[i].second - pp[j].second), i, j);
+  }
+  sort(all(edges));
+  disjoint_set S(n);
+  Graph g(n);
+  for (auto e : edges) {
+    l a, b, w; tie(w, a, b) = e;
+    if (a < 0 or b < 0) break;
+    if (S.connected(a, b)) continue;
+    S.connect(a, b);
+    g.adj[a].emplace_back(b);
+    g.w[a].emplace_back(w);
+    g.adj[b].emplace_back(a);
+    g.w[b].emplace_back(w);
+  }
+  l Q; cin >> Q;
+  while (Q--) {
+    l a, b; cin >> a >> b; a--; b--;
+    // cout << a << lf;
+  }
+  l total_w = 0;
+  for (auto ww : g.w) for (auto w : ww) total_w += w;
+  cout << total_w / 2 << lf;
+}
+
+void generate(l size, ostream& cout) {
+  cout << 1 << lf;
+  cout << size << lf;
+  F(i, 0, size) {
+    cout << random_in_range(0, 10) << ' '
+         << random_in_range(0, 10) << lf;
+  }
+  cout << 0 << lf;
+}
+
+#endif
+
+struct point {
+  l x, y, id, adj, w;
+};
+
+
+void find_closest(vector<point>& pp, l from, l to) {
+  if (to - from < 2) return;
+  l mid = (from + to) / 2;
+  find_closest(pp, from, mid);
+  find_closest(pp, mid, to);
+  vector<point> ss(to - from);
+  l i = from, j = mid;
+  l best = -INF, best_id = -1;
+  F(k, 0, to - from) {
+    if (j >= to or (i < mid and (pp[i].x + pp[i].y) < (pp[j].x + pp[j].y))) {
+      l t = (pp[i].x - pp[i].y) - best;
+      if (pp[i].w > t) {
+        pp[i].adj = best_id;
+        pp[i].w = t;
+      }
+      ss[k] = pp[i];
+      i++;
+    } else {
+      ss[k] = pp[j];
+      l c = pp[j].x - pp[j].y;
+      if (c > best) {
+        best = c;
+        best_id = pp[j].id;
+      }
+      j++;
+    }
+  }
+  F(k, from, to) pp[k] = ss[k - from];
+}
+
+void add_edges(vlll& ee, vector<point>& pp) {
+  sort(all(pp), [](point const& a, point const& b) {
+      if (a.y != b.y) return a.y < b.y;
+      return a.x > b.x;
+    });
+  F(i, 0, pp.size()) {
+    pp[i].adj = -1;
+    pp[i].w = INF;
+  }
+  // for (auto p : pp) cerr << '(' << p.x << ", " << p.y << ") ";
+  // cerr << lf;
+  find_closest(pp, 0, pp.size());
+  F(i, 0, pp.size()) {
+    if (pp[i].adj != -1) {
+      ee.emplace_back(pp[i].w, pp[i].id, pp[i].adj);
+    }
+  }
+}
 
 void solve(istream& cin, ostream& cout) {
   l tcc;
   cin >> tcc;
   while (tcc--) {
     l n; cin >> n;
-    // Graph g(n);
-    vll pp(n);
-    F(i, 0, n) cin >> pp[i].first >> pp[i].second;
-    sort(all(pp));
-    vlll edges(n, make_tuple(INF, 0, -1)); // (min distance, from, to)
-    F(i, 0, n) get<1>(edges[i]) = i;
-    find_edges(pp[0].first, pp[n - 1].first, pp, edges);
-    F(i, 1, n) {
-      if (pp[i].first == pp[i - 1].first) {
-        edges.emplace_back(pp[i].second - pp[i - 1].second, i, i - 1);
-      }
+    vector<point> pp(n);
+    F(i, 0, n) {
+      cin >> pp[i].x >> pp[i].y;
+      pp[i].id = i;
     }
+    vlll edges;
+    add_edges(edges, pp);
+    F(i, 0, n) pp[i].x = -pp[i].x;
+    add_edges(edges, pp);
+    F(i, 0, n) swap(pp[i].x, pp[i].y);
+    add_edges(edges, pp);
+    F(i, 0, n) pp[i].x = -pp[i].x;
+    add_edges(edges, pp);
     disjoint_set S(n);
     sort(all(edges));
+    // L(edges);
+    // TODO: no L output for in random tests
     Graph g(n);
     for (auto e : edges) {
       l a, b, w; tie(w, a, b) = e;
       if (a < 0 or b < 0) break;
       if (S.connected(a, b)) continue;
-      L(a, b, w, "connected");
       S.connect(a, b);
       g.adj[a].emplace_back(b);
-      g.w[a].emplace_back(w);
+      g.W[a].emplace_back(w);
       g.adj[b].emplace_back(a);
-      g.w[b].emplace_back(b);
+      g.W[b].emplace_back(w);
     }
+    g.depth[0] = 0;
+    g.dfs(0);
     l Q; cin >> Q;
     while (Q--) {
       l a, b; cin >> a >> b; a--; b--;
-      cout << a << lf;
+      l w, t;
+      tie(t, w) = g.lca(a, b);
+      cout << w << lf;
     }
   }
 }
