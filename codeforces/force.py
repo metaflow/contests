@@ -1,5 +1,5 @@
 # pip install beautifulsoup4
-# 
+#
 import time
 import urllib
 import urllib.parse
@@ -136,9 +136,9 @@ def openProblem(contestId, index):
         os.makedirs(contestId)
     os.chdir(contestId)
     if not os.path.exists(index + '.in') and \
-            not os.path.exists(index + '.in.out'):
+            not os.path.exists(index + '.out'):
         with open(index + '.in', 'w') as in_file, \
-                open(index + '.in.out', 'w') as out_file:
+                open(index + '.out', 'w') as out_file:
             html = urllib.request.urlopen(url)
             soup = BeautifulSoup(html, 'lxml')
             inputs = soup.find_all('div', attrs={'class': 'input'})

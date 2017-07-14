@@ -1,6 +1,6 @@
 #if defined(LOCAL)
 // #define RANDOM_TEST
-#define PROBLEM_NAME "c"
+#define PROBLEM_NAME "C"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #endif
@@ -34,32 +34,35 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
+l MAX = 4 * e6 + 1;
 void solve(istream& cin, ostream& cout) {
-  l n, q;
-  cin >> n >> q;
-  vl v(n);
-  vl counts(n + 1);
-  vl frq(n + 1);
-  F(i, 0, n) cin >> v[i];
-  l answer = 0;
-  F(i, 0, n) {
-    l t = max(v[i] - counts[v[i]], (l) 1);
-    counts[v[i]]++;
-    frq[t]++;
-    if (frq[t] > 1) answer++;
-  }
-  F(i, 0, q) {
-    l p, x; cin >> p >> x; p--;
-    counts[v[p]]--;
-    l t = max(v[p] - counts[v[p]], (l)1);
-    frq[t]--;
-    if (frq[t]) answer--;
-    v[p] = x;
-    t = max(l(1), x - counts[x]);
-    counts[x]++;
-    frq[t]++;
-    if (frq[t] > 1) answer++;
-    cout << answer << lf;
+  l n, k;
+  while (cin >> n >> k) {
+    vl d(n);
+    F(i, 0, n) cin >> d[i];
+    l x;
+    unordered_set<l> b;
+    F(i, 0, k) {
+      cin >> x;
+      b.emplace(x);
+    }
+    unordered_set<l> starts;
+    l offset = 0;
+    F(i, 0, n) {
+      if (i) offset -= d[i];
+      auto left = b;
+      l first = x + offset;
+      left.erase(first);
+      l t = first;
+      F(j, 1, n) {
+        t += d[j];
+        left.erase(t);
+      }
+      if (left.empty()) {
+        starts.emplace(first - d[0]);
+      }
+    }
+    cout << starts.size() << lf;
   }
 }
 

@@ -1,6 +1,6 @@
 #if defined(LOCAL)
 // #define RANDOM_TEST
-#define PROBLEM_NAME "c"
+#define PROBLEM_NAME "B"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #endif
@@ -35,31 +35,21 @@ struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
 void solve(istream& cin, ostream& cout) {
-  l n, q;
-  cin >> n >> q;
-  vl v(n);
-  vl counts(n + 1);
-  vl frq(n + 1);
-  F(i, 0, n) cin >> v[i];
-  l answer = 0;
-  F(i, 0, n) {
-    l t = max(v[i] - counts[v[i]], (l) 1);
-    counts[v[i]]++;
-    frq[t]++;
-    if (frq[t] > 1) answer++;
-  }
-  F(i, 0, q) {
-    l p, x; cin >> p >> x; p--;
-    counts[v[p]]--;
-    l t = max(v[p] - counts[v[p]], (l)1);
-    frq[t]--;
-    if (frq[t]) answer--;
-    v[p] = x;
-    t = max(l(1), x - counts[x]);
-    counts[x]++;
-    frq[t]++;
-    if (frq[t] > 1) answer++;
-    cout << answer << lf;
+  string source, target, s;
+  while (cin >> source >> target >> s) {
+    l n = source.size();
+    vl pos(n);
+    F(i, 0, n) pos[source[i] - 'a'] = i;
+    for (auto c : s) {
+      auto t = c;
+      if (isalpha(t)) {
+        t = tolower(t);
+        t = target[pos[t - 'a']];
+        if (isupper(c)) t = toupper(t);
+      }
+      cout << t;
+    }
+    cout << lf;
   }
 }
 

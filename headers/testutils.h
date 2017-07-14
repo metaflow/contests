@@ -338,9 +338,9 @@ bool _run_tests() {
 void generate(long long size, ostream& out);
 void solve_brute(istream& cin, ostream& cout);
 
-int _random_test_size_from = 1;
-int _random_test_size_to = 20;
-int _random_test_count = 100;
+extern int _random_test_size_from;
+extern int _random_test_size_to;
+extern int _random_test_count;
 void _random_test() {
   string problem_name = PROBLEM_NAME;
   string input_file_name = problem_name + ".rndinput";

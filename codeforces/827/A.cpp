@@ -1,6 +1,6 @@
 #if defined(LOCAL)
 // #define RANDOM_TEST
-#define PROBLEM_NAME "c"
+#define PROBLEM_NAME "A"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #endif
@@ -34,31 +34,34 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
+using lll = tuple<l, l, l>;
+
 void solve(istream& cin, ostream& cout) {
-  l n, q;
-  cin >> n >> q;
-  vl v(n);
-  vl counts(n + 1);
-  vl frq(n + 1);
-  F(i, 0, n) cin >> v[i];
-  l answer = 0;
-  F(i, 0, n) {
-    l t = max(v[i] - counts[v[i]], (l) 1);
-    counts[v[i]]++;
-    frq[t]++;
-    if (frq[t] > 1) answer++;
-  }
-  F(i, 0, q) {
-    l p, x; cin >> p >> x; p--;
-    counts[v[p]]--;
-    l t = max(v[p] - counts[v[p]], (l)1);
-    frq[t]--;
-    if (frq[t]) answer--;
-    v[p] = x;
-    t = max(l(1), x - counts[x]);
-    counts[x]++;
-    frq[t]++;
-    if (frq[t] > 1) answer++;
+  l n;
+  while (cin >> n) {
+    string answer;
+    vector<lll> parts;
+    vector<string> values(n);
+    l size = 0;
+    F(i, 0, n) {
+      l m;
+      cin >> values[i] >> m;
+      F(j, 0, m) {
+        l x; cin >> x; x--;
+        size = max(size, x + (l)values[i].size());
+        parts.emplace_back(x, x + values[i].size(), i);
+      }
+    }
+    answer.resize(size, 'a');
+    sort(all(parts));
+    l p = 0;
+    for (auto z : parts) {
+      p = max(p, get<0>(z));
+      while (p < get<1>(z)) {
+        answer[p] = values[get<2>(z)][p - get<0>(z)];
+        p++;
+      }
+    }
     cout << answer << lf;
   }
 }
