@@ -8,8 +8,23 @@
 #include <unistd.h>
 
 using namespace std;
+
 #define TEST_LOG cerr
 void solve(std::istream& in, std::ostream& out);
+#ifdef INTERACTIVE
+void player_b(istream& hidden_state, ostream& interaction_result,
+              istream& solution_out, ostream& solution_in);
+#endif
+
+struct _rusage {
+  long long peak_memory;
+};
+
+atomic<bool> _test_in_progress;
+function<bool(vector<string>& /* input */,
+              vector<string>& /* expected */,
+              vector<string>& /* actual */,
+              ostream& /* out */)> _custom_judge;
 
 bool _test_equal_double(double expected, double actual, double allowed_error) {
   using namespace std;
@@ -20,7 +35,6 @@ bool _test_equal_double(double expected, double actual, double allowed_error) {
   if (a > b) swap(a, b);
   return (actual + e >= a) && (actual <= b + e);
 }
-
 
 bool _file_exist(string name) {
   ifstream f(name);
@@ -101,21 +115,10 @@ pair<string, bool> _compare_lines(vector<string> ve, vector<string> va, ostream&
   return make_pair("", true);
 }
 
-bool _compare_output(string /* in */, string out_expected, string out_actual,
-                     long duration_ms, long max_duration_ms, ostream& out) {
-  if (out_expected == "") {
-    out << duration_ms << " ms";
-    if (duration_ms > max_duration_ms) out << " TLE";
-    cout << " output:" << '\n';
-    ifstream f(out_actual);
-    string s;
-    while (getline(f, s)) {
-      out << s << '\n';
-    }
-    return true;
-  }
-  auto expected = (_tokenize_file(out_expected));
-  auto actual = (_tokenize_file(out_actual));
+bool _compare_tokenized(vector<string>& /* input */,
+                        vector<string>& expected,
+                        vector<string>& actual,
+                        ostream& out) {
   int i = 0, j = 0;
   bool ok = true;
   vector<tuple<string, string, string>> diff;
@@ -137,13 +140,7 @@ bool _compare_output(string /* in */, string out_expected, string out_actual,
   }
   ok = ok and i >= expected.size() and j >= actual.size() and
              not actual.empty() and actual.back() == "\n";
-  if (ok) {
-    out << ": passed " << duration_ms << " ms";
-    if (duration_ms > max_duration_ms) out << " TLE";
-    out << endl;
-    return true;
-  }
-  out << ": failed\n";
+  if (ok) return true;
   while (i < expected.size()) {
     string s;
     while (i < expected.size() and expected[i] != "\n") s += expected[i++];
@@ -175,6 +172,44 @@ bool _compare_output(string /* in */, string out_expected, string out_actual,
     out << "no '\\n' at the end of output" << '\n';
   }
   return false;
+}
+
+bool _compare_output(string input_file_name,
+                     string out_expected,
+                     string out_actual,
+                     long duration_ms,
+                     long max_duration_ms,
+                     ostream& out) {
+  if (out_expected == "") {
+    out << duration_ms << " ms";
+    if (duration_ms > max_duration_ms) out << " TLE";
+    cout << " output:" << '\n';
+    ifstream f(out_actual);
+    string s;
+    while (getline(f, s)) {
+      out << s << '\n';
+    }
+    return true;
+  }
+  auto input = (_tokenize_file(input_file_name));
+  auto expected = (_tokenize_file(out_expected));
+  auto actual = (_tokenize_file(out_actual));
+  stringstream ss;
+  bool ok;
+  if (_custom_judge) {
+    ok = _custom_judge(input, expected, actual, ss);
+  } else {
+    ok = _compare_tokenized(input, expected, actual, ss);
+  }
+  if (ok) {
+    out << ": passed " << duration_ms << " ms";
+    if (duration_ms > max_duration_ms) out << " TLE";
+    out << endl;
+  } else {
+    out << ": failed" << endl;
+  }
+  cout << ss.str() << endl;
+  return ok;
 }
 
 string _read_last_input() {
@@ -225,12 +260,6 @@ set<string> _filter_files(set<string> files) {
   return result;
 }
 
-struct _rusage {
-  long long peak_memory;
-};
-
-atomic<bool> _test_in_progress;
-
 _rusage _monitor_rusage(long long max_allowed_memory, long long max_time_ms) {
   _rusage r;
   using namespace std::chrono;
@@ -259,6 +288,118 @@ _rusage _monitor_rusage(long long max_allowed_memory, long long max_time_ms) {
   }
   return r;
 }
+
+#ifdef INTERACTIVE
+// TODO: really needed?
+class threadbuf: public std::streambuf {
+private:
+    typedef std::streambuf::traits_type traits_type;
+    typedef std::string::size_type      string_size_t;
+
+    std::mutex              d_mutex;
+    std::condition_variable d_condition;
+    std::string             d_out;
+    std::string             d_in;
+    std::string             d_tmp;
+    char*                   d_current;
+    bool                    d_closed;
+
+public:
+    threadbuf(string_size_t out_size = 16, string_size_t in_size = 64)
+        : d_out(std::max(string_size_t(1), out_size), ' ')
+        , d_in(std::max(string_size_t(1), in_size), ' ')
+        , d_tmp(std::max(string_size_t(1), in_size), ' ')
+        , d_current(&this->d_tmp[0])
+        , d_closed(false)
+    {
+        this->setp(&this->d_out[0], &this->d_out[0] + this->d_out.size() - 1);
+        this->setg(&this->d_in[0], &this->d_in[0], &this->d_in[0]);
+    }
+    void close()
+    {
+        {
+            std::unique_lock<std::mutex> lock(this->d_mutex);
+            this->d_closed = true;
+            while (this->pbase() != this->pptr()) {
+                this->internal_sync(lock);
+            }
+        }
+        this->d_condition.notify_all();
+    }
+
+private:
+    int_type underflow()
+    {
+        if (this->gptr() == this->egptr())
+        {
+            std::unique_lock<std::mutex> lock(this->d_mutex);
+            while (&this->d_tmp[0] == this->d_current && !this->d_closed) {
+                this->d_condition.wait(lock);
+            }
+            if (&this->d_tmp[0] != this->d_current) {
+                std::streamsize size(this->d_current - &this->d_tmp[0]);
+                traits_type::copy(this->eback(), &this->d_tmp[0],
+                                  this->d_current - &this->d_tmp[0]);
+                this->setg(this->eback(), this->eback(), this->eback() + size);
+                this->d_current = &this->d_tmp[0];
+                this->d_condition.notify_one();
+            }
+        }
+        return this->gptr() == this->egptr()
+            ? traits_type::eof()
+            : traits_type::to_int_type(*this->gptr());
+    }
+    int_type overflow(int_type c)
+    {
+        std::unique_lock<std::mutex> lock(this->d_mutex);
+        if (!traits_type::eq_int_type(c, traits_type::eof())) {
+            *this->pptr() = traits_type::to_char_type(c);
+            this->pbump(1);
+        }
+        return this->internal_sync(lock)
+            ? traits_type::eof()
+            : traits_type::not_eof(c);
+    }
+    int sync()
+    {
+        std::unique_lock<std::mutex> lock(this->d_mutex);
+        return this->internal_sync(lock);
+    }
+    int internal_sync(std::unique_lock<std::mutex>& lock)
+    {
+        char* end(&this->d_tmp[0] + this->d_tmp.size());
+        while (this->d_current == end && !this->d_closed) {
+            this->d_condition.wait(lock);
+        }
+        if (this->d_current != end)
+        {
+            std::streamsize size(std::min(end - d_current,
+                                          this->pptr() - this->pbase()));
+            traits_type::copy(d_current, this->pbase(), size);
+            this->d_current += size;
+            std::streamsize remain((this->pptr() - this->pbase()) - size);
+            traits_type::move(this->pbase(), this->pptr(), remain);
+            this->setp(this->pbase(), this->epptr());
+            this->pbump(remain);
+            this->d_condition.notify_one();
+            return 0;
+        }
+        return traits_type::eof();
+    }
+};
+void interactive_judge(istream& cin, ostream& cout) {
+  threadbuf a;
+  std::ostream a_out(&a);
+  std::istream a_in(&a);
+  threadbuf b;
+  std::ostream b_out(&b);
+  std::istream b_in(&b);
+  // TODO: record interactions
+  auto x = async(&player_b, ref(cin), ref(cout), ref(a_in), ref(b_out));
+  solve(b_in, a_out);
+  x.wait();
+}
+#endif
 
 bool _run_tests() {
   _test_in_progress = true;
@@ -316,7 +457,11 @@ bool _run_tests() {
     ofstream fout(o);
     using namespace std::chrono;
     auto t1 = high_resolution_clock::now();
+#ifdef INTERACTIVE
+    interactive_judge(fin, fout);
+#else
     solve(fin, fout);
+#endif
     auto t2 = high_resolution_clock::now();
     long ms = duration_cast<milliseconds>(t2 - t1).count();
     fin.close();

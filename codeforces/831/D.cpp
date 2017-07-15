@@ -16,7 +16,7 @@ using lu = unsigned long long;
 using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
-const l INF = numeric_limits<l>::max();
+const l INF = numeric_limits<l>::max(); // TODO: update template
 const double EPS = 1e-10; static constexpr auto PI = acos(-1);
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
@@ -34,70 +34,28 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
-// finds lowest x: f(x) = true, x within [a, b), b if f(b - 1) = false
-l binary_search_lower(l a, l b, function<bool(l)> f) {
-  l count = b - a;
-  while (count > 0) {
-    l step = count / 2;
-    l m = a + step;
-    if (f(m)) {
-      count = step;
-    } else {
-      a = m + 1;
-      count -= step + 1;
-    }
-  }
-  return a;
-}
+l N, K, D;
 
-bool bipartite_matching_connect(const l u, vvl& m, vl& to, vb& used, l bound) {
-  for (size_t v = 0; v < to.size(); v++) {
-    if ((m[u][v] > bound) || used[v]) continue;
-    used[v] = true;
-    if (to[v] == -1 || bipartite_matching_connect(to[v], m, to, used, bound)) {
-      to[v] = u;
-      return true;
-    }
+l dfs(l a, l b, vl& v, vl& u, vvl& dp) {
+  if (a == -1) return 0;
+  if (b == -1) return INF;
+  l& r = dp[a][b];
+  if (r == -1) {
+    l cost = abs(v[a] - u[b]) + abs(u[b] - D);
+    r = min(max(cost, dfs(a - 1, b - 1, v, u, dp)),
+            dfs(a, b - 1, v, u, dp));
   }
-  return false; // return to; to get actual connections
-}
-
-// {A} => {B}, m[i][j] if A[i] -> B[j]
-l bipartite_matching(vvl& m, l bound) {
-  if (m.empty()) return 0;
-  vl to(m[0].size(), -1);
-  int result = 0;
-  for (size_t u = 0; u < m.size(); u++) {
-    vb used(to.size());
-    if (bipartite_matching_connect(u, m, to, used, bound)) {
-      result++;
-    } else return 0;
-  }
-  return result;
+  return r;
 }
 
 void solve(istream& cin, ostream& cout) {
-  l n, k, door;
-  while (cin >> n >> k >> door) {
-    vl xx(n); F(i, 0, n) cin >> xx[i];
-    vl yy(k); F(i, 0, k) cin >> yy[i];
-    vb taken(k);
-    vvl d(n, vl(k));
-    l upper = 0;
-    l lower = 0;
-    F(i, 0, n) {
-      l t = INF;
-      F(j, 0, k) {
-        d[i][j] = abs(xx[i] - yy[j]) + abs(yy[j] - door);
-        upper = max(upper, d[i][j]);
-        t = min(t, d[i][j]);
-      }
-      lower = max(lower, t);
-    }
-    l answer = binary_search_lower(lower, upper, [&](l const bound) {
-      return bipartite_matching(d, bound) == n;
-    });
-    cout << answer << lf;
+  while (cin >> N >> K >> D) {
+    vl v(N); F(i, 0, N) cin >> v[i];
+    vl u(K); F(i, 0, K) cin >> u[i];
+    sort(all(v));
+    sort(all(u));
+    vvl dp(N, vl(K, -1));
+    cout << dfs(N - 1, K - 1, v, u, dp) << lf;
   }
 }
 
