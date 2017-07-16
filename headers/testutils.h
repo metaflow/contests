@@ -492,7 +492,10 @@ bool _run_tests() {
     long ms = duration_cast<milliseconds>(t2 - t1).count();
     fin.close();
     fout.close();
-    if (_compare_output(get<1>(c), get<2>(c), o, ms, max_time, TEST_LOG)) continue;
+    if (_compare_output(get<1>(c), get<2>(c), o, ms, max_time, TEST_LOG)) {
+      remove(o.c_str());
+      continue;
+    }
     ok = false;
     if (failure.empty()) failure = get<1>(c);
   }
@@ -511,6 +514,7 @@ extern int _random_test_count;
 
 void _random_test() {
   assert(_generate_random_test);
+  assert(_custom_solution_checker or _solve_brute);
   string problem_name = PROBLEM_NAME;
   string input_file_name = problem_name + ".rndinput";
   string expected_output = problem_name + ".rndoutput";
@@ -548,17 +552,12 @@ void _random_test() {
           if (_custom_solution_checker(in, expected, actual, ss)) continue;
         }
       } else {
-        if (not _solve_brute) {
-          cerr << "ERROR: _solve_brute or _custom_solution_checker not defined"
-               << endl;
-          return;
-        }
         if (_compare_output("random", expected_output, actual_output, 0, 0, ss)) {
           continue;
         }
       }
 
-      // create new test case
+      // found new failed test case
       int i = 1;
       string name_in = problem_name + ".in" + to_string(i);
       string name_out = problem_name + ".out" + to_string(i);
@@ -579,18 +578,27 @@ void _random_test() {
       if (_solve_brute) TEST_LOG << ' ' << name_out;
       TEST_LOG << " created\n";
       remove(input_file_name.c_str());
+      remove(actual_output.c_str());
       remove(expected_output.c_str());
       return;
     }
   }
+  remove(input_file_name.c_str());
+  remove(expected_output.c_str());
+  remove(actual_output.c_str());
   TEST_LOG << "random: passed" << '\n';
 }
 
 void maybe_run_tests(istream& in, ostream& out) {
   auto run = getenv("RUN_TESTS");
   if (run) {
-    bool ok = _run_tests();
-    if (ok and _generate_random_test) _random_test();
+    int n = atoi(run);
+    if (n % 2) _run_tests();
+    if ((n >> 1) % 2) {
+      if (_generate_random_test and (_custom_solution_checker or _solve_brute)) {
+        _random_test();
+      }
+    }
   } else {
     solve(in, out);
   }

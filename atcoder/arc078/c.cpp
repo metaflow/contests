@@ -1,13 +1,14 @@
 #if defined(LOCAL)
-// TODO update template
 #define PROBLEM_NAME "c"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
-#endif
+#define L(x...) debug(x)
+#else
+#define L(x, ...) (x)
 #include <bits/stdc++.h>
+#endif
 
 using namespace std;
-
 using vi = vector<int>; using vvi = vector<vi>;
 using ii = pair<int,int>; using vii = vector<ii>;
 using l = long long; using vl = vector<l>; using vvl = vector<vl>;
@@ -23,16 +24,6 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-
-#if defined(LOCAL)
-bool local = true;
-#define L(x...) debug(x)
-#else
-bool local = false;
-#define L(x, ...) (x)
-#endif
-struct VoidStream { void operator&(std::ostream&) { } };
-#define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
 // finds lowest x: f(x) = true, x within [a, b), b if f(b - 1) = false
 l binary_search_lower(l a, l b, function<bool(l)> f) {
@@ -103,56 +94,61 @@ int _random_test_size_from = 0;
 int _random_test_size_to = 100;
 int _random_test_count = 10;
 
+void generate_random(l size, ostream& cout) {
+  cout << random_in_range(1, e9 + 1) << lf;
+}
+
+void player_b(istream& hidden_state, ostream& log,
+              istream& cin, ostream& cout) {
+  l answer; hidden_state >> answer;
+  l count = 64;
+  while (count > 0) {
+    count--;
+    string s;
+    cin >> s;
+    if (s == "?") {
+      l n;
+      cin >> n;
+      if (n < 1 or n > e9 * e9) {
+        log << n << " out of range" << lf;
+        return;
+      }
+      if ((n <= answer and to_string(n) <= to_string(answer)) or
+          (n > answer and to_string(n) > to_string(answer))) {
+        cout << "Y" << endl;
+      } else {
+        cout << "N" << endl;
+      }
+    } else {
+      cin >> s;
+      return;
+    }
+  }
+  log << "> 64 tries" << lf;
+}
+
+bool solution_checker(istream& input, istream& /* expected */,
+                      istream& actual, ostream& out) {
+  string answer; input >> answer;
+  answer = "! " + answer;
+  string a, s;
+  while (getline(actual, s)) {
+    if (not s.empty()) a = s;
+    out << s << lf;
+  }
+  out << "'" <<  answer << "' <> '" << a << "'" << endl;
+  return answer == a;
+};
+
+
 int main() {
-  // TODO: RUN_TESTS=<string> F - file, R - random, F for emacs
   ios_base::sync_with_stdio(false); cin.tie(0);
   cout << fixed << setprecision(15);
 #if defined(LOCAL)
-  _custom_solution_checker = [](istream& input,
-                                istream& /* expected */,
-                                istream& actual,
-                                ostream& out) {
-    string answer; input >> answer;
-    answer = "! " + answer;
-    string a, s;
-    while (getline(actual, s)) {
-      if (not s.empty()) a = s;
-      out << s << lf;
-    }
-    out << "'" <<  answer << "' <> '" << a << "'" << endl;
-    return answer == a;
-  };
-  _generate_random_test = [](l size, ostream& cout) {
-    cout << random_in_range(1, e9 + 1) << lf;
-  };
-  _player_b = [](istream& hidden_state, ostream& log,
-                 istream& cin, ostream& cout) {
-    l answer; hidden_state >> answer;
-    l count = 64;
-    while (count > 0) {
-      count--;
-      string s;
-      cin >> s;
-      if (s == "?") {
-        l n;
-        cin >> n;
-        if (n < 1 or n > e9 * e9) {
-          log << n << " out of range" << lf;
-          return;
-        }
-        if ((n <= answer and to_string(n) <= to_string(answer)) or
-            (n > answer and to_string(n) > to_string(answer))) {
-          cout << "Y" << endl;
-        } else {
-          cout << "N" << endl;
-        }
-      } else {
-        cin >> s;
-        return;
-      }
-    }
-    log << "> 64 tries" << lf;
-  };
+  _custom_solution_checker = solution_checker;
+  _generate_random_test = generate_random;
+  _player_b = player_b;
+  // _solve_brute = solve_brute;
   maybe_run_tests(cin, cout);
 #else
   solve(cin, cout);
