@@ -1,0 +1,4 @@
+codeforces 157.E
+once again - not enough preliminary analysis before diving into the problem
+it's hard to know when it's really enough but for now it would be better to overdo.
+Plus - it is possible to state dp variables so that state cannot be easily shrank down.

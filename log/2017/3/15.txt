@@ -1,0 +1,3 @@
+codeforces 364.A
+- need to be carefull when accessing map elements during iteration - that might lead to misbehavior
+- zero was the obvious special case but I didn't spent enough time analyzing it

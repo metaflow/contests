@@ -1,0 +1,6 @@
+codeforces 60.E
+I have got solution overall but made several mistakes:
+- didn't take modulo for corner case
+- didn't spent enough time calculating what the next last element will be
+- did substraction w/o adding modulo
+- there might be no inverse of given number on modulo if it is not a coprime

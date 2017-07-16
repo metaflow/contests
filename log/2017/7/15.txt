@@ -1,0 +1,10 @@
+atcoder regular 078
+goal: 3 solved
+result: 2 solved, 3rd WA
+notes:
+A - made 2 errors of not using l in MAX value and initial value of accumulate
+B - OK, bit overkill with binary lifting
+C - looks like missed several edgecases, lack of testing method for interactive
+todo:
+- implement interactive testing
+- upsolve C

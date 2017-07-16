@@ -1,0 +1,2 @@
+codeforces 129.D
+I have solved this one with SA + LCP + some mess. But it turns out that there is a short and easy solution just for this problem. Mistake was to immediately jump to "it's a suffix array problem" without proper analysis.

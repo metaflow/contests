@@ -1,0 +1,7 @@
+codeforces 359.E
+I was mentally prepared for hard problem and really turned it into hard one :)
+Major error was to skip troughful analysis and after draft solution w/o any
+real checking it go straight to implementation. While it might be OK to skip
+really boring parts but not an analysis itself.
+Solution turned out to get ML and WA in different places of code.
+Rewritten solution is two times faster, AC from first try and 3 times shorter.

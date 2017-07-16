@@ -1,0 +1,11 @@
+codeforces 178.F (1,2,3)
+
+first of all force.py gave me f1 witch can be
+bruteforced. Nevertheless I have figured out via construction of trie that
+_almost_ pass the tests on time. Turns out there is a nice divide and conqurer
+solution on sorted list of strings - idea I almost instantly throwed away as non
+productive). So it might be a good idea to came up with 2-4 different solution
+ideas and evaluate them carefully. It takes more time for sure. But I am here
+for the process.
+
+I have also revritten force.py to gave ratings that are more stable.

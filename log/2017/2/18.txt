@@ -1,0 +1,2 @@
+codeforces 767
+- wasted a lot of time becuase of haste read of the problem: in A I have solved more general problem, in B didn't spent enough time to clarify exit condition

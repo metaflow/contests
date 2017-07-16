@@ -1,0 +1,8 @@
+Tried to solve practice problem from hashcode:
+- copying in memory is slow, better to use shared ptr to move things around
+- evolution algorithms are not so complicated but still take a lot of time
+-> it's worth trying to solve another problem with this approach (or see that I need something entirily different
+- python and repl looks too hard for me - every typo is uncovered only after a while
+
+codechef feb 17 GERMANDE
+- easy but writing down high level solution allows to get everthing in order

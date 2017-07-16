@@ -11,20 +11,19 @@ using namespace std;
 
 #define TEST_LOG cerr
 void solve(std::istream& in, std::ostream& out);
-#ifdef INTERACTIVE
-void player_b(istream& hidden_state, ostream& interaction_result,
-              istream& solution_out, ostream& solution_in);
-#endif
+function<void(istream& hidden_state, ostream& log,
+              istream& solution_out, ostream& solution_in)> _player_b;
+function<void(long long /* size */, ostream& /* out */)> _generate_random_test;
+function<void(std::istream& /* in */, std::ostream& /* out */)> _solve_brute;
+function<bool(istream& /* input */,
+              istream& /* expected */,
+              istream& /* actual */,
+              ostream& /* log */)> _custom_solution_checker;
 
 struct _rusage {
   long long peak_memory;
 };
-
 atomic<bool> _test_in_progress;
-function<bool(vector<string>& /* input */,
-              vector<string>& /* expected */,
-              vector<string>& /* actual */,
-              ostream& /* out */)> _custom_judge;
 
 bool _test_equal_double(double expected, double actual, double allowed_error) {
   using namespace std;
@@ -180,26 +179,34 @@ bool _compare_output(string input_file_name,
                      long duration_ms,
                      long max_duration_ms,
                      ostream& out) {
-  if (out_expected == "") {
-    out << duration_ms << " ms";
-    if (duration_ms > max_duration_ms) out << " TLE";
-    cout << " output:" << '\n';
-    ifstream f(out_actual);
-    string s;
-    while (getline(f, s)) {
-      out << s << '\n';
-    }
-    return true;
-  }
-  auto input = (_tokenize_file(input_file_name));
-  auto expected = (_tokenize_file(out_expected));
-  auto actual = (_tokenize_file(out_actual));
-  stringstream ss;
+    stringstream ss;
   bool ok;
-  if (_custom_judge) {
-    ok = _custom_judge(input, expected, actual, ss);
-  } else {
+  if (not _custom_solution_checker) {
+    if (out_expected == "") {
+      out << duration_ms << " ms";
+      if (duration_ms > max_duration_ms) out << " TLE";
+      cout << " output:" << '\n';
+      ifstream f(out_actual);
+      string s;
+      while (getline(f, s)) {
+        out << s << '\n';
+      }
+      return true;
+    }
+    auto input = (_tokenize_file(input_file_name));
+    auto expected = (_tokenize_file(out_expected));
+    auto actual = (_tokenize_file(out_actual));
     ok = _compare_tokenized(input, expected, actual, ss);
+  } else {
+    ifstream in(input_file_name);
+    ifstream actual(out_actual);
+    if (out_expected.empty()) {
+      stringstream expected("expected output is not defined");
+      ok = _custom_solution_checker(in, expected, actual, ss);
+    } else {
+      ifstream expected(out_expected);
+      ok = _custom_solution_checker(in, expected, actual, ss);
+    }
   }
   if (ok) {
     out << ": passed " << duration_ms << " ms";
@@ -207,8 +214,8 @@ bool _compare_output(string input_file_name,
     out << endl;
   } else {
     out << ": failed" << endl;
+    cout << ss.str() << endl;
   }
-  cout << ss.str() << endl;
   return ok;
 }
 
@@ -275,6 +282,7 @@ _rusage _monitor_rusage(long long max_allowed_memory, long long max_time_ms) {
                << fixed << setprecision(2)
                << (double)max_allowed_memory / 1024 / 1024
                << " Mb" << endl;
+      TEST_LOG << "use `#define MEMORY <MB>` to set limit" << endl;
       exit(1);
     }
     usleep(1000);
@@ -283,123 +291,141 @@ _rusage _monitor_rusage(long long max_allowed_memory, long long max_time_ms) {
     if (ms > max_time_ms) {
       TEST_LOG << "\nerror: running longer than "
                << max_time_ms << " ms" << endl;
+      TEST_LOG << "use `#define TIME <seconds>` to set limit" << endl;
       exit(1);
     }
   }
   return r;
 }
 
-#ifdef INTERACTIVE
-// TODO: really needed?
 class threadbuf: public std::streambuf {
 private:
-    typedef std::streambuf::traits_type traits_type;
-    typedef std::string::size_type      string_size_t;
+  typedef std::streambuf::traits_type traits_type;
+  typedef std::string::size_type      string_size_t;
 
-    std::mutex              d_mutex;
-    std::condition_variable d_condition;
-    std::string             d_out;
-    std::string             d_in;
-    std::string             d_tmp;
-    char*                   d_current;
-    bool                    d_closed;
+  std::mutex              d_mutex;
+  std::condition_variable d_condition;
+  std::string             d_out;
+  std::string             d_in;
+  std::string             d_tmp;
+  char*                   d_current;
+  bool                    d_closed;
+  function<void(char)>    on_output;
 
 public:
-    threadbuf(string_size_t out_size = 16, string_size_t in_size = 64)
+  threadbuf(string_size_t out_size = 1024, string_size_t in_size = 1024)
         : d_out(std::max(string_size_t(1), out_size), ' ')
         , d_in(std::max(string_size_t(1), in_size), ' ')
         , d_tmp(std::max(string_size_t(1), in_size), ' ')
         , d_current(&this->d_tmp[0])
-        , d_closed(false)
+        , d_closed(false) {
+    this->setp(&this->d_out[0], &this->d_out[0] + this->d_out.size() - 1);
+    this->setg(&this->d_in[0], &this->d_in[0], &this->d_in[0]);
+  }
+
+  void set_on_output(function<void(char)> f) {
+    on_output = f;
+  }
+  void close() {
     {
-        this->setp(&this->d_out[0], &this->d_out[0] + this->d_out.size() - 1);
-        this->setg(&this->d_in[0], &this->d_in[0], &this->d_in[0]);
+      std::unique_lock<std::mutex> lock(this->d_mutex);
+      this->d_closed = true;
+      while (this->pbase() != this->pptr()) {
+        this->internal_sync(lock);
+      }
     }
-    void close()
-    {
-        {
-            std::unique_lock<std::mutex> lock(this->d_mutex);
-            this->d_closed = true;
-            while (this->pbase() != this->pptr()) {
-                this->internal_sync(lock);
-            }
-        }
-        this->d_condition.notify_all();
-    }
+    this->d_condition.notify_all();
+  }
 
 private:
-    int_type underflow()
-    {
-        if (this->gptr() == this->egptr())
-        {
-            std::unique_lock<std::mutex> lock(this->d_mutex);
-            while (&this->d_tmp[0] == this->d_current && !this->d_closed) {
-                this->d_condition.wait(lock);
-            }
-            if (&this->d_tmp[0] != this->d_current) {
-                std::streamsize size(this->d_current - &this->d_tmp[0]);
-                traits_type::copy(this->eback(), &this->d_tmp[0],
-                                  this->d_current - &this->d_tmp[0]);
-                this->setg(this->eback(), this->eback(), this->eback() + size);
-                this->d_current = &this->d_tmp[0];
-                this->d_condition.notify_one();
-            }
+  int_type underflow() {
+    if (this->gptr() == this->egptr()) {
+      std::unique_lock<std::mutex> lock(this->d_mutex);
+      while (&this->d_tmp[0] == this->d_current && !this->d_closed) {
+        this->d_condition.wait(lock);
+      }
+      if (&this->d_tmp[0] != this->d_current) {
+        std::streamsize size(this->d_current - &this->d_tmp[0]);
+        traits_type::copy(this->eback(), &this->d_tmp[0],
+                          this->d_current - &this->d_tmp[0]);
+        if (on_output) {
+          for (auto i = &d_tmp[0]; i != d_current; i++) {
+            on_output(*i);
+          }
         }
-        return this->gptr() == this->egptr()
-            ? traits_type::eof()
-            : traits_type::to_int_type(*this->gptr());
+        this->setg(this->eback(), this->eback(), this->eback() + size);
+        this->d_current = &this->d_tmp[0];
+        this->d_condition.notify_one();
+      }
     }
-    int_type overflow(int_type c)
-    {
-        std::unique_lock<std::mutex> lock(this->d_mutex);
-        if (!traits_type::eq_int_type(c, traits_type::eof())) {
-            *this->pptr() = traits_type::to_char_type(c);
-            this->pbump(1);
-        }
-        return this->internal_sync(lock)
-            ? traits_type::eof()
-            : traits_type::not_eof(c);
+    return this->gptr() == this->egptr()
+      ? traits_type::eof()
+      : traits_type::to_int_type(*this->gptr());
+  }
+  int_type overflow(int_type c) {
+    std::unique_lock<std::mutex> lock(this->d_mutex);
+    if (!traits_type::eq_int_type(c, traits_type::eof())) {
+      *this->pptr() = traits_type::to_char_type(c);
+      this->pbump(1);
     }
-    int sync()
-    {
-        std::unique_lock<std::mutex> lock(this->d_mutex);
-        return this->internal_sync(lock);
+    return this->internal_sync(lock)
+      ? traits_type::eof()
+      : traits_type::not_eof(c);
+  }
+  int sync() {
+    std::unique_lock<std::mutex> lock(this->d_mutex);
+    return this->internal_sync(lock);
+  }
+  int internal_sync(std::unique_lock<std::mutex>& lock) {
+    char* end(&this->d_tmp[0] + this->d_tmp.size());
+    while (this->d_current == end && !this->d_closed) {
+      this->d_condition.wait(lock);
     }
-    int internal_sync(std::unique_lock<std::mutex>& lock)
-    {
-        char* end(&this->d_tmp[0] + this->d_tmp.size());
-        while (this->d_current == end && !this->d_closed) {
-            this->d_condition.wait(lock);
-        }
-        if (this->d_current != end)
-        {
-            std::streamsize size(std::min(end - d_current,
-                                          this->pptr() - this->pbase()));
-            traits_type::copy(d_current, this->pbase(), size);
-            this->d_current += size;
-            std::streamsize remain((this->pptr() - this->pbase()) - size);
-            traits_type::move(this->pbase(), this->pptr(), remain);
-            this->setp(this->pbase(), this->epptr());
-            this->pbump(remain);
-            this->d_condition.notify_one();
-            return 0;
-        }
-        return traits_type::eof();
+    if (this->d_current != end) {
+      std::streamsize size(std::min(end - d_current,
+                                    this->pptr() - this->pbase()));
+      traits_type::copy(d_current, this->pbase(), size);
+      this->d_current += size;
+      std::streamsize remain((this->pptr() - this->pbase()) - size);
+      traits_type::move(this->pbase(), this->pptr(), remain);
+      this->setp(this->pbase(), this->epptr());
+      this->pbump(remain);
+      this->d_condition.notify_one();
+      return 0;
     }
+    return traits_type::eof();
+  }
 };
+
 void interactive_judge(istream& cin, ostream& cout) {
+  atomic<int> turn(0);
   threadbuf a;
+  a.set_on_output([&](char c) {
+      if (turn != 1) {
+        turn = 1;
+        cout << "";
+      }
+      cout << c;
+    });
   std::ostream a_out(&a);
   std::istream a_in(&a);
   threadbuf b;
+  b.set_on_output([&](char c) {
+      if (turn != 2) {
+        turn = 2;
+        cout << "> ";
+      }
+      cout << c;
+    });
   std::ostream b_out(&b);
   std::istream b_in(&b);
-  // TODO: record interactions
-  auto x = async(&player_b, ref(cin), ref(cout), ref(a_in), ref(b_out));
-  solve(b_in, a_out);
+  auto x = async(launch::async, _player_b,
+                 ref(cin), ref(TEST_LOG), ref(a_in), ref(b_out));
+  thread t(&solve, ref(b_in), ref(a_out));
+  t.detach();
   x.wait();
+  cout.flush();
 }
-#endif
 
 bool _run_tests() {
   _test_in_progress = true;
@@ -457,11 +483,11 @@ bool _run_tests() {
     ofstream fout(o);
     using namespace std::chrono;
     auto t1 = high_resolution_clock::now();
-#ifdef INTERACTIVE
-    interactive_judge(fin, fout);
-#else
-    solve(fin, fout);
-#endif
+    if (_player_b) {
+      interactive_judge(fin, fout);
+    } else {
+      solve(fin, fout);
+    }
     auto t2 = high_resolution_clock::now();
     long ms = duration_cast<milliseconds>(t2 - t1).count();
     fin.close();
@@ -479,14 +505,12 @@ bool _run_tests() {
   return ok;
 }
 
-#if defined(RANDOM_TEST)
-void generate(long long size, ostream& out);
-void solve_brute(istream& cin, ostream& cout);
-
 extern int _random_test_size_from;
 extern int _random_test_size_to;
 extern int _random_test_count;
+
 void _random_test() {
+  assert(_generate_random_test);
   string problem_name = PROBLEM_NAME;
   string input_file_name = problem_name + ".rndinput";
   string expected_output = problem_name + ".rndoutput";
@@ -496,22 +520,44 @@ void _random_test() {
     for (int tc = 0; tc < _random_test_count; tc++) {
       {
         ofstream in(input_file_name);
-        generate(size, in);
+        _generate_random_test(size, in);
       }
       {
         ifstream in(input_file_name);
         ofstream out(actual_output);
-        solve(in, out);
-      }
-      {
-        ifstream in(input_file_name);
-        ofstream out(expected_output);
-        solve_brute(in, out);
+        if (_player_b) {
+          interactive_judge(in, out);
+        } else {
+          solve(in, out);
+        }
       }
       stringstream ss;
-      if (_compare_output("random", expected_output, actual_output, 0, 0, ss)) {
-        continue;
+      if (_solve_brute) {
+        ifstream in(input_file_name);
+        ofstream out(expected_output);
+        _solve_brute(in, out);
       }
+      if (_custom_solution_checker) {
+        ifstream in(input_file_name);
+        ifstream actual(actual_output);
+        if (_solve_brute) {
+          ifstream expected(expected_output);
+          if (_custom_solution_checker(in, expected, actual, ss)) continue;
+        } else {
+          stringstream expected("_solve_brute is not defined");
+          if (_custom_solution_checker(in, expected, actual, ss)) continue;
+        }
+      } else {
+        if (not _solve_brute) {
+          cerr << "ERROR: _solve_brute or _custom_solution_checker not defined"
+               << endl;
+          return;
+        }
+        if (_compare_output("random", expected_output, actual_output, 0, 0, ss)) {
+          continue;
+        }
+      }
+
       // create new test case
       int i = 1;
       string name_in = problem_name + ".in" + to_string(i);
@@ -521,13 +567,17 @@ void _random_test() {
         name_out = problem_name + ".out" + to_string(i);
         if (not _file_exist(name_in) and not _file_exist(name_out)) {
           _copy_content(input_file_name, name_in);
-          _copy_content(expected_output, name_out);
+          if (_solve_brute) {
+            _copy_content(expected_output, name_out);
+          }
           break;
         }
         i++;
       }
       TEST_LOG << ss.str() << '\n';
-      TEST_LOG << name_in << ' ' << name_out << " created\n";
+      TEST_LOG << name_in;
+      if (_solve_brute) TEST_LOG << ' ' << name_out;
+      TEST_LOG << " created\n";
       remove(input_file_name.c_str());
       remove(expected_output.c_str());
       return;
@@ -535,17 +585,12 @@ void _random_test() {
   }
   TEST_LOG << "random: passed" << '\n';
 }
-#endif
 
 void maybe_run_tests(istream& in, ostream& out) {
   auto run = getenv("RUN_TESTS");
   if (run) {
-#if defined(RANDOM_TEST)
     bool ok = _run_tests();
-    if (ok) _random_test();
-#else
-    _run_tests();
-#endif
+    if (ok and _generate_random_test) _random_test();
   } else {
     solve(in, out);
   }

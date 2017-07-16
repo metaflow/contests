@@ -1,0 +1,9 @@
+codechef feb17
+INTERVALS
+- misread problem statement (intervals strictly included, it doesn't affect complexity but still a requirement)
+- fill of big array of nontrivial value is actually for loop operation
+- for DP it's worth checking cost of computing single entry. e.g. in this problem there is 6e7 states but computing each of them could take around e5 totalling e12
+-> it might worth to recording process of solving the problem
+- spent considerable time trying to optimize small details which was not relevant at all
+- several off by one errors
+- error in used variable (n instead of m) -> name variables meaningfully

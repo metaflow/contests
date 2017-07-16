@@ -1,0 +1,6 @@
+codeforces 110.D
+
+- found good enought solution
+-> analyze solutions of others
+- error was with combining probabilities
+- feel afraid of real number roundup errors even though this time was OK
