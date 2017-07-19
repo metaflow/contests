@@ -13,7 +13,7 @@ using namespace std;
 void solve(std::istream& in, std::ostream& out);
 function<void(istream& hidden_state, ostream& log,
               istream& solution_out, ostream& solution_in)> _player_b;
-function<void(long long /* size */, ostream& /* out */)> _generate_random_test;
+function<bool(long long /* size */, ostream& /* out */)> _generate_random_test;
 function<void(std::istream& /* in */, std::ostream& /* out */)> _solve_brute;
 function<bool(istream& /* input */,
               istream& /* expected */,
@@ -508,10 +508,6 @@ bool _run_tests() {
   return ok;
 }
 
-extern int _random_test_size_from;
-extern int _random_test_size_to;
-extern int _random_test_count;
-
 void _random_test() {
   assert(_generate_random_test);
   assert(_custom_solution_checker or _solve_brute);
@@ -519,69 +515,66 @@ void _random_test() {
   string input_file_name = problem_name + ".rndinput";
   string expected_output = problem_name + ".rndoutput";
   string actual_output = problem_name + ".output";
-  for (int size = _random_test_size_from; size < _random_test_size_to; size++) {
-    TEST_LOG << '.';
-    for (int tc = 0; tc < _random_test_count; tc++) {
-      {
-        ofstream in(input_file_name);
-        _generate_random_test(size, in);
-      }
-      {
-        ifstream in(input_file_name);
-        ofstream out(actual_output);
-        if (_player_b) {
-          interactive_judge(in, out);
-        } else {
-          solve(in, out);
-        }
-      }
-      stringstream ss;
-      if (_solve_brute) {
-        ifstream in(input_file_name);
-        ofstream out(expected_output);
-        _solve_brute(in, out);
-      }
-      if (_custom_solution_checker) {
-        ifstream in(input_file_name);
-        ifstream actual(actual_output);
-        if (_solve_brute) {
-          ifstream expected(expected_output);
-          if (_custom_solution_checker(in, expected, actual, ss)) continue;
-        } else {
-          stringstream expected("_solve_brute is not defined");
-          if (_custom_solution_checker(in, expected, actual, ss)) continue;
-        }
-      } else {
-        if (_compare_output("random", expected_output, actual_output, 0, 0, ss)) {
-          continue;
-        }
-      }
-
-      // found new failed test case
-      int i = 1;
-      string name_in = problem_name + ".in" + to_string(i);
-      string name_out = problem_name + ".out" + to_string(i);
-      while (1) {
-        name_in = problem_name + ".in" + to_string(i);
-        name_out = problem_name + ".out" + to_string(i);
-        if (not _file_exist(name_in) and not _file_exist(name_out)) {
-          _copy_content(input_file_name, name_in);
-          if (_solve_brute) {
-            _copy_content(expected_output, name_out);
-          }
-          break;
-        }
-        i++;
-      }
-      TEST_LOG << ss.str() << '\n';
-      TEST_LOG << name_in;
-      if (_solve_brute) TEST_LOG << ' ' << name_out;
-      TEST_LOG << " created\n";
-      remove(input_file_name.c_str());
-      remove(actual_output.c_str());
-      remove(expected_output.c_str());
-      return;
+  for (int tc = 0;; tc++) {
+    {
+      ofstream in(input_file_name);
+      if (not _generate_random_test(tc, in)) break;
     }
+    {
+      ifstream in(input_file_name);
+      ofstream out(actual_output);
+      if (_player_b) {
+        interactive_judge(in, out);
+      } else {
+        solve(in, out);
+      }
+    }
+    stringstream ss;
+    if (_solve_brute) {
+      ifstream in(input_file_name);
+      ofstream out(expected_output);
+      _solve_brute(in, out);
+    }
+    if (_custom_solution_checker) {
+      ifstream in(input_file_name);
+      ifstream actual(actual_output);
+      if (_solve_brute) {
+        ifstream expected(expected_output);
+        if (_custom_solution_checker(in, expected, actual, ss)) continue;
+      } else {
+        stringstream expected("_solve_brute is not defined");
+        if (_custom_solution_checker(in, expected, actual, ss)) continue;
+      }
+    } else {
+      if (_compare_output("random", expected_output, actual_output, 0, 0, ss)) {
+        continue;
+      }
+    }
+
+    // found new failed test case
+    int i = 1;
+    string name_in = problem_name + ".in" + to_string(i);
+    string name_out = problem_name + ".out" + to_string(i);
+    while (1) {
+      name_in = problem_name + ".in" + to_string(i);
+      name_out = problem_name + ".out" + to_string(i);
+      if (not _file_exist(name_in) and not _file_exist(name_out)) {
+        _copy_content(input_file_name, name_in);
+        if (_solve_brute) {
+          _copy_content(expected_output, name_out);
+        }
+        break;
+      }
+      i++;
+    }
+    TEST_LOG << ss.str() << '\n';
+    TEST_LOG << name_in;
+    if (_solve_brute) TEST_LOG << ' ' << name_out;
+    TEST_LOG << " created\n";
+    remove(input_file_name.c_str());
+    remove(actual_output.c_str());
+    remove(expected_output.c_str());
+    return;
   }
   remove(input_file_name.c_str());
   remove(expected_output.c_str());

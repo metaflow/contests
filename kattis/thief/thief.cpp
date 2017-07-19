@@ -36,11 +36,15 @@ struct VoidStream { void operator&(std::ostream&) { } };
 
 const l MAXW = 301;
 
-l value(l p, l a, vl& v, vl& s, l w) {
-  l x = p / w - a / w - 1;
-  if (x < 0 or x >= v.size()) return 0;
-  return s[a] + v[x];
-}
+struct Curve {
+  l from, overtaken; // positions in transformed, [from, to)
+  l c;
+  l value(l p, vl& v) {
+    l x = p - from - 1;
+    if (x < 0 or x >= v.size()) return 0;
+    return c + v[x];
+  }
+};
 
 // finds lowest x: f(x) = true, x within [a, b), b if f(b - 1) = false
 l binary_search_lower(l a, l b, function<bool(l)> f) {
@@ -58,18 +62,11 @@ l binary_search_lower(l a, l b, function<bool(l)> f) {
   return a;
 }
 
-l overtakes(l a, l b, vl& v, vl& s, l w) {
-  // a < b
-  l mod = a % w;
-  assert(a % w == b % w);
-  return binary_search_lower(b / w - 1, (a + v.size()) / w, [&](l x ) {
-      return value(x * w + mod, a, v, s, w) >= value(x * w + mod, b, v, s, w);
-    }) * w + mod;
-}
-
-bool good(l a, l b, l c, vl& v, vl& s, l w) {
-  // a > b > c
-  return overtakes(c, a, v, s, w) < overtakes(b, a, v, s, w);
+l overtakes(Curve a, Curve b, vl& v) {
+  // a.from < b.from
+  return binary_search_lower(b.from, a.from + v.size() + 1, [&](l x) {
+      return a.value(x, v) < b.value(x, v);
+    }) - 1;
 }
 
 void solve(istream& cin, ostream& cout) {
@@ -82,36 +79,45 @@ void solve(istream& cin, ostream& cout) {
     v[x].emplace_back(y);
   }
   F(w, 1, MAXW) {
-    l m = v[w].size();
+    auto u = v[w];
+    l m = u.size();
     if (m == 0) continue;
-    sort(all(v[w]), greater<l>());
-    F(j, 1, v[w].size()) v[w][j] += v[w][j - 1];
+    sort(all(u), greater<l>());
+    F(j, 1, u.size()) u[j] += u[j - 1];
     F(j, 0, w) {
       l p = K - j;
-      deque<l> q;
+      deque<Curve> q;
       F(k, 0, m) {
         l t = p - k * w;
         if (t < 0) break;
-        while (q.size() > 1 and
-               not good(q[q.size() - 2], q[q.size() - 1], t, v[w], s, w)) {
-          q.pop_back();
+        Curve x; x.from = t / w; x.c = s[t];
+        if (not q.empty()) {
+          q.back().overtaken = overtakes(x, q.back(), u);
         }
-        q.push_back(t);
+        while (q.size() > 1 and
+               q[q.size() - 2].overtaken <= q[q.size() - 1].overtaken) {
+          q.pop_back();
+          q.back().overtaken = overtakes(x, q.back(), u);
+        }
+        q.push_back(x);
       }
       while (p > 0) {
         l t = p - m * w;
         if (t >= 0) {
+          Curve x; x.from = t / w; x.c = s[t];
+          if (not q.empty()) q.back().overtaken = overtakes(x, q.back(), u);
           while (q.size() > 1 and
-                 not good(q[q.size() - 2], q[q.size() - 1], t, v[w], s, w)) {
+                 q[q.size() - 2].overtaken <= q[q.size() - 1].overtaken) {
             q.pop_back();
+            q.back().overtaken = overtakes(x, q.back(), u);
           }
-          q.push_back(t);
+          q.push_back(x);
         }
         while (q.size() > 1 and
-               value(p, q[0], v[w], s, w) <= value(p, q[1], v[w], s, w)) {
+               q[0].value(p / w, u) <= q[1].value(p / w, u)) {
           q.pop_front();
         }
-        if (not q.empty()) s[p] = max(s[p], value(p, q.front(), v[w], s, w));
+        if (not q.empty()) s[p] = max(s[p], q.front().value(p / w, u));
         p -= w;
       }
     }
