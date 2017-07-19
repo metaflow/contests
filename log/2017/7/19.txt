@@ -1,0 +1,5 @@
+csacademy round 38
+goal: -
+result: solved 5 out of 8
+notes: listened to waterfall noise, got stuck at some point because jumped to wrong solution, found correct one by solving couple of cases manually
+takeoffs: -
