@@ -1,0 +1,88 @@
+PROBLEM STATEMENT
+
+Suppose that we have an array with arrayLength distinct elements.
+A quite common task in programming is to randomly permute this array.
+Novices who encounter this situation often implement the following algorithm:
+
+
+
+Choose a positive integer swapCount.
+swapCount times randomly choose two distinct indices and swap the corresponding elements.
+
+
+
+This method of permuting an array is bad, because some permutations of the array will be more likely than others.
+In this problem, you shall compute how bad this method is for a given situation.
+
+
+
+You will be given four ints: arrayLength, swapCount, a and b. 
+Consider the element of the array that initially had the index a. 
+Write a method that will compute the probability that this element will have the index b at the end of the process described above.
+
+
+
+DEFINITION
+Class:RandomSwaps
+Method:getProbability
+Parameters:int, int, int, int
+Returns:double
+Method signature:double getProbability(int arrayLength, int swapCount, int a, int b)
+
+
+NOTES
+-The indices of elements that are going to be swapped are generated with a uniform probability distribution, i.e., each pair of indices has got the same probability of being chosen.
+-The indices are zero-based, i.e., the array contains elements with indices 0 to arrayLength-1, inclusive.
+-The returned value must have an absolute or relative error less than 1e-9.
+
+
+CONSTRAINTS
+-arrayLength will be between 2 and 1,000, inclusive.
+-swapCount will be between 1 and 100,000, inclusive.
+-a and b will be between 0 and arrayLength-1, inclusive.
+
+
+EXAMPLES
+
+0)
+5
+1
+0
+0
+
+Returns: 0.6
+
+There are ten possible pairs of indices to swap: (0,1), (0,2), (0,3), (0,4), (1,2), (1,3), (1,4), (2,3), (2,4), and (3,4). Out of these ten, the last six leave the element 0 untouched. Thus the probability is 6/10.
+
+1)
+5
+1
+0
+3
+
+Returns: 0.1
+
+Only the swap (0,3) will move the element from position 0 to position 3.
+The probability of choosing this swap is 1/10.
+
+2)
+5
+2
+0
+0
+
+Returns: 0.4
+
+Now there are two possibilities: Either the 0-th element stays in its place for the whole time, or it is swapped away and back again.
+
+The probability of the first possibility is (6/10)^2, for the second possibility it is (4/10)*(1/10).
+
+3)
+100
+500
+3
+3
+
+Returns: 0.010036635745123007
+
+For 100 elements, even after 500 swaps, the permutation won't be random enough.

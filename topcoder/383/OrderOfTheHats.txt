@@ -1,0 +1,128 @@
+PROBLEM STATEMENT
+The Order of the Hats is a magical organization. One of their duties is to teach students how to cast spells. There are N spells numbered from 0 to N-1. As an aid for the students, the teachers have prepared a spell chart. The chart lists suggestions on the order in which to study the spells. (This is explained in more detail below.)
+
+
+
+Recently, some changelings broke into the Order's spell archive and messed up the spell chart. You are given a vector <string> spellChart containing the new, messed-up state of the spell chart. Each character of each element of spellChart is either 'Y' or 'N'. The students will come to study soon. They will interpret the chart in the following way: If spellChart[i][j] is 'Y' then spell i must be learned before spell j. 
+
+As the chart is now messed up, it may be impossible to learn all the spells in the chart because of cycles in the requirements. Your task is to repair the given chart. Determine the minimum number of changes needed to remove all the cycles in the requirements. In a single change, you may either change some character spellChart[i][j] from 'Y' to 'N', or change some character from 'N' to 'Y'. 
+
+DEFINITION
+Class:OrderOfTheHats
+Method:minChanged
+Parameters:vector <string>
+Returns:int
+Method signature:int minChanged(vector <string> spellChart)
+
+
+CONSTRAINTS
+-spellChart will contain between 1 and 20 elements, inclusive.
+-Each element of spellChart will contain N characters, where N is the number of elements in spellChart.
+-Each character in each element of spellChart will be either 'Y' or 'N'.
+
+
+EXAMPLES
+
+0)
+{"Y"}
+
+Returns: 1
+
+This spell chart contains a spell that should be learned before itself. The students would never be able to learn such a spell.
+We can remove this cyclic dependency by changing the 'Y' to 'N'.
+
+1)
+{"NYN",
+ "NNY",
+ "NNN"}
+
+
+Returns: 0
+
+This spell chart is already OK.
+
+2)
+{"NYN",
+ "NNY",
+ "YNN"}
+
+Returns: 1
+
+Changing any single 'Y' to a 'N' will fix this spell chart.
+
+3)
+{"NYYYYYY",
+ "YNYYYYY",
+ "YYNYYYY",
+ "YYYNYYY",
+ "YYYYNYY",
+ "YYYYYNY",
+ "YYYYYYN"}
+
+Returns: 21
+
+
+
+4)
+{"NNNY",
+ "YNYN",
+ "YNNN",
+ "YYYN"}
+
+Returns: 1
+
+
+
+5)
+{"YYYYYNNYYYNYNNNNYNNY",
+ "NYNNNYYNNYNYYYNYYYYY",
+ "NNYNNNYYNNNNNNYYYYNY",
+ "YYNYNYYNNYYYNYNNNYYY",
+ "NYYNNYNYNYNNNNYYYNYN",
+ "NNNNNYYNYNNYYYYNYYYN",
+ "YNYNYYNNNYNNNNNYNNYY",
+ "NYYYYNYNYNNYNNYNNNNY",
+ "YYYYNYYNNYYYNNYNNYNY",
+ "YYYYYYNYNYNYNNNNNNYN",
+ "NNYYYYYNNNYNNNYNNNNY",
+ "YYNNNYNYYNYYNYYNYNYN",
+ "NNYNYYNYYNYYNYNYNYYN",
+ "YNYNYYNYNNNYNYNYYNYY",
+ "NNYNNNYYYYYYYYYYYNYY",
+ "YYYYYNYYNYYYYYNNYNNN",
+ "NYYYYYYYYNNNNNYYNNYN",
+ "YNNYNNNYYNYYYNYNYYYY",
+ "YYNNYNYYYNYYNNNYYNNY",
+ "NNYNYNYYYNYYNYNNYNNN"}
+
+Returns: 79
+
+
+
+6)
+{"YYNYNN",
+ "YNYNNY",
+ "YYYYNN",
+ "NNNYNN",
+ "NNNYNN",
+ "YNYNYN"}
+
+Returns: 5
+
+
+
+7)
+{"NNNNNNNNNN",
+ "NNNNNNNNNN",
+ "NNNYNNYNNN",
+ "NNNYNNYNNN",
+ "NNNYNNYNNN",
+ "NNNNNNNNNN",
+ "NNYYYYYYNN",
+ "NNYNNNNYNN",
+ "NNNYYYYNNN",
+ "NNNNNNNNNN"}
+
+Returns: 6
+
+

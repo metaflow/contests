@@ -1,0 +1,78 @@
+PROBLEM STATEMENT
+
+Given a dictionary of words, where will a newly coined word be most likely
+to fit?
+
+We are given k, the length of the new word, and dictionary, a vector <string> of 
+words in ascending alphabetical order. 
+Suppose that the new word is equally likely to be any k-letter word that is
+not already in the dictionary. Return the most likely 0-based index for the
+new word. If there is more than one most likely index, return -1.
+
+
+
+DEFINITION
+Class:LikelyWord
+Method:likely
+Parameters:vector <string>, int
+Returns:int
+Method signature:int likely(vector <string> dictionary, int k)
+
+
+CONSTRAINTS
+-dictionary will contain between 1 and 50 elements, inclusive.
+-Each element of dictionary will contain between 1 and 50 characters, inclusive.
+-Each character in each element of dictionary will be a lowercase letter ('a'-'z').
+-The elements of dictionary will be distinct and in ascending alphabetical order.
+-k will be between 1 and 10, inclusive.
+-There will be at least one k-letter word that is not in dictionary. 
+
+
+EXAMPLES
+
+0)
+{"time","zoology"}
+1
+
+Returns: 0
+
+
+
+   There are many more 1 letter words before "time" than either between
+   "time" and "zoology" or after "zoology".
+
+
+
+1)
+{"az","ma","xz"}
+1
+
+Returns: 1
+
+
+
+   12 words ("b", "c", ..., "m") would have index 1, while 11 ("n", ... , "x")
+   would have index 2.
+
+2)
+{"az","ma","xz"}
+2
+
+Returns: 2
+
+
+   
+   With the same dictionary but a longer new word, it becomes most likely
+   that the new word will go between "ma" and "xz".
+
+
+3)
+{"a","m","y"}
+1
+
+Returns: -1
+
+
+   There are 23 equally likely 1-letter words (since 3 are already in the
+   dictionary). 0 would have index 0, 11 would have index 1, 11 would have
+   index 2, and 1 would have index 3. So no index is most likely.

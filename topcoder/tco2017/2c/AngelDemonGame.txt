@@ -1,0 +1,144 @@
+PROBLEM STATEMENT
+The Angel and the Demon are playing a game on an undirected simple graph G.
+G contains n nodes numbered 0 through n-1.
+You are given a vector <string> G: its adjacency matrix.
+That is, for any i and j, nodes i and j are connected by an edge if and only if G[i][j] is 'Y'.
+
+
+You are also given two ints: A and D.
+The game is played as follows:
+The Angel chooses some unordered pairs of nodes and at the same time the Demon chooses some unordered pairs of nodes.
+The Angel must choose between 0 and A pairs, inclusive, and the Demon must choose between 0 and D pairs, inclusive.
+Then, both players reveal their choices.
+Next, the graph G is modified as follows:
+
+
+
+For each pair of nodes i != j:
+	If the Demon chose the pair (i, j), there will be no edge (i, j) in the new graph.
+	Otherwise:
+		If the Angel chose the pair (i, j), there will be an edge (i, j) in the new graph.
+		Otherwise:
+			The state of the edge (i, j) remains the same.
+                        That is, it is in the new graph if and only if it is in the old graph G.
+
+
+
+Finally, the game is evaluated.
+If the new graph contains a path between nodes 0 and n-1, the Angel wins.
+Otherwise, the Demon wins.
+
+
+We say that a player has a winning strategy if they can make a valid choice such that they are guaranteed to win the game regardless of the set of edges chosen by their opponent.
+If the Angel has a winning strategy, return "Angel".
+If the Demon has a winning strategy, return "Demon".
+Otherwise, return "Unknown".
+
+DEFINITION
+Class:AngelDemonGame
+Method:winner
+Parameters:vector <string>, int, int
+Returns:string
+Method signature:string winner(vector <string> G, int A, int D)
+
+
+CONSTRAINTS
+-n will be between 3 and 50, inclusive.
+-G will contain exactly n elements.
+-Each element in G will contain exactly n characters.
+-Each character in G will be 'Y' or 'N'.
+-For each i and j, G[i][j] = G[j][i].
+-For each i, G[i][i] = 'N'.
+-A and D will be between 2 and n*(n-1)/2, inclusive.
+
+
+EXAMPLES
+
+0)
+{"NYNY",
+ "YNYY",
+ "NYNN",
+ "YYNN"}
+2
+2
+
+Returns: "Angel"
+
+G is a graph with 4 nodes and 4 edges:
+
+  1
+ /|\
+0 - 3
+  |
+  2
+
+A winning strategy for the Angel is to choose the pairs (0, 2) and (2, 3).
+It can be shown that with this choice the Angel will win regardless of the choice made by the Demon.
+
+1)
+{"NYNY",
+ "YNYY",
+ "NYNN",
+ "YYNN"}
+6
+6
+
+Returns: "Demon"
+
+The graph G is the same but now each player can choose up to 6 pairs.
+This means that the Demon can select all possible unordered pairs of nodes.
+If the Demon does so, the new graph will have no edges and thus there will be no path between nodes 0 and 3.
+
+2)
+{"NNNN",
+ "NNNN",
+ "NNNN",
+ "NNNN"}
+2
+2
+
+Returns: "Unknown"
+
+It can be proved that in this case no player has a winning strategy.
+
+3)
+{"NYNNNY",
+ "YNNYNN",
+ "NNNNYN",
+ "NYNNNN",
+ "NNYNNN",
+ "YNNNNN"}
+4
+4
+
+Returns: "Unknown"
+
+
+
+4)
+{"NYNNNY",
+ "YNNYNN",
+ "NNNNYN",
+ "NYNNNN",
+ "NNYNNN",
+ "YNNNNN"}
+8
+4
+
+Returns: "Angel"
+
+
+
+5)
+{"NYNNNY",
+ "YNNYNN",
+ "NNNNYN",
+ "NYNNNN",
+ "NNYNNN",
+ "YNNNNN"}
+4
+8
+
+Returns: "Demon"
+
+

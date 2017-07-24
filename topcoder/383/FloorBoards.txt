@@ -1,0 +1,91 @@
+PROBLEM STATEMENT
+You are building a house and are laying the floorboards in one of the rooms. Each floorboard is a rectangle 1 unit wide and can be of any positive integer length. Floorboards must be laid with their sides parallel to one of the sides of the room and cannot overlap. In addition, the room may contain features such as pillars, which lead to areas of the floor where no floorboards can be laid. The room is rectangular and the features all lie on a unit-square grid within it. You want to know the minimum number of floorboards that you need to completely cover the floor.
+You are given a vector <string> room containing the layout of the room. Character j in element i of room represents the grid-square at position (i, j) and will be a '.' if this square needs to be covered with a floorboard or a '#' if the square is a feature where no floorboard can be laid. Return an int containing the minimum number of floorboards you need to completely cover the floor. 
+
+DEFINITION
+Class:FloorBoards
+Method:layout
+Parameters:vector <string>
+Returns:int
+Method signature:int layout(vector <string> room)
+
+
+CONSTRAINTS
+-room will contain between 1 and 10 elements, inclusive.
+-Each element of room will contain between 1 and 10 characters, inclusive.
+-Each element of room will contain the same number of characters.
+-Each character in room will be a '.' or a '#'.
+
+
+EXAMPLES
+
+0)
+{"....."
+,"....."
+,"....."
+,"....."
+,"....."}
+
+Returns: 5
+
+5 boards laid side-by-side will cover this square room.
+
+1)
+{"......."
+,".#..##."
+,".#....."
+,".#####."
+,".##..#."
+,"....###"}
+
+Returns: 7
+
+A possible optimal layout could look like the following
+|------
+|#--##|
+|#----|
+|#####|
+|##--#|
+|---###
+Each floorboard is represented by a consecutive horizontal sequence of '-' characters or a consecutive vertical sequence of '|' characters.
+
+2)
+{"####"
+,"####"
+,"####"
+,"####"}
+
+Returns: 0
+
+This is a strange room, with no floor area to cover.
+
+3)
+{"...#.."
+,"##...."
+,"#.#..."
+,".#...."
+,"..#..."
+,"..#..#"}
+
+Returns: 9
+
+An optimal pattern here is:
+
+---#||
+##--||
+#-#|||
+|#-|||
+||#|||
+||#||#
+
+4)
+{".#...."
+,"..#..."
+,".....#"
+,"..##.."
+,"......"
+,".#..#."}
+
+Returns: 9
+
+
