@@ -1,0 +1,6 @@
+caacademy r39
+goal: 4 problems
+result: 4 problems, 86 place
+struggled a bit with last problem, should have tested properly and solve w/o resubmissions
+takeaways:
+- test if test is really simple

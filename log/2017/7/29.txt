@@ -1,0 +1,7 @@
+atcoder regular 079 and lunchtime
+goal: all but one at atcoder, 3 in lunchtime
+result: 3 in atcoder, 3 in lunchtime. Got into weeds in graph problem in atcoder. Spent too much time with relatively simple one in luchtime - I have started implementing so much complex solution and only after a while noticed that there is much simplier way to solve it. Was a bit shy to go straight to NlogN for second one though upsolving showed that was a correct approach.
+takeaway:
+- upsolve last from atcoder round (check analysis)
+- spent more time on analysis and conter examples (maybe fixed timer? 5 minutes lost in more analysis is better then 20 on wrong implementation)
+- would be so nice to have a test case creator

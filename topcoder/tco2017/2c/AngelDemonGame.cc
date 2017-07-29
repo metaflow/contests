@@ -96,6 +96,7 @@ void sssp(pnode start, graph& g) {
   }
 }
 
+// TODO: move to template, try to imolement as a vectors intstead of pointers
 ll min_cost_max_flow(graph& g, pnode s, pnode t, l max_cost) {
   l flow = 0;
   while (max_cost >= 0) {

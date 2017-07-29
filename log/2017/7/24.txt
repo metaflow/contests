@@ -1,0 +1,6 @@
+codeforces 425 div 2
+goal: 3 problems
+result: A and D AC, B wa because of copying and pasting code w/o fixing all variable occurences, C looked fine but decided to switch to D as more people have submitted it and it was a good decision.
+takeaways: - careful with copying
+- looking on scoreboard can reveal some easy problems
+- upsolve C

@@ -35,6 +35,11 @@ bool _test_equal_double(double expected, double actual, double allowed_error) {
   return (actual + e >= a) && (actual <= b + e);
 }
 
+string _str_to_lower(string s) {
+  transform(s.begin(), s.end(), s.begin(), ::tolower);
+  return s;
+}
+
 bool _file_exist(string name) {
   ifstream f(name);
   return f.good();
@@ -221,7 +226,7 @@ bool _compare_output(string input_file_name,
 
 string _read_last_input() {
   using namespace std;
-  string name = PROBLEM_NAME;
+  string name = _str_to_lower(PROBLEM_NAME);
   ifstream f(name + ".testinfo");
   string s;
   f >> s;
@@ -230,7 +235,7 @@ string _read_last_input() {
 
 void _write_last_input(string s) {
   using namespace std;
-  string name = PROBLEM_NAME;
+  string name = _str_to_lower(PROBLEM_NAME);
   name += ".testinfo";
   if (s.empty()) {
     remove(name.c_str());
@@ -248,7 +253,7 @@ set<string> _list_files(string path) {
     while ((ent = readdir(dir)) != NULL) {
       if (ent->d_type != DT_REG) continue;
       string s = ent->d_name;
-      files.emplace(s);
+      files.emplace(_str_to_lower(s));
     }
     closedir(dir);
   } else {
@@ -259,7 +264,7 @@ set<string> _list_files(string path) {
 
 set<string> _filter_files(set<string> files) {
   set<string> result;
-  string name(PROBLEM_NAME);
+  string name = _str_to_lower(PROBLEM_NAME);
   for (auto s : files) {
     if (s.find(name) != 0) continue;
     result.emplace(s);
@@ -431,20 +436,20 @@ bool _run_tests() {
   _test_in_progress = true;
   set<string> files = _filter_files(_list_files("."));
 
-  string name(PROBLEM_NAME);
+  string name = _str_to_lower(PROBLEM_NAME);
 
   vector<tuple<int, string, string>> cases;
   string last = _read_last_input();
   for (auto f : files) {
     // problem\.in(.*)
     string t = name + ".in";
-    int w = (f == last) ? 0 : 1;
+    int weight = (f == last) ? 0 : 1;
     if (f.find(t) == 0) {
       string o = name + ".out" + f.substr(t.size());
       if (files.count(o)) {
-        cases.emplace_back(w, f, o);
+        cases.emplace_back(weight, f, o);
       } else {
-        cases.emplace_back(w, f, "");
+        cases.emplace_back(weight, f, "");
       }
       continue;
     }
@@ -452,9 +457,9 @@ bool _run_tests() {
     if (f.size() > 2 and f.substr(f.size() - 2) == "in") {
       string o = f.substr(0, f.size() - 2) + "out";
       if (files.count(o)) {
-        cases.emplace_back(w, f, o);
+        cases.emplace_back(weight, f, o);
       } else {
-        cases.emplace_back(w, f, "");
+        cases.emplace_back(weight, f, "");
       }
     }
   }
@@ -511,7 +516,7 @@ bool _run_tests() {
 void _random_test() {
   assert(_generate_random_test);
   assert(_custom_solution_checker or _solve_brute);
-  string problem_name = PROBLEM_NAME;
+  string problem_name = _str_to_lower(PROBLEM_NAME);
   string input_file_name = problem_name + ".rndinput";
   string expected_output = problem_name + ".rndoutput";
   string actual_output = problem_name + ".output";
