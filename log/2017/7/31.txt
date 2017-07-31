@@ -1,0 +1,3 @@
+codeforces 835 (div 2)
+goal: 4 problems
+result: 4 problems, back to div 1. Spent more time than needed on 4th problem, jumped to hash implementation thought it was not needed plus it costed several tries. It's the second time for last days when I jump into using some trick or method w/o evaluating if it's really applicable and needed here.

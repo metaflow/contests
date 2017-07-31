@@ -31,46 +31,76 @@ const char lf = '\n';
 #define L(x, ...) (x)
 #endif
 
-l calc(l a, vvl& adj, vl& value) {
-  if (adj[a].size() == 0) return 0;
-  if (adj[a].size() == 1) return 1 - value[adj[a][0]];
-  if (adj[a].size() > 2) return -1;
-  bool zero = false, one = false;
-  F(i, 0, 2) {
-    if (value[adj[a]] > 1) return -1;
-    if (value[adj[a]]) { one = true; } else { zero = true; }
+vl get_possible(l a, vvl& adj, vl& value) {
+  set<l> used;
+  l wild = 0;
+  for (auto b : adj[a]) {
+    if (value[b] == -1) {
+      wild++;
+    } else {
+      used.emplace(value[b]);
+    }
   }
-  if (not zero) return -1;
-  if (one) return 2;
-  return 1;
+  l i = 0;
+  vl v;
+  F(j, 0, wild + 1) {
+    while (used.count(i)) i++;
+    if (i > adj[a].size()) break;
+    v.emplace_back(i);
+    i++;
+  }
+  return v;
+}
+
+bool find_assignment(vvl& adj, vvl& back, vl outgoing, vl value, l check) {
+  queue<l> q;
+  l n = adj.size();
+  // assign obvious ones
+  F(i, 0, n) if (value[i] == -1 and outgoing[i] == 0) q.emplace(i);
+  while (not q.empty()) {
+    l a = q.front(); q.pop();
+    auto p = get_possible(a, adj, value);
+    L("possible", a, p);
+    if (p.empty()) return false;
+    assert(p.size() == 1);
+    if (value[a] != -1 and value[a] != p[0]) return false;
+    value[a] = p[0];
+    for (auto b : back[a]) {
+      outgoing[b]--;
+      if (outgoing[b] == 0) q.emplace(b);
+    }
+  }
+  F(i, 0, n) {
+    if (value[i] != -1) continue;
+    for (auto b : back[i]) outgoing[b]--;
+    auto p = get_possible(i, adj, value);
+    L("possible", p);
+    for (auto j : p) {
+      value[i] = j;
+      if (find_assignment(adj, back, outgoing, value, i)) return true;
+    }
+    return false;
+  }
+  return true;
 }
 
 void solve(istream& cin, ostream& cout) {
   l n;
   while (cin >> n) {
+    L("------------");
     vvl adj(n), back(n);
     vl outgoing(n);
     vl value(n, -1);
-    F(i, 0 n) {
+    F(i, 0, n) {
       l a; cin >> a; a--;
-      adj[a].empace_back(i);
-      back[i].empace_back(a);
+      adj[a].emplace_back(i);
       outgoing[a]++;
+      back[i].emplace_back(a);
     }
-    queue<l> q;
-    F(i, 0, n) {if (outgoing[a] == 0) {q.emplace(a);}}
-    bool ok = true;
-    while (ok and not q.empty()) {
-      l a = q.front(); q.pop();
-      value[a] = calc(a, adj, value);
-      ok = ok and value[a] != -1;
-      for (auto b : back[a]) {
-        outgoing[b]--;
-        if (outgoing[b] == 0) q.emplace(b);
-      }
-    }
-    F(i, 0, 2) {
-      
+    if (find_assignment(adj, back, outgoing, value, -1)) {
+      cout << "POSSIBLE" << lf;
+    } else {
+      cout << "IMPOSSIBLE" << lf;
     }
   }
 }
