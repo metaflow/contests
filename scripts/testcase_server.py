@@ -5,9 +5,12 @@ import urllib
 import urllib.request
 import os
 import subprocess
+import sys
+import json
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
 parsers = [
-    ['python', './testcase_parsers/codeforces.py', '%url%', '%html%']
+    ['python', '%script_dir%/testcase_parsers/codeforces.py', '%url%', '%info%']
 ]
 
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
@@ -26,18 +29,19 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         request_path = self.path
         length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read()
-        with open("./testcase.html", "w") as f:
-            f.write(str(post_data).replace('\\n', '\n'))
+        data = self.rfile.read()
+        data = data.decode('utf-8').encode('cp850','replace').decode('cp850')
+        j = json.loads(data)
+        # print("data", )
+        with open("./testcase.json", "w") as f:
+            f.write(data)
         for p in parsers:
-            print(p)
             copy = p
             for id, s in enumerate(copy):
-                copy[id] = s.replace('%url%', 'http://localhost') \
-                            .replace('%html%', os.path.abspath("./testcase.html"))
-            print(copy)
+                copy[id] = s.replace('%script_dir%', script_dir) \
+                            .replace('%url%', j['url']) \
+                            .replace('%info%', os.path.abspath("./testcase.json"))
             subprocess.call(copy)
-
 
 def run():
     try:
