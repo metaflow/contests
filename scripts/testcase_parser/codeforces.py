@@ -10,7 +10,6 @@ import platform
 import subprocess
 import utils
 
-print(sys.argv)
 url = sys.argv[1]
 path = sys.argv[2]
 
@@ -37,4 +36,4 @@ for s in samples:
     cases.append(('\n'.join(input_lines) + '\n', '\n'.join(output_lines) + '\n'))
 
 if utils.save_cases(name, cases):
-    subprocess.call(["C:\\Program Files\\Git\\bin\\bash.exe", '-c', '/c/Users/mgoncharov/etc/contests/problem.sh {}'.format(name)])
+    utils.open_problem(name)

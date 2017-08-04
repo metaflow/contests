@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import urllib
-import urllib.request
+import json
 import os
 import subprocess
 import sys
-import json
+import urllib
+import urllib.request
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 parsers = [
-    ['python', '%script_dir%/testcase_parsers/codeforces.py', '%url%', '%info%']
+    ['python', '%script_dir%/codeforces.py', '%url%', '%info%'],
+    ['python', '%script_dir%/atcoder.py', '%url%', '%info%'],
+    ['python', '%script_dir%/csacademy.py', '%url%', '%info%'],
+    ['python', '%script_dir%/kattis.py', '%url%', '%info%']
 ]
 
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
@@ -41,10 +44,13 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
                 copy[id] = s.replace('%script_dir%', script_dir) \
                             .replace('%url%', j['url']) \
                             .replace('%info%', os.path.abspath("./testcase.json"))
-            subprocess.call(copy)
+            process = subprocess.run(copy)
+            if process.returncode == 0:
+                break
 
 def run():
     try:
+        # kill another instance
         urllib.request.urlopen("http://localhost:4243/exit").read()
     except:
         pass
