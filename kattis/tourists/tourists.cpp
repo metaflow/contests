@@ -34,17 +34,54 @@ bool local = false;
 struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
+struct Edge {
+  l to, id, from;
+};
+
 struct Graph {
-  vvl adj;
-  vvl up;
-  vl depth;
+  l v_count, e_count;
+  vector<vector<Edge>> adj;
 
   Graph(l n) {
+    v_count = n;
     adj.resize(n);
-    depth.resize(n);
+    e_count = 0;
+  }
+
+  void add_undirected(l a, l b) {
+    Edge ab; ab.id = e_count; ab.from = a; ab.to = b;
+    adj[a].emplace_back(ab);
+    Edge ba; ba.id = e_count; ba.from = b; ba.to = a;
+    adj[b].emplace_back(ba);
+    e_count++;
+  }
+};
+
+struct TreeUplift {
+  vvl up; // binary lift [i][j] jump of 2^i from j
+  vl depth; // depth[root] = 0
+
+  static TreeUplift build(Graph& g, l root) {
+    TreeUplift lift;
+    lift.depth.resize(g.v_count);
     l k = 0;
-    while ((1 << k) <= n) k++;
-    up.resize(k, vl(n, -1));
+    while ((1 << k) <= g.v_count) k++;
+    lift.up.resize(k, vl(g.v_count, -1));
+
+    queue<l> q;
+    q.emplace(root);
+    lift.depth[root] = 0;
+    while (not q.empty()) {
+      l a = q.front(); q.pop();
+      for (auto b : g.adj[a]) {
+        if (b.to == lift.up[0][a]) continue;
+        lift.up[0][b.to] = a;
+        lift.depth[b.to] = lift.depth[a] + 1;
+        lift.build_up(b.to);
+        q.emplace(b.to);
+      }
+    }
+    return lift;
   }
 
   void build_up(l a) {
@@ -79,34 +116,90 @@ struct Graph {
   }
 };
 
+struct BiComponents {
+  l time;
+  vl age, lowlink;
+  vb in_path, explored_edge, cut_vertex, bridge;
+  stack<Edge> edge_stack;
+  vector<vector<Edge>> component; // 2-vertex-connected components
+
+  static BiComponents build(Graph& g) {
+    BiComponents bc;
+    bc.time = 0;
+    bc.age.resize(g.v_count, -1);
+    bc.lowlink.resize(g.v_count, -1);
+    bc.in_path.resize(g.v_count);
+    bc.cut_vertex.resize(g.v_count);
+
+    bc.explored_edge.resize(g.e_count);
+    bc.bridge.resize(g.e_count);
+
+    F(i, 0, g.v_count) {
+      if (bc.age[i] == 0) bc.dfs_components(i, g.e_count, g);
+    }
+    return bc;
+  }
+
+  // edge #id ->a
+  void dfs_components(l a, l edge_id, Graph& g) {
+    in_path[a] = true;
+    lowlink[a] = age[a] = time; time++;
+    l forward_count = 0;
+    bool root = edge_id == g.e_count;
+    for (auto e : g.adj[a]) {
+      if (e.id == edge_id) continue;  // same edge
+      if (not explored_edge[e.id]) {
+        explored_edge[e.id] = true;
+        edge_stack.push(e);
+      }
+      if (age[e.to] != 0) { // visited
+        if (in_path[e.to]) { // back edge
+          lowlink[a] = min(lowlink[a], age[e.to]);
+        }
+      } else { // forward edge
+        dfs_components(e.to, e.id, g);
+        lowlink[a] = min(lowlink[a], lowlink[e.to]);
+        if (root ? (++forward_count > 1) : (lowlink[e.to] >= age[a])) {
+          // articulation point
+          cut_vertex[a] = true;
+          // extract component
+          vector<Edge> c;
+          while (1) {
+            auto t = edge_stack.top(); edge_stack.pop();
+            c.emplace_back(t);
+            if (t.id == e.id) break;
+          }
+          component.emplace_back(c);
+        }
+      }
+    }
+    if (root) {
+      if (not edge_stack.empty()) {
+        vector<Edge> c;
+        while (not edge_stack.empty()) {
+          auto t = edge_stack.top(); edge_stack.pop();
+          c.emplace_back(t);
+        }
+        component.emplace_back(c);
+      }
+    }
+    in_path[a] = false;
+  }
+};
+
 void solve(istream& cin, ostream& cout) {
   l n;
   cin >> n;
   Graph g(n);
   F(i, 0, n - 1) {
     l a, b; cin >> a >> b; a--; b--;
-    g.adj[a].emplace_back(b);
-    g.adj[b].emplace_back(a);
+    g.add_undirected(a, b);
   }
-
-  queue<l> q;
-  q.emplace(0);
-  g.depth[0] = 0;
-  while (not q.empty()) {
-    l a = q.front(); q.pop();
-    for (auto b : g.adj[a]) {
-      if (b == g.up[0][a]) continue;
-      g.up[0][b] = a;
-      g.depth[b] = g.depth[a] + 1;
-      g.build_up(b);
-      q.emplace(b);
-    }
-  }
-
+  auto lift = TreeUplift::build(g, 0);
   l answer = 0;
   F(i, 1, n + 1) for (l j = i + i; j <= n; j += i) {
-    l r = g.lca(i - 1, j - 1);
-    answer += g.depth[i - 1] + g.depth[j - 1] - 2 * g.depth[r] + 1;
+    l r = lift.lca(i - 1, j - 1);
+    answer += lift.depth[i - 1] + lift.depth[j - 1] - 2 * lift.depth[r] + 1;
   }
   cout << answer << lf;
 }

@@ -595,6 +595,10 @@ void maybe_run_tests(istream& in, ostream& out) {
     if ((n >> 1) % 2) {
       if (_generate_random_test and (_custom_solution_checker or _solve_brute)) {
         _random_test();
+      } else {
+        TEST_LOG << "set _generate_random_test\n"
+                 << "and _custom_solution_checker or _solve_brute\n"
+                 << "for random test\n";
       }
     }
   } else {

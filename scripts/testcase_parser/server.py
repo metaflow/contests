@@ -13,6 +13,8 @@ parsers = [
     ['python', '%script_dir%/codeforces.py', '%url%', '%info%'],
     ['python', '%script_dir%/atcoder.py', '%url%', '%info%'],
     ['python', '%script_dir%/csacademy.py', '%url%', '%info%'],
+    ['python', '%script_dir%/codechef.py', '%url%', '%info%'],
+    ['python', '%script_dir%/hackerrank.py', '%url%', '%info%'],
     ['python', '%script_dir%/kattis.py', '%url%', '%info%']
 ]
 

@@ -43,7 +43,6 @@ struct Graph {
   vl age, lowlink;
   vb in_path, visited, explored_edge, cut_vertex;
   vl bridges;
-  // TODO: add vector of all edges to get by id
   stack<Edge> edge_stack;
   vvl vertex_components;
   l components_count;

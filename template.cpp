@@ -39,11 +39,11 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   cout << fixed << setprecision(15);
 #if defined(LOCAL)
-  maybe_run_tests(cin, cout);
   // _generate_random_test = generate_random;
   // _solve_brute = solve_brute;
   // _player_b = player_b;
   // _custom_solution_checker = solution_checker;
+  maybe_run_tests(cin, cout);
 #else
   solve(cin, cout);
 #endif
