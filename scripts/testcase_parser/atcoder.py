@@ -13,12 +13,14 @@ import utils
 url = sys.argv[1]
 path = sys.argv[2]
 
+print(url)
 url = urlsplit(url)
 host = url.netloc
 if not host.endswith('atcoder.jp'):
     exit(1)
 
 name = url.path[-1:] # /tasks/arc079_d
+print("name", name)
 with open(path, 'r') as myfile:
     info = json.loads(myfile.read().replace('\n', ''))
 

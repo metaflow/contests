@@ -32,16 +32,19 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
         return
 
     def do_POST(self):
+        self.send_response(200)
+        self.send_header('Content-type','text/plain')
+        self.end_headers()
+        self.wfile.write(bytes(self.path, "utf8"))
         request_path = self.path
         length = int(self.headers['Content-Length'])
         data = self.rfile.read()
         data = data.decode('utf-8').encode('cp850','replace').decode('cp850')
         j = json.loads(data)
-        # print("data", )
         with open("./testcase.json", "w") as f:
             f.write(data)
         for p in parsers:
-            copy = p
+            copy = list(p)
             for id, s in enumerate(copy):
                 copy[id] = s.replace('%script_dir%', script_dir) \
                             .replace('%url%', j['url']) \
@@ -49,6 +52,8 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
             process = subprocess.run(copy)
             if process.returncode == 0:
                 break
+        return
+
 
 def run():
     try:
