@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "pieceittogether"
+#define PROBLEM_NAME "illumination"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -98,11 +98,8 @@ struct SCC {
   }
 };
 
-const l dr[] = {1, 0, -1, 0};
-const l dc[] = {0, 1, 0, -1};
-
 // variables [0, n)
-struct SAT2 { // requires `graph` and `scc`
+struct SAT2 { // requires YY and Y
   Graph g;
   l size;
 
@@ -131,53 +128,21 @@ struct SAT2 { // requires `graph` and `scc`
     return true;
   }
 };
-// TODO use L(a, b, result) syntax instead
-bool in_bounds(l r, l c, l rows, l cols) {
-  return 0 <= r and r < rows and 0 <= c and c < cols;
-}
 
 void solve(istream& cin, ostream& cout) {
-  l rows, cols;
-  cin >> rows >> cols;
-  vector<string> grid(rows);
-  F(i, 0, rows) cin >> grid[i];
-  vector<vvl> term_id(4, vvl(rows, vl(cols, -1)));
-  l black_count = 0, white_count = 0;
-  l id = 0;
-  F(i, 0, rows) F(j, 0, cols) {
-    if (grid[i][j] == 'B') {
-      black_count++;
-      F(d, 0, 4) term_id[d][i][j] = id++;
-    }
-    if (grid[i][j] == 'W') white_count++;
+  l n, r, k;
+  cin >> n >> r >> k;
+  vl xx(k), yy(k);
+  F(i, 0, k) cin >> xx[i] >> yy[i];
+  SAT2 sat(k);
+  F(i, 0, k) F(j, i + 1, k) {
+    if (xx[i] == xx[j] and abs(yy[i] - yy[j]) <= 2 * r)
+      sat.add_or(i, j);
+    if (yy[i] == yy[j] and abs(xx[i] - xx[j]) <= 2 * r)
+      sat.add_or(sat.neg(i), sat.neg(j));
   }
-  SAT2 sat(id);
-  bool ok = (black_count * 2 == white_count);
-  if (ok) F(i, 0, rows) F(j, 0, cols) {
-    if (grid[i][j] == 'W') {
-      vl bb;
-      F(d, 0, 4) {
-        l ni = i + dr[d], nj = j + dc[d];
-        if (not in_bounds(ni, nj, rows, cols) or grid[ni][nj] != 'B') continue;
-        bb.emplace_back(term_id[(d + 2) % 4][ni][nj]);
-      }
-      ok = ok and not bb.empty();
-      if (not ok) break;
-      F(x, 0, bb.size()) F(y, x + 1, bb.size())
-        sat.add_or(sat.neg(bb[x]), sat.neg(bb[y]));
-    }
-    if (grid[i][j] == 'B') {
-      F(d, 0, 4) {
-        l r = i + dr[d], c = j + dc[d];
-        if (not in_bounds(r, c, rows, cols) or grid[r][c] != 'W')
-          sat.add_true(term_id[(d + 2) % 4][i][j]);
-      }
-      sat.add_xor(term_id[0][i][j], term_id[2][i][j]);
-      sat.add_xor(term_id[1][i][j], term_id[3][i][j]);
-    }
-  }
-  ok = (ok) and (sat.is_solvable());
-  cout << (ok ? "YES" : "NO") << lf;
+  bool answer = sat.is_solvable();
+  cout << (answer ? "YES" : "NO") << lf;
 }
 
 int main() {

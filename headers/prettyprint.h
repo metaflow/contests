@@ -448,17 +448,29 @@ void _out_to_stream(std::stringstream& ss, T&& arg) {
 }
 
 template<typename T, typename... O>
-void _out_to_stream(std::stringstream& ss, T&& arg, O&&... args) {
+void _out_to_stream(std::stringstream& ss, T arg, O... args) {
   ss << std::forward<T>(arg) << ' ';
-  _out_to_stream(ss, std::forward<O>(args)...);
+  return _out_to_stream(ss, std::forward<O>(args)...);
 }
 
-template<typename T, typename... O>
-T debug(T&& arg, O&&... args) {
+bool _first_debug_output = true;
+template<typename T>
+T debug(T&& arg) {
+  if (_first_debug_output) { std::cerr << std::endl; _first_debug_output = false; }
   std::stringstream ss;
-  _out_to_stream(ss, std::forward<T>(arg), std::forward<O>(args)...);
+  _out_to_stream(ss, std::forward<T>(arg));
   std::cerr << ss.str() << std::endl;
   return arg;
 }
+template<typename T, typename... O, typename U>
+U debug(T&& arg, O&&... args, U&& last) {
+  if (_first_debug_output) { std::cerr << std::endl; _first_debug_output = false; }
+  std::stringstream ss;
+  _out_to_stream(ss, std::forward<T>(arg), std::forward<O>(args)..., last);
+  std::cerr << ss.str() << std::endl;
+  return last;
+}
+
+
 
 #endif  // H_PRETTY_PRINT
