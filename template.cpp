@@ -25,12 +25,6 @@ const char lf = '\n';
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
 
-#if defined(LOCAL)
-#define L(x...) debug(x)
-#else
-#define L(x, ...) (x)
-#endif
-
 void solve(istream& cin, ostream& cout) {
 
 }

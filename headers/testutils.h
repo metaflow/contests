@@ -482,7 +482,7 @@ bool _run_tests() {
   auto usage = async(launch::async, &_monitor_rusage,
                      max_allowed_memory, max_time * (cases.size() + 1));
   for (auto c : cases) {
-    TEST_LOG << get<1>(c);
+    TEST_LOG << get<1>(c) << ' ';
     ifstream fin(get<1>(c));
     string o = name + ".output";
     ofstream fout(o);
