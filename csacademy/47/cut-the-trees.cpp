@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "cut-the-trees"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -28,7 +28,6 @@ const char lf = '\n';
 #define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
 
 void solve(istream& cin, ostream& cout) {
-
 }
 
 int main() {

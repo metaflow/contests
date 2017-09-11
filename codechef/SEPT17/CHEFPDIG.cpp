@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "CHEFPDIG"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,23 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l tcc; cin >> tcc;
+  while (tcc--) {
+    string s; cin >> s;
+    vl frq(10);
+    for (char c : s) frq[c - '0']++;
+    for (char c = 'A'; c <= 'Z'; c++) {
+      l x = c;
+      vl xf(10);
+      while (x) { xf[x % 10]++; x /= 10; }
+      bool ok = true;
+      F(i, 0, 10) ok = ok and xf[i] <= frq[i];
+      if (ok) cout << c;
+    }
+    cout << lf;
+  }
 }
 
 int main() {

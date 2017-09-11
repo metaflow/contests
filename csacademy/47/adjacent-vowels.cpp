@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "adjacent-vowels"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,20 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
+
+bool vowel(char c) {
+  return (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u');
+}
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; string s; cin >> n >> s;
+  bool b = false;
+  l answer = 0;
+  F(i, 0, n) {
+    if (vowel(s[i]) and b) answer++;
+    b = vowel(s[i]);
+  }
+  cout << answer << lf;
 }
 
 int main() {

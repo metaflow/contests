@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "consecutive-sum"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,18 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n;
+  F(k, 1, n) {
+    l a = (n - (k + 1) * k / 2);
+    if (a < 1) break;
+    if (a % (k + 1)) continue;
+    a /= (k + 1);
+    cout << a << ' ' << a + k << lf;
+    return;
+  }
+  cout << -1 << lf;
 }
 
 int main() {

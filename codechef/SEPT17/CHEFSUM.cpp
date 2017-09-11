@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "CHEFSUM"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,16 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l tcc; cin >> tcc;
+  while (tcc--) {
+    l n; cin >> n;
+    l answer = 0;
+    vl v(n); F(i, 0, n) cin >> v[i];
+    F(i, 1, n) if (v[i] < v[answer]) answer = i;
+    cout << answer + 1 << lf;
+  }
 }
 
 int main() {

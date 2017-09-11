@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "0"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,25 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
+
+l gcd(l a, l b) {
+  while (b) { l t = b; b = a % b; a = t; }
+  return a;
+}
+
+l lcm(l a, l b) { return a * b / gcd(a, b); }
+
 
 void solve(istream& cin, ostream& cout) {
-
+  l n;
+  cin >> n;
+  l a = 0, b = 0;
+  F(i, 1, n) {
+    if (i < (n - i) and gcd(i, n - i) == 1) {
+      a = i; b = n - i;
+    }
+  }
+  cout << a << ' ' << b << lf;
 }
 
 int main() {

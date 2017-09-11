@@ -23,12 +23,12 @@ with open(path, 'r') as myfile:
 soup = BeautifulSoup(info['content'], 'lxml')
 
 pre = soup.find('pre')
-print(pre.prettify())
+# print(pre.prettify())
 b = pre.find('b')
 cases = [[
     str(pre.find('b').next_sibling.string).strip(),
     str(pre.find_all('b')[1].next_sibling.string).strip()
 ]]
-print(cases)
+# print(cases)
 if utils.save_cases(name, cases):
     utils.open_problem(name)

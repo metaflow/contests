@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "C"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,26 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n, k; cin >> n >> k;
+  vl v(n); F(i, 0, n) cin >> v[i];
+  priority_queue<ll> q;
+  F(i, 0, k) q.emplace(v[i], i);
+  vl answer(n);
+  l cost = 0;
+  F(i, 0, n) {
+    if (i + k < n) q.emplace(v[i + k], i + k);
+    auto t = q.top(); q.pop();
+    answer[t.second] = i + k + 1;
+    cost += t.first * (i + k - t.second);
+  }
+  cout << cost << lf;
+  F(i, 0, n) {
+    if (i) cout << ' ';
+    cout << answer[i];
+  }
+  cout << lf;
 }
 
 int main() {

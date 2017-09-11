@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "expected-merge"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,34 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
+
+vd build(l n) {
+  vd r(n, n);
+  if (n == 1) return r;
+  auto a = build(n / 2);
+  auto b = build(n - n / 2);
+  F(i, 0, a.size()) {
+    r[i] += a[i] / 2;
+    r[n - i - 1] += a[i] / 2;
+  }
+  F(i, 0, b.size()) {
+    r[i] += b[i] / 2;
+    r[n - i - 1] += b[i] / 2;
+  }
+  return r;
+}
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n;
+  auto p = build(n);
+  L(p);
+  // TODO: double comparison
+  // TODO: min, max macro
+  F(i, 0, n) {
+    if (i) cout << ' ';
+    cout << fixed << p[i];
+  }
+  cout << lf;
 }
 
 int main() {

@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "gcd-rebuild"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,39 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
+
+l gcd(l a, l b) {
+  while (b) { l t = b; b = a % b; a = t; }
+  return a;
+}
+
+l lcm(l a, l b) { return a * b / gcd(a, b); }
+
 
 void solve(istream& cin, ostream& cout) {
-
+  l n, m; cin >> n >> m;
+  vl v(n, 1), u(m, 1);
+  vvl g(n, vl(m));
+  F(i, 0, n) F(j, 0, m) cin >> g[i][j];
+  F(i, 0, n) F(j, 0, m) {
+    v[i] = lcm(v[i], g[i][j]);
+    u[j] = lcm(u[j], g[i][j]);
+  }
+  bool ok = true;
+  F(i, 0, n) ok = ok and v[i] <= e9;
+  F(i, 0, m) ok = ok and u[i] <= e9;
+  F(i, 0, n) F(j, 0, m) ok = ok and gcd(v[i], u[j]) == g[i][j];
+  if (not ok) { cout << -1 << lf; return; }
+  F(i, 0, n) {
+    if (i) cout << ' ';
+    cout << v[i];
+  }
+  cout << lf;
+  F(i, 0, m) {
+    if (i) cout << ' ';
+    cout << u[i];
+  }
+  cout << lf;
 }
 
 int main() {

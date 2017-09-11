@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "0"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -24,11 +24,38 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
-#define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
+
+l mult(vl a, vl b) {
+  l m = 0;
+  F(i, 0, 5) m += a[i] * b[i];
+  return m;
+}
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n;
+  vvl v(n, vl(5));
+  F(i, 0, n) F(j, 0, 5) cin >> v[i][j];
+  if (n > 100) {
+    cout << 0 << lf;
+    // TODO: 0\n0\n also passed
+    return;
+  }
+  vl answer;
+  F(i, 0, n) {
+    bool ok = true;
+    F(j, 0, n) F(k, 0, n) {
+      if (i == j or j == k or i == k) continue;
+      vl a(5), b(5);
+      F(m, 0, 5) {
+        a[m] = v[j][m] - v[i][m];
+        b[m] = v[k][m] - v[i][m];
+      }
+      if (mult(a, b) > 0) ok = false;
+    }
+    if (ok) answer.emplace_back(i + 1);
+  }
+  cout << answer.size() << lf;
+  for (auto i : answer) cout << i << lf;
 }
 
 int main() {
