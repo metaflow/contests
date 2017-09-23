@@ -38,7 +38,6 @@ struct Edge {
 struct Graph {
   l v_count, e_count;
   vector<vector<Edge>> adj;
-  vector<Edge> edges;
 
   Graph(l n) {
     v_count = n;
@@ -52,7 +51,6 @@ struct Graph {
     Edge ba; ba.id = e_count; ba.from = b; ba.to = a;
     adj[b].emplace_back(ba);
     e_count++;
-    edges.emplace_back(ab);
   }
 };
 
@@ -141,10 +139,12 @@ void solve(istream& cin, ostream& cout) {
     }
     auto bi = BiComponents::build(g);
     vb visited(n);
-    F(i, 0, g.e_count) {
-      if (bi.bridge[i]) continue;
-      visited[g.edges[i].to] = true;
-      visited[g.edges[i].from] = true;
+    for (auto& a : g.adj) {
+      for (auto& e : a) {
+        if (bi.bridge[e.id]) continue;
+        visited[e.to] = true;
+        visited[e.from] = true;
+      }
     }
     l answer = 0;
     F(i, 0, n) {

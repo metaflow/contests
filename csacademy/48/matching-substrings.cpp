@@ -2,7 +2,7 @@
 #define PROBLEM_NAME "matching-substrings"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
-#define L(x...) debug(x, #x) // TODO:
+#define L(x...) debug(x, #x)
 #else
 #define L(x, ...) (x)
 #include <bits/stdc++.h>
@@ -24,7 +24,7 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;}) // TODO: __x
+#define max(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x>y?x:y;})
 #define min(a,b)({__typeof__(a)x=(a);__typeof__(b)y=(b);x<y?x:y;})
 
 struct Edge {

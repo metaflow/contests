@@ -43,7 +43,7 @@ vl mult21(vl& a, vl& b) {
 
 vvl mpows;
 
-// [0, size), get / add intervals are inlclusive // TODO: update snippet
+// [0, size), get / add intervals are inlclusive
 class SegmentTree {
   l n;
   vl low, high, delta;
@@ -58,7 +58,7 @@ class SegmentTree {
     l m = a + (b - a) / 2;
     init(2 * i, a, m);
     init(2 * i + 1, m + 1, b);
-    update(i); // TODO: update snippet
+    update(i);
   }
 
   void propagate(l p) {
@@ -75,7 +75,6 @@ class SegmentTree {
   vl get(l p, l a, l b) {
     if (b < low[p] or high[p] < a) return {0, 0};
     if (a <= low[p] and high[p] <= b) {
-      // TODO: mark this
       return mult21(mpows[delta[p]], v[p]);
     }
     propagate(p);

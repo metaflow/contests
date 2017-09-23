@@ -40,7 +40,7 @@ type sendHeader struct {
 	// Message []byte
 }
 
-// TODO(robryk): Move this to instance-creation-time options
+// (robryk): Move this to instance-creation-time options
 var messageCountLimit = flag.Int("message_count_limit", 1000, "Limit for the number of messages sent per instance")
 var messageSizeLimit = flag.Int("message_size_limit", 8*1024*1024, "Limit for the total size of messages sent by an instance, in bytes")
 
@@ -176,7 +176,7 @@ func readRequest(r io.Reader) (*request, error) {
 
 func (i *Instance) communicate(r io.Reader, w io.Writer, reqCh chan<- *request, respCh <-chan *response) error {
 	i.TimeBlocked = time.Duration(0)
-	// TODO: Figure out what errors should be returned from this function. We currently error if the instance fails to read the header (which is mitigated by delaying the closure of other ends of the pipes), for example.
+	// : Figure out what errors should be returned from this function. We currently error if the instance fails to read the header (which is mitigated by delaying the closure of other ends of the pipes), for example.
 	if err := writeHeader(w, i.ID, i.TotalInstances); err != nil {
 		return err
 	}

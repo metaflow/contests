@@ -2,7 +2,7 @@
 #define PROBLEM_NAME "#PROBLEM_NAME"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
-#define L(x...) debug(x)
+#define L(x...) debug(x, #x)
 #else
 #define L(x, ...) (x)
 #include <bits/stdc++.h>

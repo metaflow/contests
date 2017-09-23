@@ -37,7 +37,6 @@ void solve(istream& cin, ostream& cout) {
   F(i, 0, n) F(j, 0, 5) cin >> v[i][j];
   if (n > 100) {
     cout << 0 << lf;
-    // TODO: 0\n0\n also passed
     return;
   }
   vl answer;

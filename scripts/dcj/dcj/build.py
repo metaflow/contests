@@ -40,7 +40,7 @@ class Build(object):
     return parser
 
   def Run(self, args):
-    # TODO(jabrtosik): When running python tell user / check if file meets
+    # (jabrtosik): When running python tell user / check if file meets
     # necessary conditions:
     # * Is executable.
     # * First line is #!/path/to/interpreter.
@@ -111,7 +111,7 @@ class Build(object):
     include_dir = path.join(dcj_root, 'includes')
     local_zeus_path = path.join(dcj_root, 'libraries', 'zeus_local.c')
     message_path = path.join(dcj_root, 'libraries', 'message_internal.c')
-    # TODO(jbartosik): support compilers that don't have -I flag for include
+    # (jbartosik): support compilers that don't have -I flag for include
     # dirs.
     compiler_args = (
         self._config.GetStringListConfigValue('c-compiler-flags') + [
@@ -138,7 +138,7 @@ class Build(object):
       tuple in which each item is a tuple with command that will execute a step
       of building solution.
     """
-    # TODO(jbartosik): support other compilers.
+    # (jbartosik): support other compilers.
     dcj_root = path.join(path.dirname(path.realpath(__file__)), '..')
     include_dir = path.join(dcj_root, 'includes')
     c_compiler_with_flags = tuple(
@@ -178,7 +178,7 @@ class Build(object):
     dcj_root = path.join(path.dirname(path.realpath(__file__)), '..')
     return (
         'gcc', '-c', '-fpic',
-        # TODO(jbartosik): Don't rely on users having this exact version of
+        # (jbartosik): Don't rely on users having this exact version of
         # python.
         '-I/usr/include/python2.7',
         '-I' + path.join(dcj_root, 'includes'),
@@ -191,7 +191,7 @@ class Build(object):
     compiler = self._config.GetStringConfigValue('c-compiler')
     dcj_root = path.join(path.dirname(path.realpath(__file__)), '..')
     include_dir = path.join(dcj_root, 'includes')
-    # TODO(jbartosik): support compilers that don't have -I flag for include
+    # (jbartosik): support compilers that don't have -I flag for include
     # dirs.
     compiler_args = (
         '-c', '-fpic',
@@ -214,7 +214,7 @@ class Build(object):
     """Returns tuple with commands for building Python solutions."""
     dcj_root = path.join(path.dirname(path.realpath(__file__)), '..')
 
-    # TODO(jbartosik): use another directory to store object files.
+    # (jbartosik): use another directory to store object files.
     build_object_file_commands = tuple(
         self._BuildPythonObjectFileCommand(item + '.c', item + '.o')
         for item in self._MESSAGE_SO_PYTHON_INGREDIENTS)
@@ -257,7 +257,7 @@ class Build(object):
     )
 
     # Build message_.o and libmessage.so
-    # TODO(jbartosik): deduplicate with Python
+    # (jbartosik): deduplicate with Python
     build_object_file_commands = tuple(
         self._BuildJavaObjectFileCommand(item + '.c', item + '.o')
         for item in self._MESSAGE_SO_JAVA_INGREDIENTS)

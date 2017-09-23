@@ -131,7 +131,6 @@ struct SAT2 { // requires `graph` and `scc`
     return true;
   }
 };
-// TODO use L(a, b, result) syntax instead
 bool in_bounds(l r, l c, l rows, l cols) {
   return 0 <= r and r < rows and 0 <= c and c < cols;
 }

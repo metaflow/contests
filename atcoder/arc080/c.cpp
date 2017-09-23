@@ -34,7 +34,6 @@ struct node;
 using pnode = shared_ptr<node>;
 struct node {
   l value;
-  l from, to; // [from, to) // TODO: remove
   pnode left, right;
   pnode min_node;
 };

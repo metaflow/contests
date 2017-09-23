@@ -66,7 +66,7 @@ func (instance *Instance) Start() error {
 		// do want to ignore some of those errors (e.g. broken pipe at the very beginning, which
 		// indicates that the program didn't use the communication library at all), so currently
 		// we ignore all of them.
-		// TODO: Do we want to ignore then also when the program has terminated with no errors?
+		// : Do we want to ignore then also when the program has terminated with no errors?
 		//       Example: program has exited in the middle of sending a message.
 		respr.Close()
 		cmdw.Close()

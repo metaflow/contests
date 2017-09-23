@@ -35,53 +35,77 @@ struct VoidStream { void operator&(std::ostream&) { } };
 #define LOG !(local) ? (void) 0 : VoidStream() & cerr
 
 struct Edge {
-  l to, id, from;
+  l to;
+  l id, from;
+  // l opposite; // for flow, index in 'to'
+  // l capacity; // for flow
+  // l cost;
 };
 
 struct Graph {
-  l v_count, e_count;
+  l v, e; // number of vertices and edges
   vector<vector<Edge>> adj;
 
-  Graph(l n) {
-    v_count = n;
-    adj.resize(n);
-    e_count = 0;
+  Graph(l n): v(n), e(0) {
+    adj.resize(v);
+  }
+
+  l add_node() { adj.resize(++v); return v - 1; }
+
+  void add_simple(l a, l b) { // for tree-like
+    Edge ab; ab.to = b;
+    adj[a].emplace_back(ab);
+    e++;
   }
 
   void add_undirected(l a, l b) {
-    Edge ab; ab.id = e_count; ab.from = a; ab.to = b;
+    Edge ab; ab.id = e; ab.from = a; ab.to = b;
     adj[a].emplace_back(ab);
-    Edge ba; ba.id = e_count; ba.from = b; ba.to = a;
+    Edge ba; ba.id = e; ba.from = b; ba.to = a;
     adj[b].emplace_back(ba);
-    e_count++;
+    e++;
   }
+
+  void add_directed(l a, l b) {
+    Edge ab; ab.id = e; ab.from = a; ab.to = b;
+    adj[a].emplace_back(ab);
+    e++;
+  }
+
+  //  void add_flow(l a, l b, l w, l cost) {
+  // Edge ab; ab.id = e; ab.from = a; ab.to = b; ab.capacity = w; ab.cost = cost;
+  // ab.opposite = adj[b].size();
+  // Edge ba; ba.id = e; ba.from = b; ba.to = a; ba.capacity = 0; ba.cost = 0;
+  // e++;
+  // ba.opposite = adj[a].size();
+  // adj[a].emplace_back(ab);
+  // adj[b].emplace_back(ba);
+  // }
 };
 
-struct TreeUplift {
+struct TreeUplift {  // require 'graph'
   vvl up; // binary lift [i][j] jump of 2^i from j
   vl depth; // depth[root] = 0
 
-  static TreeUplift build(Graph& g, l root) {
-    TreeUplift lift;
-    lift.depth.resize(g.v_count);
+  TreeUplift(Graph& g, l root) {
+    depth.resize(g.v);
     l k = 0;
-    while ((1 << k) <= g.v_count) k++;
-    lift.up.resize(k, vl(g.v_count, -1));
+    while ((1 << k) <= g.v) k++;
+    up.resize(k, vl(g.v, -1));
 
     queue<l> q;
     q.emplace(root);
-    lift.depth[root] = 0;
+    depth[root] = 0;
     while (not q.empty()) {
       l a = q.front(); q.pop();
       for (auto b : g.adj[a]) {
-        if (b.to == lift.up[0][a]) continue;
-        lift.up[0][b.to] = a;
-        lift.depth[b.to] = lift.depth[a] + 1;
-        lift.build_up(b.to);
+        if (b.to == up[0][a]) continue;
+        up[0][b.to] = a;
+        depth[b.to] = depth[a] + 1;
+        build_up(b.to);
         q.emplace(b.to);
       }
     }
-    return lift;
   }
 
   void build_up(l a) {
@@ -126,16 +150,16 @@ struct BiComponents {
   static BiComponents build(Graph& g) {
     BiComponents bc;
     bc.time = 0;
-    bc.age.resize(g.v_count, -1);
-    bc.lowlink.resize(g.v_count, -1);
-    bc.in_path.resize(g.v_count);
-    bc.cut_vertex.resize(g.v_count);
+    bc.age.resize(g.v, -1);
+    bc.lowlink.resize(g.v, -1);
+    bc.in_path.resize(g.v);
+    bc.cut_vertex.resize(g.v);
 
-    bc.explored_edge.resize(g.e_count);
-    bc.bridge.resize(g.e_count);
+    bc.explored_edge.resize(g.e);
+    bc.bridge.resize(g.e);
 
-    F(i, 0, g.v_count) {
-      if (bc.age[i] == 0) bc.dfs_components(i, g.e_count, g);
+    F(i, 0, g.v) {
+      if (bc.age[i] == 0) bc.dfs_components(i, g.e, g);
     }
     return bc;
   }
@@ -145,7 +169,7 @@ struct BiComponents {
     in_path[a] = true;
     lowlink[a] = age[a] = time; time++;
     l forward_count = 0;
-    bool root = edge_id == g.e_count;
+    bool root = edge_id == g.e;
     for (auto e : g.adj[a]) {
       if (e.id == edge_id) continue;  // same edge
       if (not explored_edge[e.id]) {
@@ -195,7 +219,7 @@ void solve(istream& cin, ostream& cout) {
     l a, b; cin >> a >> b; a--; b--;
     g.add_undirected(a, b);
   }
-  auto lift = TreeUplift::build(g, 0);
+  auto lift = TreeUplift(g, 0);
   l answer = 0;
   F(i, 1, n + 1) for (l j = i + i; j <= n; j += i) {
     l r = lift.lca(i - 1, j - 1);

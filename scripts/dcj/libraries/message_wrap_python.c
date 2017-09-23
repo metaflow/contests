@@ -2165,7 +2165,7 @@ SWIG_This(void)
 
 /* #define SWIG_PYTHON_SLOW_GETSET_THIS */
 
-/* TODO: I don't know how to implement the fast getset in Python 3 right now */
+/* : I don't know how to implement the fast getset in Python 3 right now */
 #if PY_VERSION_HEX>=0x03000000
 #define SWIG_PYTHON_SLOW_GETSET_THIS 
 #endif
@@ -3136,7 +3136,7 @@ SWIG_AsCharPtrAndSize(PyObject *obj, char** cptr, size_t* psize, int *alloc)
         /* We can't allow converting without allocation, since the internal
            representation of string in Python 3 is UCS-2/UCS-4 but we require
            a UTF-8 representation.
-           TODO(bhy) More detailed explanation */
+           (bhy) More detailed explanation */
         return SWIG_RuntimeError;
     }
     obj = PyUnicode_AsUTF8String(obj);

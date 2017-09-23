@@ -2,7 +2,7 @@
 #define PROBLEM_NAME "amusement-park"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
-#define L(x...) debug(x, #x) // TODO
+#define L(x...) debug(x, #x)
 #else
 #define L(x, ...) (x)
 #include <bits/stdc++.h>

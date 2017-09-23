@@ -102,7 +102,6 @@ void solve(istream& cin, ostream& cout) {
     g.adj[a].emplace_back(b);
     g.adj[b].emplace_back(a);
   }
-  // TODO: add standard walk to template
   g.dfs(0);
   l d = (g.depth[N - 1] - 1) / 2;
   l p = g.walk(N - 1, d);

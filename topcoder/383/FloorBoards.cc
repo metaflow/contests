@@ -113,7 +113,6 @@ public:
 };
 
 // BEGIN CUT HERE
-// TODO: update template
 void solve(istream&, ostream&) {}
 int main() {
   FloorBoards ___test;

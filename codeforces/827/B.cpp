@@ -41,7 +41,7 @@ struct Graph {
   l size;
 
   Graph(l n) {
-    size = n; // TODO: update template
+    size = n;
     adj.resize(n);
     depth.resize(n);
     l k = 0;
@@ -121,7 +121,6 @@ struct Graph {
 
 #if defined(RANDOM_TEST)
 
-// TODO: update template
 int _random_test_size_from = 0;
 int _random_test_size_to = 50;
 int _random_test_count = 1;

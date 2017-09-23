@@ -121,6 +121,6 @@ func TestRouterSimple(t *testing.T) {
 	<-done
 }
 
-// TODO: test the timestamp-ordering mechanism
-// TODO: test deadlock detection (check for false positives too)
-// TODO: test remaining messages detection
+// : test the timestamp-ordering mechanism
+// : test deadlock detection (check for false positives too)
+// : test remaining messages detection

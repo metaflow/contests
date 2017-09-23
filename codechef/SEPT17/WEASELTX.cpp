@@ -83,7 +83,7 @@ void solve(istream& cin, ostream& cout) {
   }
   vl y(N);
   F(i, 0, N) y[depth[i]] ^= v[i];
-  l m = 0; // TODO: try 1
+  l m = 1;
   while ((1 << m) <= N) m++;
   l p = 1 << m;
   vvl dp(m + 1, vl(p));

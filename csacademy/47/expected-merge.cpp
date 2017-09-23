@@ -44,9 +44,6 @@ vd build(l n) {
 void solve(istream& cin, ostream& cout) {
   l n; cin >> n;
   auto p = build(n);
-  L(p);
-  // TODO: double comparison
-  // TODO: min, max macro
   F(i, 0, n) {
     if (i) cout << ' ';
     cout << fixed << p[i];

@@ -39,7 +39,7 @@ def _create_script(script_path, content):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(prog='dcj')
   config = configuration.Configuration()
-  # TODO(jbartosik): allow using different configs.
+  # (jbartosik): allow using different configs.
   config.Load(
       os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.json'))
   builder = build.Build(config)

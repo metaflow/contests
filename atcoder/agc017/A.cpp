@@ -102,7 +102,7 @@ l nCr(l n, l k, l mod) {
 // precompute all combinations up to (n n)
 vvl combinations(l n, l mod) {
   vvl c(n + 1, vl(n + 1));
-  F(i, 0, n + 1) { // TODO
+  F(i, 0, n + 1) {
     c[i][0] = 1;
     F(j, 1, i + 1) {
       c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % mod;
@@ -119,8 +119,7 @@ void solve(istream& cin, ostream& cout) {
     l x; cin >> x; if (x % 2) odd++;
   }
   even = n - odd;
-  // TODO: make tesing case insencetive to problem name
-  l answer = 0;5 1 5 2 4
+  l answer = 0;
   auto C = combinations(odd, e9 + 7);
   F(i, 0, odd + 1) {
     if (i % 2 != p) continue;

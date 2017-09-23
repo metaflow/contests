@@ -27,7 +27,6 @@ const char lf = '\n';
 #define max(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x>__y?__x:__y;})
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
-// TODO: rewrite in "normal" graph
 struct node;
 struct edge;
 using pnode = shared_ptr<node>;
@@ -119,7 +118,6 @@ l min_cost_max_flow(graph& g, pnode s, pnode t) {
       cost += (e->original_capacity - e->capacity) * e->original_cost;
     }
   }
-  // TODO: calculate flow as well
   return cost;
 }
 

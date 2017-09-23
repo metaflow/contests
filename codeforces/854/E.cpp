@@ -42,7 +42,6 @@ struct BIT {
     }
     return sum;
   }
-  // TODO: update snippet
   l get(l from, l to) { // [from, to]
     return get(to) - get(from - 1);
   }

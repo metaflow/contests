@@ -84,5 +84,5 @@ func TestInstancesStartError(t *testing.T) {
 	}
 }
 
-// TODO: check what happens when we send/recv message to/from an instance that doesn't exist
-// TODO: check what happens when an instance claims that its CPU time goes backward
+// : check what happens when we send/recv message to/from an instance that doesn't exist
+// : check what happens when an instance claims that its CPU time goes backward

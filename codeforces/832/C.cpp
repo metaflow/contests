@@ -31,9 +31,8 @@ const char lf = '\n';
 #define L(x, ...) (x)
 #endif
 
-// finds lowest x: f(x) = true, x within [a, b), b if f(b - 1) = false
-// TODO: binary_search_lower double
-double binary_search_lower(double a, double b, function<bool(double)> f) {
+// finds lowest x: f(x) = true, x within [a, b)
+double binary_search_lower_double(double a, double b, function<bool(double)> f) {
   double diff = b - a;
   while (diff > EPS) {
     diff /= 2;
@@ -136,10 +135,10 @@ void solve(istream& cin, ostream& cout) {
     }
     double min_t = max(min_t_left, min_t_right);
     double max_t = min(max(max_t_left, min_t_right), max(max_t_right, min_t_left));
-    L("t", min_t, "..", max_t);
+    L(min_t, "..", max_t);
     sort(all(to_left), [](const man& a, const man& b) {return a.t_vs < b.t_vs;});
     sort(all(to_right), [](const man& a, const man& b) {return a.t_vs < b.t_vs;});
-    double answer = binary_search_lower(min_t, max_t, [&](double t) {
+    double answer = binary_search_lower_double(min_t, max_t, [&](double t) {
         auto left_end = upper_bound(all(to_left), t,
                                     [](double x, const man& m) {return x < m.t_vs;});
         auto right_end = upper_bound(all(to_right), t,
@@ -153,13 +152,10 @@ void solve(istream& cin, ostream& cout) {
           intervals.add(a->x, l(r + EPS));
         }
         for (auto a = to_right.begin(); a != right_end; a++) {
-          // TODO: output L only if test case failed
           double x = e6 - a->x;
           double z = (x * (a->v + S) - t * a->v * (a->v + S)) / S;
           double r = (x * S - z * (S - a->v)) / a->v;
           r = e6 - r;
-          // TODO: precision in L()
-          // cerr << setprecision(15) << r << lf;
           if (intervals.intersectsWith(ceil(r), a->x)) return true;
         }
         return false;
@@ -171,7 +167,6 @@ void solve(istream& cin, ostream& cout) {
 int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   cout << fixed << setprecision(15);
-  cerr << fixed << setprecision(15); // TODO: update template
 #if defined(LOCAL)
   maybe_run_tests(cin, cout);
   // _generate_random_test = generate_random;

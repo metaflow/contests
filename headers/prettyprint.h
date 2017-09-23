@@ -458,6 +458,7 @@ void _out_to_stream(std::stringstream& ss, T&& arg, O&&... args) {
 template<typename T, typename... O>
 T debug(T&& arg, O&&... args) {
   std::stringstream ss;
+  ss << fixed << setprecision(6);
   _out_to_stream(ss, std::forward<T>(arg), std::forward<O>(args)...);
   std::cerr << ss.str() << std::endl;
   return arg;

@@ -95,8 +95,14 @@ pair<double, bool> _try_strtod(string s) {
 
 pair<string, bool> _compare_lines(vector<string> ve, vector<string> va, ostream& out) {
   using namespace std;
-  if (ve.size() != va.size()) return make_pair("<>", false);
-  int n = ve.size();
+  if (ve.size() != va.size()) {
+    if (ve.size() == va.size() + 1 and ve.back() == " ") {
+      out << " ignored space in expected output" << endl;
+    } else {
+      return make_pair("<>", false);
+    }
+  }
+  int n = va.size();
   for(int i = 0; i < n; i++) {
     if (ve[i] == va[i]) continue;
     if (ve[i].find(".") == string::npos and ve[i].find(".") == string::npos) {
@@ -106,7 +112,7 @@ pair<string, bool> _compare_lines(vector<string> ve, vector<string> va, ostream&
     auto da = _try_strtod(va[i]);
     if (de.second and da.second) {
       if (va[i].find("e") != string::npos) {
-        out << '\n' << "WARN: " << va[i] << " is not a fixed double format" << '\n';
+        out << ' ' << va[i] << " is not a fixed double format" << endl;
       }
       if (_test_equal_double(de.first, da.first, _max_double_error)) {
         continue;
@@ -184,7 +190,7 @@ bool _compare_output(string input_file_name,
                      long duration_ms,
                      long max_duration_ms,
                      ostream& out) {
-    stringstream ss;
+  stringstream ss;
   bool ok;
   if (not _custom_solution_checker) {
     if (out_expected == "") {
@@ -216,10 +222,10 @@ bool _compare_output(string input_file_name,
   if (ok) {
     out << ": passed " << duration_ms << " ms";
     if (duration_ms > max_duration_ms) out << " TLE";
-    out << endl;
+    out << endl << ss.str();
   } else {
     out << ": failed" << endl;
-    cout << ss.str() << endl;
+    out << endl << ss.str();
   }
   return ok;
 }
@@ -319,11 +325,11 @@ private:
 
 public:
   threadbuf(string_size_t out_size = 1024, string_size_t in_size = 1024)
-        : d_out(std::max(string_size_t(1), out_size), ' ')
-        , d_in(std::max(string_size_t(1), in_size), ' ')
-        , d_tmp(std::max(string_size_t(1), in_size), ' ')
-        , d_current(&this->d_tmp[0])
-        , d_closed(false) {
+    : d_out(std::max(string_size_t(1), out_size), ' ')
+    , d_in(std::max(string_size_t(1), in_size), ' ')
+    , d_tmp(std::max(string_size_t(1), in_size), ' ')
+    , d_current(&this->d_tmp[0])
+    , d_closed(false) {
     this->setp(&this->d_out[0], &this->d_out[0] + this->d_out.size() - 1);
     this->setg(&this->d_in[0], &this->d_in[0], &this->d_in[0]);
   }

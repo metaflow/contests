@@ -31,103 +31,140 @@ const char lf = '\n';
 #define L(x, ...) (x)
 #endif
 
-struct node;
-struct edge;
-using pnode = shared_ptr<node>;
-using pedge = shared_ptr<edge>;
-using graph = vector<pnode>;
-
-struct node {
-  bool in_queue;
-  l potential;
-  vector<pedge> adjusted;
-  pedge back;
+struct Edge {
+  l to;
+  l id, from;
+  l opposite; // index in 'to'
+  l capacity; // for flow
+  l cost;
 };
 
-struct edge {
-  pnode from, to;
-  l capacity, original_capacity;
-  l cost, original_cost;
-  pedge opposite;
+struct Graph {
+  l v, e; // number of vertices and edges
+  vector<vector<Edge>> adj;
+
+  Graph(l n): v(n), e(0) {
+    adj.resize(v);
+  }
+
+  l add_node() {
+    v++;
+    adj.resize(v);
+    return v - 1;
+  }
+
+  void add_undirected(l a, l b) {
+    Edge ab; ab.id = e; ab.from = a; ab.to = b;
+    adj[a].emplace_back(ab);
+    Edge ba; ba.id = e; ba.from = b; ba.to = a;
+    adj[b].emplace_back(ba);
+    e++;
+  }
+
+  void add_directed(l a, l b) {
+    Edge ab; ab.id = e; ab.from = a; ab.to = b;
+    adj[a].emplace_back(ab);
+    e++;
+  }
+
+  void add_flow(l a, l b, l w, l cost) {
+    Edge ab; ab.id = e; ab.from = a; ab.to = b; ab.capacity = w; ab.cost = cost;
+    ab.opposite = adj[b].size();
+    Edge ba; ba.id = e; ba.from = b; ba.to = a; ba.capacity = 0; ba.cost = 0;
+    e++;
+    ba.opposite = adj[a].size();
+    adj[a].emplace_back(ab);
+    adj[b].emplace_back(ba);
+  }
 };
 
-void connect(pnode &a, pnode &b, l w, l cost) {
-  pedge ea = make_shared<edge>();
-  pedge eb = make_shared<edge>();
-  ea->from = a; ea->to = b; ea->capacity = ea->original_capacity = w;
-  ea->cost = ea->original_cost = cost; ea->opposite = eb;
-  eb->from = b; eb->to = a; eb->capacity = eb->original_capacity = 0;
-  eb->cost = eb->original_cost = 0; eb->opposite = ea;
-  a->adjusted.emplace_back(ea);
-  b->adjusted.emplace_back(eb);
-}
+struct MinCostMaxFlow { // require 'graph'
+  vl potential;
+  vl back; // index of edge back to source
+  vvl capacity, cost; // mutable copies for every edge
+  l result_cost, result_flow;
 
-void sssp(pnode start, graph& g) {
-  for (auto u : g) {
-    u->potential = INF;
-    u->in_queue = false;
-    u->back = NULL;
-  }
-  queue<pnode> q;
-  start->potential = 0;
-  start->in_queue = true;
-  q.emplace(start);
-  while (!q.empty()) {
-    auto u = q.front(); q.pop();
-    u->in_queue = false;
-    for (auto e : u->adjusted) {
-      if (e->capacity == 0) continue;
-      auto v = e->to;
-      l t = u->potential + e->cost;
-      if (t >= v->potential) continue;
-      v->potential = t;
-      v->back = e;
-      if (v->in_queue) continue;
-      v->in_queue = true;
-      q.emplace(v);
+  void sssp(Graph& g, l source) {
+    fill(all(potential), INF);
+    fill(all(back), -1);
+    vb in_queue(g.v);
+    queue<l> q;
+    potential[source] = 0;
+    in_queue[source] = true;
+    q.emplace(source);
+    while (!q.empty()) {
+      l u = q.front(); q.pop();
+      in_queue[u] = false;
+      F(i, 0, g.adj[u].size()) {
+        auto& e = g.adj[u][i];
+        if (capacity[u][i] == 0) continue;
+        l v = e.to;
+        l t = potential[u] + cost[u][i];
+        if (t >= potential[v]) continue;
+        potential[v] = t;
+        back[v] = e.opposite;
+        if (in_queue[v]) continue;
+        in_queue[v] = true;
+        q.emplace(v);
+      }
+    }
+    // update costs
+    F(i, 0, g.v) {
+      F(j, 0, g.adj[i].size()) {
+        if (capacity[i][j] == 0) continue;
+        cost[i][j] += potential[g.adj[i][j].from] - potential[g.adj[i][j].to];
+      }
     }
   }
-  // update potentials
-  for (auto u : g) {
-    for (auto e : u->adjusted) {
-      if (e->capacity == 0) continue;
-      e->cost += e->from->potential - e->to->potential;
-    }
-  }
-}
 
-// TODO: move to template, try to imolement as a vectors intstead of pointers
-ll min_cost_max_flow(graph& g, pnode s, pnode t, l max_cost) {
-  l flow = 0;
-  while (max_cost >= 0) {
-    sssp(s, g);
-    if (t->potential == INF) break;
-    // augment
-    stack<pedge> a;
-    l m = INF;
-    auto u = t;
-    while (u->back) {
-      a.push(u->back);
-      m = min(m, u->back->capacity);
-      u = u->back->from;
+  MinCostMaxFlow(Graph& g, l s, l t, l max_allowed_cost) {
+    result_cost = 0;
+    result_flow = 0;
+    cost.resize(g.v);
+    capacity.resize(g.v);
+    potential.resize(g.v);
+    back.resize(g.v);
+    F(i, 0, g.v) {
+      cost[i].resize(g.adj[i].size());
+      capacity[i].resize(g.adj[i].size());
+      F(j, 0, cost[i].size()) {
+        cost[i][j] = g.adj[i][j].cost;
+        capacity[i][j] = g.adj[i][j].capacity;
+      }
     }
-    while (!a.empty()) {
-      auto e = a.top(); a.pop();
-      max_cost -= m * e->original_cost;
-      if (max_cost < 0) break;
-      e->capacity -= m;
-      e->opposite->capacity += m;
+    while (max_allowed_cost >= 0) {
+      sssp(g, s);
+      if (potential[t] == INF) break;
+      // augment
+      stack<l> path; // from s -> t, idexes of edges
+      l m = INF;
+      auto u = t;
+      while (back[u] != -1) {
+        auto& ba = g.adj[u][back[u]];
+        u = ba.to;
+        path.push(ba.opposite);
+        m = min(m, capacity[u][ba.opposite]);
+      }
+      // <- u == s
+      while (!path.empty()) {
+        auto e = path.top(); path.pop();
+        max_allowed_cost -= m * g.adj[u][e].cost;
+        if (max_allowed_cost < 0) break;
+        capacity[u][e] -= m;
+        l v = g.adj[u][e].to;
+        l vu = g.adj[u][e].opposite;
+        capacity[v][vu] += m;
+        u = v;
+      }
+      if (max_allowed_cost >= 0) result_flow += m;
     }
-    if (max_cost >= 0) flow += m;
+    F(i, 0, g.v) {
+      F(j, 0, g.adj[i].size()) {
+        result_cost += (g.adj[i][j].capacity - capacity[i][j]) * g.adj[i][j].cost;
+      }
+    }
   }
-  l cost = 0;
-  for (auto u : g) {
-    for (auto e : u->adjusted) {
-      cost += (e->original_capacity - e->capacity) * e->original_cost;
-    }
-  }
-  return make_pair(flow, cost);
-}
+};
 
 class AngelDemonGame {
 public:
@@ -135,58 +172,57 @@ public:
     l N = G.size();
     {
       // angel always wins
-      graph g(N);
-      for (auto& u : g) u = make_shared<node>();
+      Graph g(N);
       F(i, 0, N) F(j, 0, N) {
         if (i == j) continue;
         if (G[i][j] == 'Y') {
-          connect(g[i], g[j], 1, 0);
+          g.add_flow(i, j, 1, 0);
         } else {
-          connect(g[i], g[j], 1, 1);
+          g.add_flow(i, j, 1, 1);
         }
       }
-      ll a = min_cost_max_flow(g, g[0], g[N - 1], A);
-      if (a.first > D) return "Angel";
+      MinCostMaxFlow mc(g, 0, N - 1, A);
+      if (mc.result_flow > D) return "Angel";
     }
     {
       // daemon always wins
-      graph g(N);
-      for (auto& u : g) u = make_shared<node>();
+      Graph g(N);
       F(i, 0, N) F(j, 0, N) {
         if (i == j) continue;
-        if (G[i][j] == 'Y') connect(g[i], g[j], 1, 0);
+        if (G[i][j] == 'Y') g.add_flow(i, j, 1, 0);
       }
-      unordered_set<pnode> s;
-      queue<pnode> q;
-      s.emplace(g[0]);
-      q.emplace(g[0]);
+      unordered_set<l> s;
+      queue<l> q;
+      s.emplace(0);
+      q.emplace(0);
+      // potential connections from 0
       while (not q.empty()) {
         auto a = q.front(); q.pop();
-        for (auto e : a->adjusted) {
-          if (s.count(e->to)) continue;
-          s.emplace(e->to);
-          q.emplace(e->to);
+        for (auto e : g.adj[a]) {
+          if (s.count(e.to)) continue;
+          s.emplace(e.to);
+          q.emplace(e.to);
         }
       }
       F(i, 0, min(A, 2)) {
         bool added = false;
         auto c = s;
         for (auto a : c) {
-          unordered_set<pnode> t;
+          unordered_set<l> t;
           t.emplace(a);
-          for (auto e : a->adjusted) t.emplace(e->to);
-          for (auto b : g) {
+          for (auto e : g.adj[a]) t.emplace(e.to);
+          F(b, 0, g.v) {
             if (t.count(b)) continue;
-            connect(a, b, 1, 0);
-            connect(b, a, 1, 0);
+            g.add_flow(a, b, 1, 0);
+            g.add_flow(b, a, 1, 0);
             s.emplace(b);
             added = true;
           }
         }
         if (not added) break;
       }
-      auto f = min_cost_max_flow(g, g[0], g[N - 1], 0);
-      if ((f).first <= D) return "Demon";
+      MinCostMaxFlow mc(g, 0, N - 1, 0); // normal max flow
+      if (mc.result_flow <= D) return "Demon";
     }
     return "Unknown";
   }

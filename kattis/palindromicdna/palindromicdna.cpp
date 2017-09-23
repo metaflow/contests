@@ -116,7 +116,7 @@ struct SAT2 { // requires 'graph' and 'scc'
     add_or(neg(x), neg(y));
   }
 
-  void add_not_and(l x, l y) { // TODO: update snippet
+  void add_not_and(l x, l y) {
     add_or(neg(x), neg(y));
   }
 

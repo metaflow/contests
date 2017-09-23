@@ -32,7 +32,7 @@ const char lf = '\n';
 #endif
 
 struct Edge {
-  l to; // TODO: rewrite LCA graph to use edges
+  l to;
   l id, from;
 };
 

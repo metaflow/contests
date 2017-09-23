@@ -113,7 +113,6 @@ vvl combinations(l n, l mod) {
   return c;
 }
 
-// TODO add calc of all k of given n MOD
 vl all_k_combinations(l n, l mod) {
   vl v(n + 1);
   v[0] = 1;

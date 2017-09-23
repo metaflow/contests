@@ -135,7 +135,6 @@ struct Graph {
 };
 
 #if defined(RANDOM_TEST)
-// TODO add random set size 
 
 default_random_engine source(chrono::system_clock::now().time_since_epoch().count());
 
@@ -280,8 +279,6 @@ void solve(istream& cin, ostream& cout) {
     add_edges(edges, pp);
     disjoint_set S(n);
     sort(all(edges));
-    // L(edges);
-    // TODO: no L output for in random tests
     Graph g(n);
     for (auto e : edges) {
       l a, b, w; tie(w, a, b) = e;
