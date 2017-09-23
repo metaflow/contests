@@ -1,8 +1,8 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "amusement-park"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
-#define L(x...) debug(x)
+#define L(x...) debug(x, #x) // TODO
 #else
 #define L(x, ...) (x)
 #include <bits/stdc++.h>
@@ -27,8 +27,32 @@ const char lf = '\n';
 #define max(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x>__y?__x:__y;})
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
-void solve(istream& cin, ostream& cout) {
+int N, M;
 
+void solve(istream& cin, ostream& cout) {
+  cin >> N >> M;
+  vvd p(N, vd(M));
+  F(i, 0, N) F(j, 0, M) {
+    cin >> p[i][j];
+    p[i][j] /= (double)100;
+  }
+  vd v(M);
+  vd prev(M, 0);
+  F(i, 0, N) {
+    // calc v[0]
+    double t = 0, tp = 1;
+    F(j, 0, M) {
+      t += tp * (1 - p[i][j]) * (j + 1 + prev[(j + 1) % M]);
+      tp *= p[i][j];
+    }
+    v[0] = (t + M * tp) / (1 - tp);
+    B(j, 1, M) {
+      v[j] = 1 + (1 - p[i][j]) * (prev[(j + 1) % M]) + p[i][j] * (v[(j + 1) % M]);
+    }
+    // L(v);
+    swap(v, prev);
+  }
+  cout << fixed << setprecision(15) << prev[0] << lf;
 }
 
 int main() {

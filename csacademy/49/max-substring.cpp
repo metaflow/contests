@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "max-substring"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -28,7 +28,41 @@ const char lf = '\n';
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l z = 26;
+  vvl fab(z, vl(z));
+  vl fa(z);
+  string s; cin >> s;
+  l prev = -1;
+  for (auto c : s) {
+    l x = c - 'a';
+    fa[x]++;
+    if (prev != -1) fab[prev][x]++;
+    prev = x;
+  }
+  l best = 0;
+  for (auto i : fa) best = max(best, i);
+  string answer;
+  F(i, 0, z) {
+    if (fa[i] != best) continue;
+    l j = i;
+    string t;
+    t += char('a' + j);
+    bool ok = true;
+    while (ok) {
+      ok = false;
+      F(k, 0, z) {
+        if (k == i) continue;
+        if (fab[j][k] == best) {
+          j = k;
+          t += char('a' + j);
+          ok = true;
+          break;
+        }
+      }
+    }
+    if (t.size() > answer.size() or t < answer) answer = t;
+  }
+  cout << answer << lf;
 }
 
 int main() {

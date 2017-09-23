@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "3"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)

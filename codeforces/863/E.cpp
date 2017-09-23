@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "E"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -28,7 +28,38 @@ const char lf = '\n';
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n;
+  vll events; // (t, i) i - added, (t, -i) - i removed
+  vb required(n);
+  F(i, 0, n) {
+    l a, b; cin >> a >> b;
+    events.emplace_back(a, i + 1);
+    events.emplace_back(b + 1, -i - 1);
+  }
+  sort(all(events));
+  unordered_set<l> active;
+  l p = 0;
+  while (p < events.size()) {
+    l t = events[p].first;
+    while (p < events.size() and events[p].first == t) {
+      if (events[p].second > 0) {
+        active.emplace(events[p].second - 1);
+      } else {
+        active.erase(abs(events[p].second) - 1);
+      }
+      p++;
+    }
+    if (active.size() == 1) {
+      required[*active.begin()] = true;
+    }
+  }
+  F(i, 0, n) {
+    if (not required[i]) {
+      cout << i + 1 << lf;
+      return;
+    }
+  }
+  cout << -1 << lf;
 }
 
 int main() {

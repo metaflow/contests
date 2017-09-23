@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "money-machine"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -28,7 +28,16 @@ const char lf = '\n';
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n, c, x1, u, x2; cin >> n >> c >> x1 >> u >> x2;
+  l k = 0;
+  F(i, 0, n) {
+    if (c >= u and c - u + x2 * (n - i) > c) {
+        k++;
+        c -= u;
+    }
+    c += x1 + k * x2;
+  }
+  cout << c << lf;
 }
 
 int main() {

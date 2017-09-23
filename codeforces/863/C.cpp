@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "C"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -28,7 +28,40 @@ const char lf = '\n';
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n, a, b; cin >> n >> a >> b;
+  vvl move_a(3, vl(3));
+  auto move_b = move_a;
+  F(i, 0, 3) F(j, 0, 3) cin >> move_a[i][j];
+  F(i, 0, 3) F(j, 0, 3) cin >> move_b[i][j];
+  map<l, tuple<l, l, l>> state; // a * 4 + b -> (turn, score a, score b)
+  l turn = 0, score_a = 0, score_b = 0;
+  while (turn < n) {
+    l k = a * 4 + b;
+    if (state.count(k)) {
+      l dt = turn - get<0>(state[k]);
+      l da = score_a - get<1>(state[k]);
+      l db = score_b - get<2>(state[k]);
+      l t = (n - turn) / dt;
+      turn += dt * t;
+      score_a += da * t;
+      score_b += db * t;
+    } else {
+      state[k] = make_tuple(turn, score_a, score_b);
+    }
+    if (turn >= n) continue;
+    turn++;
+    if (a != b) {
+      if ((a == 2 and b == 1) or (a == 3 and b == 2) or (a == 1 and b == 3)) {
+        score_a++;
+      } else {
+        score_b++;
+      }
+    }
+    l t = a;
+    a = move_a[a - 1][b - 1];
+    b = move_b[t - 1][b - 1];
+  }
+  cout << score_a << ' ' << score_b << lf;
 }
 
 int main() {

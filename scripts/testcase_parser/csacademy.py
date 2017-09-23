@@ -22,8 +22,7 @@ with open(path, 'r') as myfile:
     info = json.loads(myfile.read().replace('\n', ''))
 soup = BeautifulSoup(info['content'], 'lxml')
 
-rows = soup.find('table', class_='table-65') \
-           .find_all('tr')
+rows = soup.find('table').find_all('tr')
 cases = []
 for row in rows:
     td = row.find('td')

@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "B"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -28,7 +28,24 @@ const char lf = '\n';
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n; n *= 2;
+  vl v(n); F(i, 0, n) cin >> v[i];
+  sort(all(v));
+  l answer = INF;
+  F(i, 0, n) F(j, i + 1, n) {
+    l p = 0;
+    l c = 0;
+    while (1) {
+      while (p == i or p == j) p++;
+      l t = p + 1;
+      while (t == i or t == j) t++;
+      if (t >= n) break;
+      c += v[t] - v[p];
+      p = t + 1;
+    }
+    answer = min(answer, c);
+  }
+  cout << answer << lf;
 }
 
 int main() {

@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "D"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) debug(x)
@@ -28,7 +28,33 @@ const char lf = '\n';
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n, q, m; cin >> n >> q >> m;
+  vl v(n); F(i, 0, n) cin >> v[i];
+  vector<tuple<l,l,l>> op(q);
+  F(i, 0, q) cin >> get<0>(op[i]) >> get<1>(op[i]) >> get<2>(op[i]);
+  reverse(all(op));
+  vl p(m);
+  F(i, 0, m) cin >> p[i];
+  for (auto w : op) {
+    l a, b, c; tie(c, a, b) = w;
+    if (c == 1) {
+      F(i, 0, m) {
+        if (p[i] < a or p[i] > b) continue;
+        p[i]--;
+        if (p[i] < a) p[i] = b;
+      }
+    } else {
+      F(i, 0, m) {
+        if (p[i] < a or p[i] > b) continue;
+        p[i] = b - (p[i] - a);
+      }
+    }
+  }
+  F(i, 0, m) {
+    if (i) cout << ' ';
+    cout << v[p[i] - 1];
+  }
+  cout << lf;
 }
 
 int main() {
