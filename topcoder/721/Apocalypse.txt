@@ -1,0 +1,109 @@
+PROBLEM STATEMENT
+We have an undirected tree with n nodes, numbered 0 through n-1.
+You are given its description: a vector <int> p with n-1 elements.
+For each valid i, there is an edge between nodes p[i] and (i+1).
+
+
+There are k tokens on the tree, each in a different node.
+You are given a vector <int> position.
+The elements of position are the numbers of the nodes that contain the tokens.
+
+
+A demon has placed k bombs onto the tree: one bomb into each node that currently contains a token.
+The bombs will all explode after t turns.
+If there is a token in a node with a bomb when the bomb explodes, the token is destroyed.
+Your task is to save as many tokens as possible.
+
+
+In each turn you can move each token at most once: from its current node to any adjacent node.
+Whenever you move a token, the destination node must be empty.
+In other words, each node must always contain at most one token.
+You get to choose the order in which to move the tokens, and the order may be different in different turns.
+
+
+Compute and return the maximal number of tokens saved from the explosions.
+
+DEFINITION
+Class:Apocalypse
+Method:maximalSurvival
+Parameters:vector <int>, vector <int>, int
+Returns:int
+Method signature:int maximalSurvival(vector <int> p, vector <int> position, int t)
+
+
+CONSTRAINTS
+-n will be between 2 and 50, inclusive.
+-p will contain exactly n-1 elements.
+-For each i, 0 <= p[i] <= i.
+-position will contain between 1 and n elements, inclusive.
+-Each element in position will be between 0 and n-1, inclusive.
+-Elements in position will be distinct.
+-t will be between 1 and 50, inclusive.
+
+
+EXAMPLES
+
+0)
+{0,1,2}
+{2,3}
+1
+
+Returns: 1
+
+
+The tree is a line: 0 - 1 - 2 - 3.
+Initially, the tokens and the bombs are in the nodes 2 and 3.
+We have only one turn.
+Whatever we do, the token that starts on node 3 will be destroyed.
+We can save the other token by moving it from node 2 to node 1.
+
+
+1)
+{0,1,2}
+{2,3}
+2
+
+Returns: 2
+
+
+This is the same setting as in Example 0, but now we have two turns.
+Now we can save both tokens.
+In the first turn we first move the token from node 2 to node 1 and only then we move the token from node 3 to node 2 (which is now empty).
+In the second turn we move both tokens again: from 1 to 0 and then from 2 to 1.
+
+
+2)
+{0,0,0,1,2,3}
+{1,2,3}
+1
+
+Returns: 3
+
+
+
+3)
+{0,1,2,3,4,5,6,7,8,9}
+{0,1,2,3,4,5,6}
+50
+
+Returns: 4
+
+
+
+4)
+{0}
+{0,1}
+1
+
+Returns: 0
+
+
+
+5)
+{0,0,0}
+{1,2}
+1
+
+Returns: 1
+
+We can only save one of the two tokens, because we only have a single turn and we cannot push both of them into the same node.

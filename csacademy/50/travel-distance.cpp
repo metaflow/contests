@@ -1,12 +1,10 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "F"
+#define PROBLEM_NAME "travel-distance"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
-#define L(x...) debug(x, #x)
-#define C(x...) CHECK(x)
+#define L(x...) (debug(x, #x))
 #else
 #define L(x, ...) (x)
-#define C(x, ...) ;
 #include <bits/stdc++.h>
 #endif
 
@@ -19,45 +17,28 @@ using lu = unsigned long long;
 using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
+const l INF = numeric_limits<l>::max();
 const double EPS = 1e-10; static constexpr auto PI = acos(-1);
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
-const l INF = e9 * e9;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define MAX(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__y:__x;})
-#define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
+#define max(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x>__y?__x:__y;})
+#define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-  l n, m;
-  cin >> n >> m;
-  vl x(n); F(i, 0, n) cin >> x[i];
-  vll y(m); // (coord * capacity)
-  F(i, 0, m) cin >> y[i].first >> y[i].second;
-  sort(all(x));
-  sort(all(y));
-  // L(x, y);
-  vl prev, next(n + 1, INF);
-  next[0] = 0;
-  F(i, 0, m) {
-    deque<ll> q; // (cost * number of x)
-    l acc = 0;
-    C(acc, q); // TODO: replace asserts with C
-    prev = next;
-    q.emplace_back(0, 0);
-    F(j, 1, n + 1) {
-      acc += abs(x[j - 1] - y[i].first);
-      while (not q.empty() and (j - q.front().second > y[i].second)) q.pop_front();
-      if (not q.empty()) next[j] = min(next[j], q.front().first + acc);
-      auto c = make_pair(prev[j] - acc, j);
-      while (not q.empty() and c.first < q.back().first) q.pop_back();
-      q.emplace_back(c);
+  l x = 0, y = 0;
+  string s; cin >> s;
+  for (char c : s) {
+    switch (c) {
+    case 'N': y++; break;
+    case 'S': y--; break;
+    case 'E': x++; break;
+    case 'W': x--; break;
     }
   }
-  auto answer = next[n];
-  if (answer > e8 * e8) answer = -1;
-  cout << answer << lf;
+  cout << abs(x) + abs(y) << lf;
 }
 
 int main() {

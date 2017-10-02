@@ -10,6 +10,13 @@
 using namespace std;
 
 #define TEST_LOG cerr
+#define FIRST_ARG(x, ...) x
+#define CHECK(x...)                             \
+  do {                                          \
+    if (FIRST_ARG(x)) break;                    \
+    debug(x, #x);                               \
+    assert(0);                                  \
+  } while(0);
 void solve(std::istream& in, std::ostream& out);
 function<void(istream& hidden_state, ostream& log,
               istream& solution_out, ostream& solution_in)> _player_b;
