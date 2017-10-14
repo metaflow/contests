@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "poisoned-food"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -30,7 +30,18 @@ const char lf = '\n';
 #define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n;
+  l a = 1, b = 1;
+  l best = 0;
+  F(i, 0, n) {
+    l x, y; cin >> y >> x;
+    if (a * y > b * x) {
+      a = x;
+      b = y;
+      best = i;
+    }
+  }
+  cout << best + 1 << lf;
 }
 
 int main() {

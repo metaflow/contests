@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "game-on-a-circle"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -29,8 +29,48 @@ const char lf = '\n';
 #define MAX(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__y:__x;})
 #define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
-void solve(istream& cin, ostream& cout) {
+l ask(l i) {
+  cout << ((i + 100) % 100) << endl;
+  cin >> i;
+  return i;
+}
 
+void solve(istream& cin, ostream& cout) {
+  l tcc; cin >> tcc;
+  while (tcc--) {
+    if (ask(10)) {
+      if (ask(21)) {
+        // pick any 9 outside of this range
+        l k = 50;
+        F(i, 0, 9) {
+          k++;
+          while (k % 10 < 2) k++;
+          ask(k);
+        }
+      } else {
+        F(i, 0, 9) ask(31 + i * 10);
+      }
+    } else {
+      l i = 9;
+      while (i > 0) if (ask(i--)) break;
+      if (i == 0) {
+        ask(11);
+      } else {
+        if (ask(i--)) {
+          while (i >= 0) {
+            ask(20 + 10 * i);
+            i--;
+          }
+        } else {
+          while (i > 0) if (ask(i--)) break;
+          while (i >= 0) {
+            ask(20 + 10 * i);
+            i--;
+          }
+        }
+      }
+    }
+  }
 }
 
 int main() {

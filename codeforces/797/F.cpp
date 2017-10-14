@@ -43,7 +43,7 @@ void solve(istream& cin, ostream& cout) {
   F(i, 0, m) {
     deque<ll> q; // (cost * number of x)
     l acc = 0;
-    C(acc, q); // TODO: replace asserts with C
+    C(acc, q);
     prev = next;
     q.emplace_back(0, 0);
     F(j, 1, n + 1) {

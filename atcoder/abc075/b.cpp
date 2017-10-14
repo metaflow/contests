@@ -1,10 +1,12 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "3"
+#define PROBLEM_NAME "b"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
-#define L(x...) debug(x)
+#define L(x...) (debug(x, #x))
+#define C(x...) CHECK(x)
 #else
 #define L(x, ...) (x)
+#define C(x, ...) ;
 #include <bits/stdc++.h>
 #endif
 
@@ -24,11 +26,26 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x>__y?__x:__y;})
-#define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
+#define MAX(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__y:__x;})
+#define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n, m; cin >> n >> m;
+  vector<string> v(n);
+  F(i, 0, n) cin >> v[i];
+  F(i, 0, n) {
+    F(j, 0, m) {
+      if (v[i][j] == '#') continue;
+      l k = 0;
+      for (l di = -1; di < 2; di++) for (l dj = -1; dj < 2; dj++) {
+          l x = i + di, y = j + dj;
+          if (x < 0 or x >= n or y < 0 or y >= m) continue;
+          if (v[x][y] == '#') k++;
+      }
+      v[i][j] = '0' + k;
+    }
+  }
+  for (auto s : v) cout << s << lf;
 }
 
 int main() {

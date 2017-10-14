@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "sum-triplets"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -30,7 +30,36 @@ const char lf = '\n';
 #define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n;
+  l m = 0;
+  vl v(n); F(i, 0, n) cin >> v[i];
+  unordered_map<l, l> frq;
+  vl u;
+  for (auto i : v) {
+    if (frq[i] == 0) u.emplace_back(i);
+    m = max(m, i);
+    frq[i]++;
+  }
+  sort(all(u));
+  l answer = 0;
+  F(i, 0, u.size()) {
+    if (u[i] == 0) continue;
+    if (frq.find(u[i] * 2) != frq.end()) {
+      answer += frq[u[i] * 2] * frq[u[i]] * (frq[u[i]] - 1) / 2;
+    }
+    F(j, i + 1, u.size()) {
+      if (u[i] + u[j] > m) break;
+      if (frq.find(u[i] + u[j]) != frq.end()) {
+        answer += frq[u[i]] * frq[u[j]] * frq[u[i] + u[j]];
+      }
+    }
+  }
+  if (u[0] == 0) {
+    l t = frq[0];
+    for (auto i : u) if (i) answer += t * frq[i] * (frq[i] - 1) / 2;
+    answer += t * (t - 1) * (t - 2) / 6;
+  }
+  cout << answer << lf;
 }
 
 int main() {

@@ -27,7 +27,7 @@ const char lf = '\n';
 #define max(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x>__y?__x:__y;})
 #define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
-struct point { // TODO: Point, add variant with l
+struct point {
   double x, y;
   point() {}
   point(double _x, double _y) : x(_x), y(_y) {}
@@ -56,7 +56,7 @@ struct point { // TODO: Point, add variant with l
   double distance(const point& o) {
     return sqrt(*this >> o);
   }
-  bool equal_double(double x, double y) const { // TODO: update template
+  bool equal_double(double x, double y) const {
     if (abs(x - y) < EPS) return true;
     // Is x or y too close to zero?
     if (abs(x) < EPS || abs(y) < EPS) return false;

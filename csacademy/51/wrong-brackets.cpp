@@ -1,10 +1,12 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "e"
+#define PROBLEM_NAME "wrong-brackets"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
+#define C(x...) CHECK(x)
 #else
 #define L(x, ...) (x)
+#define C(x, ...) ;
 #include <bits/stdc++.h>
 #endif
 
@@ -24,8 +26,8 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x>__y?__x:__y;})
-#define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
+#define MAX(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__y:__x;})
+#define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 l sign(l n) {
   if (n < 0) return -1;
@@ -93,91 +95,73 @@ l nCr(l n, l k, l mod) {
 }
 
 // precompute all combinations up to (n n)
-vvl combinations(l n, l mod) {
+vvl combinations(l n) {
   vvl c(n + 1, vl(n + 1));
-  F(i, 0, n) {
+  F(i, 0, n + 1) {
     c[i][0] = 1;
     F(j, 1, i + 1) {
-      c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % mod;
+      c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]);
     }
   }
   return c;
 }
 
-const l MAX = e5 + 10;
-const l MOD = 998244353;
-vl fact, pow2;
-
-l c(l n, l k) {
-  // L(n, k, fact.size());
-  // assert(n < fact.size() and k < fact.size());
-  return cong(fact[n] * inverse_mod(cong(fact[k] * fact[n - k], MOD), MOD), MOD);
-}
-
-l f(l x, l y, l z) {
-  if (x == 0) {
-    if (y + z) return 0;
-    return 1;
+set<string> gen(l a, l b, set<string> v) {
+  set<string> z;
+  if (a == 0 and b == 0) return v;
+  if (a) {
+    auto t = gen(a - 1, b, v);
+    for (auto s : t) z.emplace("(" + s);
   }
-  return c(x + y + z - 1, x - 1);
-}
-
-l count(vl& a, vl& b, vl& c, vl& d) {
-  l n = a.size();
-  if (n == 0) return 0;
-  vl two(n + 1), acca(n + 1), accb(n + 1);
-  F(i, 0, n) {
-    two[i + 1] = two[i] + ((a[i] and b[i]) ? 1 : 0);
-    acca[i + 1] = acca[i] + a[i];
-    accb[i + 1] = accb[i] + b[i];
+  if (b) {
+    auto t = gen(a, b - 1, v);
+    for (auto s : t) z.emplace(")" + s);
   }
-  l tc = accumulate(all(c), 0);
-  l td = accumulate(all(d), 0);
-  l left = 0;
-  l z = 0;
-  l w = pow2[two[n]];
-  F(i, 0, n) {
-    left = cong(left + f(tc, acca[i], accb[i]) * inverse_mod(pow2[two[i]], MOD), MOD);
-    l right = cong(f(td, acca[n] - acca[i + 1], accb[n] - accb[i + 1]) *
-                   inverse_mod(pow2[two[n] - two[i + 1]], MOD), MOD);
-    z = cong(z + cong(w * left, MOD) * right, MOD);
-  }
-  // F(i, 0, n) F(j, i, n) {
-    // left = cong(f(tc, acca[i], accb[i]), MOD);
-    // l right = f(td, acca[n] - acca[j + 1], accb[n] - accb[j + 1]);
-    // z = cong(z + cong(pow2[two[j + 1] - two[i]] * left, MOD) * right, MOD);
-  // }
   return z;
 }
 
+l bad(l balance, l open, l close, vector<vvl>& dp, vvl& c) {
+  if (balance < 0) return c[open + close][open];
+  if (open == 0) return 0;
+  if (close == 0) return 1;
+  auto& z = dp[balance][open][close];
+  if (z == -1) {
+    z = bad(balance + 1, open - 1, close, dp, c) +
+      bad(balance - 1, open, close - 1, dp, c);
+  }
+  return z;
+}
+
+string build(l balance, l open, l close, l k, vector<vvl>& dp, vvl& c) {
+  if (open == 0) {
+    string s; F(i, 0, close) s += ')';
+    return s;
+  }
+  if (close == 0) {
+    string s; F(i, 0, open) s += '(';
+    return s;
+  }
+  if (balance < 0) {
+    // ( ?
+    l t= c[open + close - 1][close];
+    if (t >= k)
+      return "(" + build(balance, open - 1, close, k, dp, c);
+    return ")" + build(balance, open, close - 1, k - t, dp, c);
+  }
+  l t = bad(balance + 1, open - 1, close, dp, c);
+  if (t >= k) {
+    return "(" + build(balance + 1, open - 1, close, k, dp, c);
+  } else {
+    return ")" + build(balance - 1, open, close - 1, k - t, dp, c);
+  }
+}
+
 void solve(istream& cin, ostream& cout) {
-  l n, m; cin >> n >> m;
-  fact.resize(max(2 * n + m, 2 * m + n));
-  fact[0] = 1;
-  F(i, 1, fact.size()) fact[i] = (fact[i - 1] * i) % MOD;
-  pow2.resize(max(n, m) + 10);
-  pow2[0] = 1;
-  F(i, 1, pow2.size()) pow2[i] = (pow2[i - 1] * 2) % MOD;
-  vl a(n), b(n), c(m), d(m);
-  string s;
-  cin >> s; F(i, 0, n) a[i] = s[i] - '0';
-  cin >> s; F(i, 0, n) b[i] = s[i] - '0';
-  cin >> s; F(i, 0, m) c[i] = s[i] - '0';
-  cin >> s; F(i, 0, m) d[i] = s[i] - '0';
-  vl ca, cb, cc, cd;
-  F(i, 0, n) if (a[i] or b[i]) {
-    ca.emplace_back(a[i]);
-    cb.emplace_back(b[i]);
-  }
-  F(i, 0, m) if (c[i] or d[i]) {
-    cc.emplace_back(c[i]);
-    cd.emplace_back(d[i]);
-  }
-  if (ca.empty() and cc.empty()) {
-    cout << 1 << lf;
-    return;
-  }
-  cout << cong(count(cc, cd, ca, cb) + count(cb, ca, cc, cd), MOD) << lf;
+  auto c = combinations(60);
+  vector<vvl> dp(31, vvl(31, vl(31, -1)));
+  // L(bad(0, 4, 4, dp, c));
+  l n, k; cin >> n >> k;
+  cout << build(0, n, n, k, dp, c) << lf;
 }
 
 int main() {

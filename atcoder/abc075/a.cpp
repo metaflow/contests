@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "a"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -29,8 +29,15 @@ const char lf = '\n';
 #define MAX(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__y:__x;})
 #define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
-void solve(istream& cin, ostream& cout) {
+l d(l a, l b, l c) {
+  if (a == b) return c;
+  if (a == c) return b;
+  return a;
+}
 
+void solve(istream& cin, ostream& cout) {
+  l a, b, c; cin >> a >> b >> c;
+  cout << d(a, b, c) << endl;
 }
 
 int main() {

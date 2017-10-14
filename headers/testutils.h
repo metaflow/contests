@@ -1,7 +1,7 @@
 #ifndef _TESTUTILS_H
 #define _TESTUTILS_H
 #include "rnd.h"
-#include "prettyprint.h"
+#include "logging.h"
 #include "dirent.h"
 #include "rusage.h"
 #include <bits/stdc++.h>
@@ -619,4 +619,4 @@ void maybe_run_tests(istream& in, ostream& out) {
   }
 }
 
-#endif
+#endif  // TESTUTILS_H

@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "race-qualifying"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -30,7 +30,20 @@ const char lf = '\n';
 #define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l n; cin >> n;
+  vector<tuple<l,l,l>> v(n);
+  F(i, 0, n) {
+    l x; cin >> x;
+    v[i] = make_tuple(i + x, x, i);
+  }
+  sort(all(v));
+  bool first = true;
+  for (auto t : v) {
+    if (not first) cout << ' ';
+    cout << get<2>(t) + 1;
+    first = false;
+  }
+  cout << lf;
 }
 
 int main() {

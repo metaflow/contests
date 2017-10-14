@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "manhattan-distances"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -30,7 +30,19 @@ const char lf = '\n';
 #define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
 
 void solve(istream& cin, ostream& cout) {
-
+  l tcc; cin >> tcc;
+  while (tcc--) {
+    vl v(3); cin >> v[0] >> v[1] >> v[2];
+    sort(all(v));
+    l x = v[0], y = v[1], z = v[2];
+    l d = y - x;
+    l k = (z - d) / 2;
+    if (k < 0 or k > x or (k * 2 != z - d)) {
+      cout << -1 << lf;
+    } else {
+      cout << "0 0 " << x << " 0 " << (x - k) << ' ' << (k + d) << lf;
+    }
+  }
 }
 
 int main() {

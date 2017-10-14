@@ -1,10 +1,12 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "e"
+#define PROBLEM_NAME "tree-coloring"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
+#define C(x...) CHECK(x)
 #else
 #define L(x, ...) (x)
+#define C(x, ...) ;
 #include <bits/stdc++.h>
 #endif
 
@@ -24,8 +26,57 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define max(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x>__y?__x:__y;})
-#define min(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
+#define MAX(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__y:__x;})
+#define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
+
+struct Edge {
+  l to;
+  l id, from;
+  // l opposite; // for flow, index in 'to'
+  // l capacity; // for flow
+  // l cost;
+};
+
+struct Graph {
+  l v, e; // number of vertices and edges
+  vector<vector<Edge>> adj;
+
+  Graph(l n): v(n), e(0) {
+    adj.resize(v);
+  }
+
+  l add_node() { adj.resize(++v); return v - 1; }
+
+  void add_simple(l a, l b) { // for tree-like
+    Edge ab; ab.to = b;
+    adj[a].emplace_back(ab);
+    e++;
+  }
+
+  void add_undirected(l a, l b) {
+    Edge ab; ab.id = e; ab.from = a; ab.to = b;
+    adj[a].emplace_back(ab);
+    Edge ba; ba.id = e; ba.from = b; ba.to = a;
+    adj[b].emplace_back(ba);
+    e++;
+  }
+
+  void add_directed(l a, l b) {
+    Edge ab; ab.id = e; ab.from = a; ab.to = b;
+    adj[a].emplace_back(ab);
+    e++;
+  }
+
+  //  void add_flow(l a, l b, l w, l cost) {
+  // Edge ab; ab.id = e; ab.from = a; ab.to = b; ab.capacity = w; ab.cost = cost;
+  // ab.opposite = adj[b].size();
+  // Edge ba; ba.id = e; ba.from = b; ba.to = a; ba.capacity = 0; ba.cost = 0;
+  // e++;
+  // ba.opposite = adj[a].size();
+  // adj[a].emplace_back(ab);
+  // adj[b].emplace_back(ba);
+  // }
+};
 
 l sign(l n) {
   if (n < 0) return -1;
@@ -104,80 +155,27 @@ vvl combinations(l n, l mod) {
   return c;
 }
 
-const l MAX = e5 + 10;
-const l MOD = 998244353;
-vl fact, pow2;
+const l MOD = e9 + 7;
 
-l c(l n, l k) {
-  // L(n, k, fact.size());
-  // assert(n < fact.size() and k < fact.size());
-  return cong(fact[n] * inverse_mod(cong(fact[k] * fact[n - k], MOD), MOD), MOD);
-}
-
-l f(l x, l y, l z) {
-  if (x == 0) {
-    if (y + z) return 0;
-    return 1;
+l dfs(Graph& g, l u, l p, l depth, l k) {
+  l z = 1;
+  l x = k - 1; if (depth) x--;
+  for (auto e : g.adj[u]) {
+    if (e.to == p) continue;
+    z = cong(x * cong(z * dfs(g, e.to, u, depth + 1, k), MOD), MOD);
+    x--;
   }
-  return c(x + y + z - 1, x - 1);
-}
-
-l count(vl& a, vl& b, vl& c, vl& d) {
-  l n = a.size();
-  if (n == 0) return 0;
-  vl two(n + 1), acca(n + 1), accb(n + 1);
-  F(i, 0, n) {
-    two[i + 1] = two[i] + ((a[i] and b[i]) ? 1 : 0);
-    acca[i + 1] = acca[i] + a[i];
-    accb[i + 1] = accb[i] + b[i];
-  }
-  l tc = accumulate(all(c), 0);
-  l td = accumulate(all(d), 0);
-  l left = 0;
-  l z = 0;
-  l w = pow2[two[n]];
-  F(i, 0, n) {
-    left = cong(left + f(tc, acca[i], accb[i]) * inverse_mod(pow2[two[i]], MOD), MOD);
-    l right = cong(f(td, acca[n] - acca[i + 1], accb[n] - accb[i + 1]) *
-                   inverse_mod(pow2[two[n] - two[i + 1]], MOD), MOD);
-    z = cong(z + cong(w * left, MOD) * right, MOD);
-  }
-  // F(i, 0, n) F(j, i, n) {
-    // left = cong(f(tc, acca[i], accb[i]), MOD);
-    // l right = f(td, acca[n] - acca[j + 1], accb[n] - accb[j + 1]);
-    // z = cong(z + cong(pow2[two[j + 1] - two[i]] * left, MOD) * right, MOD);
-  // }
   return z;
 }
 
 void solve(istream& cin, ostream& cout) {
-  l n, m; cin >> n >> m;
-  fact.resize(max(2 * n + m, 2 * m + n));
-  fact[0] = 1;
-  F(i, 1, fact.size()) fact[i] = (fact[i - 1] * i) % MOD;
-  pow2.resize(max(n, m) + 10);
-  pow2[0] = 1;
-  F(i, 1, pow2.size()) pow2[i] = (pow2[i - 1] * 2) % MOD;
-  vl a(n), b(n), c(m), d(m);
-  string s;
-  cin >> s; F(i, 0, n) a[i] = s[i] - '0';
-  cin >> s; F(i, 0, n) b[i] = s[i] - '0';
-  cin >> s; F(i, 0, m) c[i] = s[i] - '0';
-  cin >> s; F(i, 0, m) d[i] = s[i] - '0';
-  vl ca, cb, cc, cd;
-  F(i, 0, n) if (a[i] or b[i]) {
-    ca.emplace_back(a[i]);
-    cb.emplace_back(b[i]);
+  l n, k; cin >> n >> k;
+  Graph g(n);
+  F(i, 0, n - 1) {
+    l a, b; cin >> a >> b; a--; b--;
+    g.add_undirected(a, b);
   }
-  F(i, 0, m) if (c[i] or d[i]) {
-    cc.emplace_back(c[i]);
-    cd.emplace_back(d[i]);
-  }
-  if (ca.empty() and cc.empty()) {
-    cout << 1 << lf;
-    return;
-  }
-  cout << cong(count(cc, cd, ca, cb) + count(cb, ca, cc, cd), MOD) << lf;
+  cout << cong(k * dfs(g, 0, -1, 0, k), MOD) << lf;
 }
 
 int main() {
