@@ -16,11 +16,11 @@ void _out_to_stream(std::ostream& ss, T&& arg, O&&... args) {
 }
 
 template<typename T, typename... O>
-T debug(T&& arg, O&&... args) {
+decltype(auto) debug(T&& arg, O&&... args) {
   std::stringstream ss;
   _out_to_stream(ss, std::forward<T>(arg), std::forward<O>(args)...);
   std::cerr << ss.str() << std::endl;
-  return arg;
+  return std::forward<T>(arg);
 }
 
 #endif  // H_LOGGING
