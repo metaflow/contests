@@ -11,11 +11,11 @@ const double _max_double_error = 1e-9;
 #endif
 
 using namespace std;
-using vi = vector<int>; using vvi = vector<vi>;
-using ii = pair<int,int>; using vii = vector<ii>;
-using l = long long; using vl = vector<l>; using vvl = vector<vl>;
+using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
+using ii = pair<int,int>; using lu = unsigned long long; using l = long long;
+using vs = vector<string>; using vii = vector<ii>;
+using vl = vector<l>; using vvl = vector<vl>; using vvvl = vector<vvl>;
 using ll = pair<l,l>; using vll = vector<ll>; using vvll = vector<vll>;
-using lu = unsigned long long;
 using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
@@ -26,6 +26,8 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
+#define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
+#define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 void solve(istream& cin, ostream& cout) {
 

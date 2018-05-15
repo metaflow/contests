@@ -16,7 +16,7 @@ using ii = pair<int,int>; using vii = vector<ii>;
 using l = long long; using vl = vector<l>; using vvl = vector<vl>;
 using ll = pair<l,l>; using vll = vector<ll>; using vvll = vector<vll>;
 using lu = unsigned long long;
-using vs = vector<string>; // TODO: update template
+using vs = vector<string>;
 using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;

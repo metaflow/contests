@@ -11,7 +11,6 @@ const double _max_double_error = 1e-9;
 #endif
 
 using namespace std;
-// TODO: update templace
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
 using ii = pair<int,int>; using vii = vector<ii>;
 using l = long long; using lu = unsigned long long;
@@ -27,10 +26,11 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
-#define MAX(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__y:__x;})
-#define MIN(a,b)({__typeof__(a)__x=(a);__typeof__(b)__y=(b);__x<__y?__x:__y;})
+#define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
+#define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 void build_s(vvi& g, vvi& s, l n, l m) {
+  VVL(v, m, n, 0);
   F(i, 0, n) {
     if (g[i][0]) s[i][1] = 1;
     F(j, 1, m) {
@@ -56,7 +56,7 @@ void solve(istream& cin, ostream& cout) {
     string s; cin >> s;
     F(j, 0, m) grid[i][j] = s[j] - '0';
   }
-  vvi sc(n, vi(m + 1)), ec(n, vi(m + 1)); // TODO: multidimentional macro?
+  vvi sc(n, vi(m + 1)), ec(n, vi(m + 1));
   {
     vvi connected(n, vi(m));
     F(i, 1, n) {

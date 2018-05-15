@@ -27,11 +27,12 @@ with open(path, 'r') as myfile:
 soup = BeautifulSoup(info['content'], 'lxml')
 divs = soup.find(id='task-statement') \
            .find('span', class_='lang-en') \
-           .find_all('pre', id=lambda x: x and x.startswith('pre-sample'))
-print(divs)
+           .find('div', class_='io-style') \
+           .find_next_siblings('div', class_='part')
 parts = []
-for s in divs:
-    parts.append(s.string)
+for d in divs:
+    for p in d.find_all('pre'):
+        parts.append(p.string)
 
 cases = zip(parts[0:][::2], parts[1:][::2])
 
