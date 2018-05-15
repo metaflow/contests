@@ -31,7 +31,7 @@ const char lf = '\n';
 class SegmentTree {
   l n, m;
   // inclusive range [low[i], high[i]]
-  vl low, high; // TODO: update snippet
+  vl low, high;
   vvvl v;
 
   void init(l i, l a, l b) {

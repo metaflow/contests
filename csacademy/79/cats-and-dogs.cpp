@@ -27,8 +27,6 @@ const char lf = '\n';
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
 
-
-// TODO: make a template or parameter double or l
 struct point {
   l x, y;
   point() {}
@@ -55,12 +53,19 @@ struct point {
     point d = (*this - o);
     return d * d;
   }
-  l distance(const point& o) {
+  double distance(const point& o) {
     return sqrt(*this >> o);
+  }
+  bool equal(l a, l b) const {
+    if (abs(a - b) < EPS) return true;
+    // Is x or y too close to zero?
+    if (abs(a) < EPS || abs(b) < EPS) return false;
+    // Check relative precision.
+    return (abs((a - b) / a) < EPS) && (abs((a - b) / b) < EPS);
   }
   bool operator < (const point& o) const {
     if (o.x != x) return x < o.x;
-    // if (not equal_double(o.x, x)) return x < o.x;
+    if (not equal(o.x, x)) return x < o.x;
     return y < o.y;
   }
 };
@@ -89,9 +94,7 @@ ostream& operator << (ostream& s, const point& p) {
   s << "(" << p.x << ", " << p.y << ")";
   return s;
 }
-// TODO: add vp
 using vp = vector<point>;
-
 
 void solve(istream& cin, ostream& cout) {
   l n, m; cin >> n >> m;

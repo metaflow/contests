@@ -4,7 +4,6 @@ const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
 #define I(x, ...) (x)
-// TODO: add macro to disable L, e.g. _L()
 #define C(x...) CHECK(x)
 #else
 #define L(x, ...) (x)
@@ -86,7 +85,6 @@ void sort_suffix_array(vl& sa, vl& rank, l k) {
   swap(sa, updated_sa);
 }
 
-// TODO: update signature
 vl build_suffix_array(string const& s) {
   l n = s.size();
   vl sa(n);
@@ -129,8 +127,6 @@ vl build_lcp(string &s, vl &sa) {
   return lcp;
 }
 
-// TODO: add trie template
-// TODO: fix atcoder parser
 void solve(istream& cin, ostream& cout) {
   string s; cin >> s;
   l n = s.size();

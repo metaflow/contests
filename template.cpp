@@ -3,9 +3,11 @@
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
+#define I(x, ...) (x)
 #define C(x...) CHECK(x)
 #else
 #define L(x, ...) (x)
+#define I(x, ...) (x)
 #define C(x, ...) ;
 #include <bits/stdc++.h>
 #endif
