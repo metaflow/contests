@@ -2,7 +2,11 @@
 #define _TESTUTILS_H
 #include "rnd.h"
 #include "logging.h"
-#include "dirent.h"
+#ifdef __GNUC__
+#include <dirent.h>
+#else
+#include "win-dirent.h"
+#endif
 #include "rusage.h"
 #include <bits/stdc++.h>
 #include <unistd.h>
