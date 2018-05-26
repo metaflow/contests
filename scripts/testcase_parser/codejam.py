@@ -3,13 +3,9 @@
 import sys
 from urllib.parse import urlsplit
 import json
-import os
-import msvcrt
 from bs4 import BeautifulSoup
-import platform
-import subprocess
-import utils
 import re
+import utils
 
 url = sys.argv[1]
 path = sys.argv[2]

@@ -1,27 +1,35 @@
-import platform
 import os
+import platform
 import subprocess
 
-if platform.system() == "Windows":
-	import msvcrt
-	def getch():
-		return msvcrt.getch()
+isWin = platform.system() == "Windows"
+
+if isWin:
+    import msvcrt
+
+
+    def getch():
+        return msvcrt.getch()
 else:
-	import tty, termios, sys
-	def getch():
-		fd = sys.stdin.fileno()
-		old_settings = termios.tcgetattr(fd)
-		try:
-			tty.setraw(sys.stdin.fileno())
-			ch = sys.stdin.read(1)
-		finally:
-			termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-		return ch
+    import tty
+    import termios
+    import sys
+
+
+    def getch():
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
 
 
 def save_cases(name, cases):
     if os.path.exists(name + '.in') or \
-       os.path.exists(name + '.out'):
+            os.path.exists(name + '.out'):
         print('{0}.in or {0}.out exists override?'.format(name))
         input_char = getch()
         print(input_char.decode('utf-8'))
@@ -37,4 +45,8 @@ def save_cases(name, cases):
 
 
 def open_problem(name):
-    subprocess.run(["C:\\Program Files\\Git\\bin\\bash.exe", '-c', '/c/Users/mgoncharov/etc/contests/problem.sh {}'.format(name)])
+    if isWin:
+        subprocess.run(["C:\\Program Files\\Git\\bin\\bash.exe", '-c',
+                        '/c/Users/mgoncharov/etc/contests/problem.sh {}'.format(name)])
+    else:
+        subprocess.run(['/home/mgoncharov/etc/contests/problem.sh', name])

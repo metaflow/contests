@@ -4,7 +4,6 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import os
 import subprocess
-import sys
 import urllib
 import urllib.request
 
@@ -19,28 +18,30 @@ parsers = [
     ['python3', '%script_dir%/kattis.py', '%url%', '%info%']
 ]
 
+
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
         path = url.path[1:]
         self.send_response(200)
-        self.send_header('Content-type','text/plain')
+        self.send_header('Content-type', 'text/plain')
         self.end_headers()
         message = path
         self.wfile.write(bytes(message, "utf8"))
         if path == "exit":
+            print('received exit command')
             exit(0)
         return
 
     def do_POST(self):
         self.send_response(200)
-        self.send_header('Content-type','text/plain')
+        self.send_header('Content-type', 'text/plain')
         self.end_headers()
         self.wfile.write(bytes(self.path, "utf8"))
         request_path = self.path
         length = int(self.headers['Content-Length'])
         data = self.rfile.read()
-        data = data.decode('utf-8').encode('cp850','replace').decode('cp850')
+        data = data.decode('utf-8').encode('cp850', 'replace').decode('cp850')
         j = json.loads(data)
         with open("./testcase.json", "w") as f:
             f.write(data)
@@ -48,8 +49,8 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
             copy = list(p)
             for id, s in enumerate(copy):
                 copy[id] = s.replace('%script_dir%', script_dir) \
-                            .replace('%url%', j['url']) \
-                            .replace('%info%', os.path.abspath("./testcase.json"))
+                    .replace('%url%', j['url']) \
+                    .replace('%info%', os.path.abspath("./testcase.json"))
             process = subprocess.run(copy)
             if process.returncode == 0:
                 break
@@ -66,5 +67,6 @@ def run():
     server_address = ('0.0.0.0', 4243)
     httpd = HTTPServer(server_address, testHTTPServer_RequestHandler)
     httpd.serve_forever()
+
 
 run()

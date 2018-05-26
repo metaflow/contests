@@ -3,10 +3,6 @@
 from bs4 import BeautifulSoup
 from urllib.parse import urlsplit
 import json
-import msvcrt
-import os
-import platform
-import subprocess
 import sys
 import utils
 

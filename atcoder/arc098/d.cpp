@@ -31,7 +31,6 @@ const char lf = '\n';
 #define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
-// TODO: make 'p' script focus emacs
 l const BITS = 20;
 
 // finds lowest x: f(x) = true, x within [a, b), b if f(b - 1) = false
