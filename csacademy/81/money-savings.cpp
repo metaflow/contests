@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "money-savings"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -31,10 +31,21 @@ const char lf = '\n';
 #define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
-const l MOD = e9 + 7;
-
 void solve(istream& cin, ostream& cout) {
-
+  l q, x; cin >> q >> x;
+  vl a(q), b(q);
+  F(i, 0, q) cin >> a[i] >> b[i];
+  F(i, 0, 12) {
+    l best = -1;
+    F(j, 0, q) {
+      if (x >= a[j] && b[j] - a[j] > 0 &&
+          (best == -1 || b[j] - a[j] > b[best] - a[best])) {
+        best = j;
+      }
+    }
+    if (best >= 0) x += b[best] - a[best];
+  }
+  cout << x << lf;
 }
 
 int main() {
