@@ -243,7 +243,7 @@ bool _compare_output(string input_file_name,
 
 string _read_last_input() {
   using namespace std;
-  string name = _str_to_lower(PROBLEM_NAME);
+  string name = PROBLEM_NAME;
   ifstream f(name + ".testinfo");
   string s;
   f >> s;
@@ -252,7 +252,7 @@ string _read_last_input() {
 
 void _write_last_input(string s) {
   using namespace std;
-  string name = _str_to_lower(PROBLEM_NAME);
+  string name = PROBLEM_NAME;
   name += ".testinfo";
   if (s.empty()) {
     remove(name.c_str());
@@ -270,7 +270,7 @@ set<string> _list_files(string path) {
     while ((ent = readdir(dir)) != NULL) {
       if (ent->d_type != DT_REG) continue;
       string s = ent->d_name;
-      files.emplace(_str_to_lower(s));
+      files.emplace(s);
     }
     closedir(dir);
   } else {
@@ -281,7 +281,7 @@ set<string> _list_files(string path) {
 
 set<string> _filter_files(set<string> files) {
   set<string> result;
-  string name = _str_to_lower(PROBLEM_NAME);
+  string name = PROBLEM_NAME;
   for (auto s : files) {
     if (s.find(name) != 0) continue;
     result.emplace(s);
@@ -453,7 +453,7 @@ bool _run_tests() {
   _test_in_progress = true;
   set<string> files = _filter_files(_list_files("."));
 
-  string name = _str_to_lower(PROBLEM_NAME);
+  string name = PROBLEM_NAME;
 
   vector<tuple<int, string, string>> cases;
   string last = _read_last_input();
@@ -533,7 +533,7 @@ bool _run_tests() {
 void _random_test() {
   assert(_generate_random_test);
   assert(_custom_solution_checker or _solve_brute);
-  string problem_name = _str_to_lower(PROBLEM_NAME);
+  string problem_name = PROBLEM_NAME;
   string input_file_name = problem_name + ".rndinput";
   string expected_output = problem_name + ".rndoutput";
   string actual_output = problem_name + ".output";

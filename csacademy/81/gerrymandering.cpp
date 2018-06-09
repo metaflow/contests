@@ -33,35 +33,7 @@ const char lf = '\n';
 
 const l MOD = e9 + 7;
 
-vvl rmq_preprocess(vl& A) {
-  l n = A.size();
-  vvl R(1, vl(n));
-  for (l i = 0; i < n; i++) R[0][i] = i;
-  for (l k = 1; 2 * k <= n; k = k << 1) {
-    vl V;
-    for (l i = 0; i + 2 * k <= n; i++) {
-      if (A[R.back()[i]] < A[R.back()[i + k]]) {
-        V.emplace_back(R.back()[i]);
-      } else {
-        V.emplace_back(R.back()[i + k]);
-      }
-    }
-    R.emplace_back(V);
-  }
-  return R;
-}
-
-// range minimum query [from, to)
-l rmq(l from, l to, vl& A, vvl& P) {
-  l q = P.size() - 1;
-  l k = (l)1 << q;
-  while (k > (to - from)) { k = k >> 1; q--; }
-  l i = P[q][from];
-  l j = P[q][to - k];
-  return (A[i] < A[j]) ? i : j;
-}
-
-l dfs(l p, auto& large, auto& acc, auto& acc_pos, auto& r, auto& state) {
+l dfs(l p, auto& large, auto& acc, auto& state) {
   auto& z = state[p];
   if (z > -1) return z;
   z = 0;
@@ -73,22 +45,18 @@ l dfs(l p, auto& large, auto& acc, auto& acc_pos, auto& r, auto& state) {
     I(p, "last");
     return z = acc.back() - acc[p] >= 0;
   }
-  // B domination
-  auto j = rmq(*a + 1, *b + 1, acc, r);
-  I(p, j);
-  if (acc[j] - acc[p] < 0) z = dfs(j, large, acc, acc_pos, r, state);
-  // A domination
-  // exactly 0 sum
-  auto& pos = acc_pos[acc[p]];
-  auto i = lower_bound(all(pos), p + 1);
-  if (i == pos.end() or *i > *b) {
-    // same sign everywhere in this segment
-    if (acc[j] - acc[p] >= 0) {
-      z = max(z, 1 + dfs(j, large, acc, acc_pos, r, state));
+  l ba = -1, bb = -1;
+  // L(p, *a, *b);
+  F(i, *a, *b) {
+    if (acc[i + 1] - acc[p] >= 0) {
+      if (ba == -1 or acc[i + 1] < acc[ba]) ba = i + 1;
+    } else {
+      if (bb == -1 or acc[i + 1] < acc[bb]) bb = i + 1;
     }
-  } else {
-    z = max(z, 1 + dfs(*i, large, acc, acc_pos, r, state));
   }
+  // L(ba, bb);
+  if (ba > -1) z = max(z, 1 + dfs(ba, large, acc, state));
+  if (bb > -1) z = max(z, dfs(bb, large, acc, state));
   return z;
 }
 
@@ -104,11 +72,9 @@ void solve(istream& cin, ostream& cout) {
   I(large);
   vl acc(n + 1);
   F(i, 0, n) acc[i + 1] = acc[i] + v[i];
-  unordered_map<l, vl> acc_pos;
-  F(i, 0, n + 1) acc_pos[acc[i]].emplace_back(i);
-  auto r = rmq_preprocess(acc);
+  // L(acc);
   vl state(n, -1);
-  cout << dfs(0, large, acc, acc_pos, r, state) << lf;
+  cout << dfs(0, large, acc, state) << lf;
 }
 
 l dfs_brute(l p, l left, auto& state, auto& v, auto& large) {
@@ -149,11 +115,48 @@ void solve_brute(istream& cin, ostream& cout) {
   cout << dfs_brute(0, large_count, state, v, large) << lf;
 }
 
+default_random_engine source(chrono::system_clock::now().time_since_epoch().count());
+
+// [a, b)
+l random_in_range(l a, l b) {
+  return uniform_int_distribution<l>(a, b - 1)(source);
+}
+
+double random_double() {
+  return uniform_real_distribution<double>(0, 1)(source);
+}
+
+bool random_bool() {
+  return random_in_range(0, 2) == 1;
+}
+
+string random_string(int length) {
+  string s = "";
+  string an = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for (int i = 0; i < length; i++) {
+    s += an[random_in_range(0, an.size())];
+  }
+  return s;
+}
+
 // return false to stop
 bool generate_random(l tc, ostream& cout) {
   l max_cases = 10000;
   if (tc % (max_cases / 100) == 0) cerr << (tc * 100 / max_cases) << "%\r";
-
+  l n = tc / 1000 + 1;
+  cout << n << lf;
+  l large_count = 0;
+  F(i, 0, n) {
+    cout << (random_bool() ? 'A' : 'B')
+         << ' ';
+    if (random_bool() or (i == n-1 and large_count == 0)) {
+      large_count++;
+      cout << 'L';
+    } else {
+      cout << 'S';
+    }
+    cout << lf;
+  }
   return tc < max_cases;
 }
 
@@ -161,13 +164,13 @@ int main() {
   ios_base::sync_with_stdio(false); cin.tie(0);
   cout << fixed << setprecision(15);
 #if defined(LOCAL)
-  // _generate_random_test = generate_random;
-  // _solve_brute = solve_brute;
+  _generate_random_test = generate_random;
+  _solve_brute = solve_brute;
   // _player_b = player_b;
   // _custom_solution_checker = solution_checker;
   maybe_run_tests(cin, cout);
 #else
-  // solve(cin, cout);
-  solve_brute(cin, cout);
+  solve(cin, cout);
+  // solve_brute(cin, cout);
 #endif
 }

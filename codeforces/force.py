@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # pip install beautifulsoup4
 #
 import time
@@ -15,8 +16,10 @@ import webbrowser
 import sqlite3
 import subprocess
 import math
+import platform
 from bs4 import BeautifulSoup
 
+isWin = platform.system() == "Windows"
 ApiKey = os.environ['CODEFORCES_API_KEY']
 ApiSecret = os.environ['CODEFORCES_API_SECRET']
 handle = os.environ['CODEFORCES_HANDLE']
@@ -151,7 +154,10 @@ def openProblem(contestId, index):
                 for i in s[1].find('pre').strings:
                     out_file.write(str(i).strip())
                     out_file.write('\n')
-    subprocess.call(["C:\\Program Files\\Git\\bin\\bash.exe", '-c', '/c/Users/mgoncharov/etc/contests/problem.sh %s' % (index)])
+    if isWin:
+        subprocess.call(["C:\\Program Files\\Git\\bin\\bash.exe", '-c', '/c/Users/mgoncharov/etc/contests/problem.sh %s' % (index)])
+    else:
+        subprocess.call(["problem.sh %s" % (index)])
     subprocess.call(["date"])
 
 def now():
