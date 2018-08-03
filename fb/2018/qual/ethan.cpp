@@ -9,8 +9,13 @@ const double _max_double_error = 1e-9;
 #define L(x, ...) (x)
 #define I(x, ...) (x)
 #define C(x, ...) ;
-#include <bits/stdc++.h>
 #endif
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <map>
+#include <unordered_map>
+#include <math.h>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -22,7 +27,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = acos(-1);
+const double EPS = 1e-10; static constexpr auto PI = M_PI;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -57,8 +62,10 @@ vl kmp_search(const string& s, const string& p, const vl& b) {
   }
   return matches;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
 void solve(istream& cin, ostream& cout) {
+#pragma clang diagnostic pop
   l tcc; cin >> tcc;
   F(tc, 1, tcc + 1) {
     cout << "Case #" << tc << ": ";

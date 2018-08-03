@@ -9,8 +9,13 @@ const double _max_double_error = 1e-9;
 #define L(x, ...) (x)
 #define I(x, ...) (x)
 #define C(x, ...) ;
-#include <bits/stdc++.h>
 #endif
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <map>
+#include <unordered_map>
+#include <math.h>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -22,7 +27,6 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = acos(-1);
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -33,18 +37,18 @@ const char lf = '\n';
 
 const l MOD = e9 + 7;
 
-void solve(istream& cin, ostream& cout) {
-  l tcc; cin >> tcc;
+void solve(istream& in, ostream& out) {
+  l tcc; in >> tcc;
   F(tc, 0, tcc) {
-    cout << "Case #" << tc + 1 << ':';
-    l n, k, v; cin >> n >> k >> v;
-    vs names(n); F(i, 0, n) cin >> names[i];
+    out << "Case #" << tc + 1 << ':';
+    l n, k, v; in >> n >> k >> v;
+    vs names(n); F(i, 0, n) in >> names[i];
     l j = (v - 1) * k;
     vl order;
     F(i, 0, k) order.emplace_back((i + j) % n);
     sort(all(order));
-    for (auto i : order) cout << ' ' << names[i];
-    cout << lf;
+    for (auto i : order) out << ' ' << names[i];
+    out << lf;
   }
 }
 

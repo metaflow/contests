@@ -1,6 +1,8 @@
 #ifndef _RND_H
 #define _RND_H
-#include <bits/stdc++.h>
+#include <random>
+#include <fstream>
+#include <iomanip>
 
 using namespace std;
 class Random {

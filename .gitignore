@@ -6,6 +6,7 @@ codeforces/codeforces.db
 *.o
 .c9
 *.exe
+*.dSYM
 testcase.json
 
 # Ignore everything

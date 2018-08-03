@@ -8,9 +8,13 @@
 #include "win-dirent.h"
 #endif
 #include "rusage.h"
-#include <bits/stdc++.h>
 #include <unistd.h>
+#include <vector>
+#include <iostream>
+#include <future>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
 using namespace std;
 
 #define TEST_LOG cerr
@@ -622,5 +626,5 @@ void maybe_run_tests(istream& in, ostream& out) {
     solve(in, out);
   }
 }
-
+#pragma clang diagnostic pop
 #endif  // TESTUTILS_H
