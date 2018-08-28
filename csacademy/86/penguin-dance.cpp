@@ -10,17 +10,15 @@ const double _max_double_error = 1e-9;
 #define I(x, ...) (x)
 #define C(x, ...) ;
 #endif
-#include <algorithm>
-#include <vector>
-#include <string>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <map>
+#include <math.h>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <math.h>
-#include <limits>
-#include <numeric>
+#include <vector>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -32,7 +30,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = 3.1415926;
+const double EPS = 1e-10; static constexpr auto PI = M_PI;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -44,7 +42,17 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  l n, p, t;
+  in >> n >> p >> t;
+  vl moves = {0,0,0,0,1,-1,1,1,1};
+  F(i, 0, t) {
+    p -= moves[i % moves.size()];
+  }
+  if (p < 1 or p > n) {
+    out << -1 << lf;
+  } else {
+    out << p << lf;
+  }
 }
 
 int main() {

@@ -1,5 +1,6 @@
 #!/bin/sh
-DIR=$(dirname "$(readlink -f "$0")")
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+# DIR=$(dirname "$(readlink -f "$0")")
 if (! [ -f "$1.cpp" ]) && (! [ -f "$1.cpp" ]);
 then
   cp "$DIR/template.cpp" "$1.cpp"

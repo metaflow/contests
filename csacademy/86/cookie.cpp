@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "all-numbers"
+#define PROBLEM_NAME "#PROBLEM_NAME"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -10,13 +10,17 @@ const double _max_double_error = 1e-9;
 #define I(x, ...) (x)
 #define C(x, ...) ;
 #endif
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <iostream>
 #include <map>
+#include <numeric>
 #include <unordered_map>
 #include <unordered_set>
 #include <math.h>
+#include <limits>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -37,7 +41,7 @@ const char lf = '\n';
 #define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
-const l MOD = e9 + 7;
+const l MOD = e9 + 7; // end of template
 
 l sign(l n) {
   if (n < 0) return -1;
@@ -136,45 +140,31 @@ struct lm {
   lm operator / (const lm x) { lm z(*this); z /= x; return z; }
 };
 using vlm = vector<lm>;
-// TODO: add to template
-// TODO: add ++ --
-ostream& operator << (ostream& s, const lm& p) {
-  return s << p.raw;
-}
+
 
 void solve(istream& in, ostream& out) {
-  l n; in >> n;
-  vl d(10);
-  F(i, 0, n) {
-    l x; in >> x; d[x] += 1;
-  }
-  vlm f(n + 1, 1);
-  F(i, 1, n + 1) f[i] = f[i - 1] * i;
-  lm z = 0;
-  lm m = 1;
-  F(i, 0, n - 1) {
-    F(j, 0, 10) {
-      if (d[j] == 0) continue;
-      lm t = f[n - 1] * d[j];
-      F(k, 0, 10) t /= f[d[k]];
-      lm q = f[n - 2] * d[j] * d[0];
-      F(k, 0, 10) q /= f[d[k]];
-      t -= q;
-      t *= m * j;
-      z += I(t, i, j);
+  l n, c, s;
+  in >> n >> c >> s;
+  vl a(n), b(n); F(i, 0, n) in >> a[i] >> b[i];
+  vl perm(n);
+  iota(all(perm), 0);
+  l best = divup(c, s);
+  do {
+    l t = 0;
+    l x = 0;
+    l q = s;
+    for (auto i : perm) {
+      if (x < a[i]) {
+        l d = divup(a[i] - x, q);
+        t += d;
+        x += q * d;
+      }
+      x -= a[i];
+      q += b[i];
+      best = min(best, t + divup(c - x, q));
     }
-    m *= 10;
-    I(m);
-  }
-
-  F(j, 1, 10) {
-    if (d[j] == 0) continue;
-    lm t = f[n - 1] * d[j];
-    F(k, 0, 10) t /= f[d[k]];
-    t *= m * j;
-    z += t;
-  }
-  out << z.raw << lf;
+  } while (next_permutation(all(perm)));
+  out << best << lf;
 }
 
 int main() {

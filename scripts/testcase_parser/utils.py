@@ -1,6 +1,7 @@
 import os
 import platform
 import subprocess
+from os.path import expanduser
 
 isWin = platform.system() == "Windows"
 
@@ -49,4 +50,4 @@ def open_problem(name):
         subprocess.run(["C:\\Program Files\\Git\\bin\\bash.exe", '-c',
                         '/c/Users/mgoncharov/etc/contests/problem.sh {}'.format(name)])
     else:
-        subprocess.run(['/home/mgoncharov/etc/contests/problem.sh', name])
+        subprocess.run([expanduser('~/etc/contests/problem.sh'), name])

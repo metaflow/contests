@@ -32,7 +32,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = 3.1415926;
+const double EPS = 1e-10; static constexpr auto PI = 3.1415926; // TODO: update template
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -44,7 +44,41 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  l n, m, cl, ce, v;
+  in >> n >> m >> cl >> ce >> v;
+  vl ladders(cl), elevators(ce);
+  F(i, 0, cl) in >> ladders[i];
+  F(i, 0, ce) in >> elevators[i];
+  l q; in >> q;
+  F(qq, 0, q) {
+    l best = INF;
+    l y1, x1, x2, y2; in >> y1 >> x1 >> y2 >> x2;
+    l dy = abs(y1-y2);
+    if (dy == 0) best = abs(x1 - x2);
+    // ladder
+    auto e = upper_bound(all(ladders), x1);
+    if (e != ladders.end()) {
+      auto x = *e;
+      best = min(best, dy + abs(x - x1) + abs(x - x2));
+    }
+    if (e != ladders.begin()) {
+      e--;
+      auto x = *e;
+      best = min(best, dy + abs(x - x1) + abs(x - x2));
+    }
+    // elevator
+    e = upper_bound(all(elevators), x1);
+    if (e != elevators.end()) {
+      auto x = *e;
+      best = min(best, (dy + v - 1)/v + abs(x - x1) + abs(x - x2));
+    }
+    if (e != elevators.begin()) {
+      e--;
+      auto x = *e;
+      best = min(best, (dy + v - 1)/v + abs(x - x1) + abs(x - x2));
+    }
+    out << best << lf;
+  }
 }
 
 int main() {

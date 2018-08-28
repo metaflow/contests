@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "#PROBLEM_NAME"
+#define PROBLEM_NAME "b"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -44,7 +44,31 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  l n; in >> n;
+  vll v(n + 1);
+  l total = 0;
+  F(i, 0, n) {
+    in >> v[i].first;
+    v[i].second = (i + 1) * (n - i);
+    total += v[i].second;
+  }
+  v[n].first = INF;
+  l t = n - 1;
+  while (t > 0) {
+    v[n].second += t;
+    t -= 2;
+  }
+  total += v[n].second;
+  sort(all(v));
+  l sum = 0;
+  F(i, 0, n) {
+    sum += v[i].second;
+    total -= v[i].second;
+    if (sum > total) {
+      out << v[i].first << lf;
+      break;
+    }
+  }
 }
 
 int main() {

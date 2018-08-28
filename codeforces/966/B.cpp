@@ -1,5 +1,5 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "all-numbers"
+#define PROBLEM_NAME "#PROBLEM_NAME"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -10,13 +10,17 @@ const double _max_double_error = 1e-9;
 #define I(x, ...) (x)
 #define C(x, ...) ;
 #endif
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <iostream>
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <math.h>
+#include <limits>
+#include <numeric>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -28,7 +32,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = M_PI;
+const double EPS = 1e-10; static constexpr auto PI = 3.1415926;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -37,7 +41,7 @@ const char lf = '\n';
 #define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
-const l MOD = e9 + 7;
+const l MOD = e9 + 7; // end of template
 
 l sign(l n) {
   if (n < 0) return -1;
@@ -136,45 +140,66 @@ struct lm {
   lm operator / (const lm x) { lm z(*this); z /= x; return z; }
 };
 using vlm = vector<lm>;
-// TODO: add to template
-// TODO: add ++ --
-ostream& operator << (ostream& s, const lm& p) {
-  return s << p.raw;
-}
+
+
 
 void solve(istream& in, ostream& out) {
-  l n; in >> n;
-  vl d(10);
+  l n, a, b;
+  in >> n >> a >> b;
+  vll v(n);
   F(i, 0, n) {
-    l x; in >> x; d[x] += 1;
+    in >> v[i].first;
+    v[i].second = i + 1;
   }
-  vlm f(n + 1, 1);
-  F(i, 1, n + 1) f[i] = f[i - 1] * i;
-  lm z = 0;
-  lm m = 1;
-  F(i, 0, n - 1) {
-    F(j, 0, 10) {
-      if (d[j] == 0) continue;
-      lm t = f[n - 1] * d[j];
-      F(k, 0, 10) t /= f[d[k]];
-      lm q = f[n - 2] * d[j] * d[0];
-      F(k, 0, 10) q /= f[d[k]];
-      t -= q;
-      t *= m * j;
-      z += I(t, i, j);
+  sort(all(v));
+  vl pre(n + 1);
+  B(i, 0, n) {
+    pre[i] = max(v[i].first * (n - i), pre[i + 1]);
+  }
+  vl va, vb;
+  F(i, 0, n) {
+    l d = divup(a, v[i].first);
+    l p = i + d;
+    if (p <= n and pre[p] >= b) {
+      F(j, i, p) {
+        va.emplace_back(v[j].second);
+      }
+      l j = p;
+      while (pre[j + 1] >= b) j++;
+      while (j < n) {
+        vb.emplace_back(v[j++].second);
+      }
+      break;
     }
-    m *= 10;
-    I(m);
+    d = divup(b, v[i].first);
+    p = i + d;
+    if (p <= n and pre[p] >= a) {
+      F(j, i, p) {
+        vb.emplace_back(v[j].second);
+      }
+      l j = p;
+      while (pre[j + 1] >= a) j++;
+      while (j < n) {
+        va.emplace_back(v[j++].second);
+      }
+      break;
+    }
   }
-
-  F(j, 1, 10) {
-    if (d[j] == 0) continue;
-    lm t = f[n - 1] * d[j];
-    F(k, 0, 10) t /= f[d[k]];
-    t *= m * j;
-    z += t;
+  if (va.empty()) {
+    out << "No" << lf;
+  } else {
+    out << "Yes" << lf << va.size() << ' ' << vb.size() << lf;
+    F(i, 0, va.size()) {
+      if (i) out << ' ';
+      out << va[i];
+    }
+    out << lf;
+    F(i, 0, vb.size()) {
+      if (i) out << ' ';
+      out << vb[i];
+    }
+    out << lf;
   }
-  out << z.raw << lf;
 }
 
 int main() {
