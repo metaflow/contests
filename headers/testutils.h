@@ -1,5 +1,6 @@
 #ifndef _TESTUTILS_H
 #define _TESTUTILS_H
+
 #include "rnd.h"
 #include "logging.h"
 #ifdef __GNUC__
@@ -12,6 +13,7 @@
 #include <vector>
 #include <iostream>
 #include <future>
+#include <cassert>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"

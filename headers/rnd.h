@@ -3,7 +3,10 @@
 #include <random>
 #include <fstream>
 #include <iomanip>
+#include <chrono>
+#include <algorithm>
 
+// TODO: stop using namespace std
 using namespace std;
 class Random {
 public:

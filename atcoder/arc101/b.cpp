@@ -43,32 +43,77 @@ const char lf = '\n';
 
 const l MOD = e9 + 7; // end of template
 
-void solve(istream& in, ostream& out) {
-  l n; in >> n;
-  vll v(n + 1);
-  l total = 0;
-  F(i, 0, n) {
-    in >> v[i].first;
-    v[i].second = (i + 1) * (n - i);
-    total += v[i].second;
-  }
-  v[n].first = INF;
-  l t = n - 1;
-  while (t > 0) {
-    v[n].second += t;
-    t -= 2;
-  }
-  total += v[n].second;
-  sort(all(v));
-  l sum = 0;
-  F(i, 0, n) {
-    sum += v[i].second;
-    total -= v[i].second;
-    if (sum > total) {
-      out << v[i].first << lf;
-      break;
+// finds lowest x: f(x) = true, x within [a, b), b if f(b - 1) = false
+l binary_search_lower(l a, l b, function<bool(l)> f) {
+  l count = b - a;
+  while (count > 0) {
+    l step = count / 2;
+    l m = a + step;
+    if (f(m)) {
+      count = step;
+    } else {
+      a = m + 1;
+      count -= step + 1;
     }
   }
+  return a;
+}
+
+// finds lowest x: f(x) = true, x within [a, b)
+double binary_search_lower_double(double a, double b, function<bool(double)> f) {
+  double diff = b - a;
+  while (diff > EPS) {
+    diff /= 2;
+    double m = a + diff;
+    if (!f(m)) a = m;
+  }
+  return a;
+}
+
+void solve(istream& in, ostream& out) {
+  l n; in >> n;
+  vl v(n);
+  F(i, 0, n) in >> v[i];
+  auto s = v;
+  sort(all(s));
+  vl bb(n);
+  l T = n * (n + 1) / 2;
+  out << s[binary_search_lower(0, n, [&](l k) {
+        l x = s[k];
+        I(k, x);
+        F(i, 0, n) bb[i] = v[i] <= x ? -1 : 1;
+        vl cc(n * 2 + 1);
+        l off = n;
+        cc[off] = 1;
+        l good = 1;
+        l sum = 0;
+        l z = 0;
+        F(i, 0, n) {
+          //
+          l t = sum + bb[i];
+          if (bb[i] == 1) {
+            good += cc[sum + 1 + off];
+          } else {
+            C(bb[i] == -1);
+            good -= cc[sum + off];
+          }
+          C(good >= 0, good);
+          z += good;
+          sum = t;
+          cc[sum + off]++;
+          good++;
+          /*/
+          l t = sum + bb[i];
+          good = 0;
+          F(j, 0, t + 1 + off) good += cc[j];
+          z += good;
+          sum = t;
+          cc[sum + off]++;
+          //*/
+        }
+        I(bb, cc);
+        return I(T - z, z) > z;
+      })] << lf;
 }
 
 int main() {
