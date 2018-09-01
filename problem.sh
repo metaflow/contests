@@ -1,9 +1,7 @@
 #!/bin/sh
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-# DIR=$(dirname "$(readlink -f "$0")")
-if (! [ -f "$1.cpp" ]) && (! [ -f "$1.cpp" ]);
+if (! [ -f "$1.cc" ]) && (! [ -f "$1.cc" ]);
 then
-  cp "$DIR/template.cpp" "$1.cpp"
-  sed -i "s/#PROBLEM_NAME/${1}/g" "$1.cpp"
+  cp "$DIR/template.cc" "$1.cc"
 fi
-"${EDITOR}" -n --eval "(open-problem \"${1}.cpp\" \"${1}.in\" \"${1}.out\")"
+"${EDITOR}" -n --eval "(open-problem \"${1}.cc\" \"${1}.in\" \"${1}.out\")"
