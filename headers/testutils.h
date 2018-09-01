@@ -17,6 +17,17 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
+
+void solve(istream& in, ostream& out);
+function<void(istream& hidden_state, ostream& log,
+              istream& solution_out, ostream& solution_in)> _player_b;
+function<bool(long long /* size */, ostream& /* out */)> _generate_random_test;
+function<void(std::istream& /* in */, std::ostream& /* out */)> _solve_brute;
+function<bool(istream& /* input */,
+              istream& /* expected */,
+              istream& /* actual */,
+              ostream& /* log */)> _custom_solution_checker;
+namespace tst {
 using namespace std;
 
 #define TEST_LOG cerr
@@ -27,15 +38,8 @@ using namespace std;
     debug(x, #x);                               \
     assert(0);                                  \
   } while(0);
-void solve(std::istream& in, std::ostream& out);
-function<void(istream& hidden_state, ostream& log,
-              istream& solution_out, ostream& solution_in)> _player_b;
-function<bool(long long /* size */, ostream& /* out */)> _generate_random_test;
-function<void(std::istream& /* in */, std::ostream& /* out */)> _solve_brute;
-function<bool(istream& /* input */,
-              istream& /* expected */,
-              istream& /* actual */,
-              ostream& /* log */)> _custom_solution_checker;
+const string kPathSeparator("/");
+static string test_problem_name;
 
 struct _rusage {
   long long peak_memory;
@@ -249,8 +253,7 @@ bool _compare_output(string input_file_name,
 
 string _read_last_input() {
   using namespace std;
-  string name = PROBLEM_NAME;
-  ifstream f(name + ".testinfo");
+  ifstream f(test_problem_name + ".testinfo");
   string s;
   f >> s;
   return s;
@@ -258,10 +261,10 @@ string _read_last_input() {
 
 void _write_last_input(string s) {
   using namespace std;
-  string name = PROBLEM_NAME;
+  string name = test_problem_name;
   name += ".testinfo";
   if (s.empty()) {
-    remove(name.c_str());
+    remove(test_problem_name.c_str());
   } else {
     ofstream f(name);
     f << s;
@@ -287,7 +290,7 @@ set<string> _list_files(string path) {
 
 set<string> _filter_files(set<string> files) {
   set<string> result;
-  string name = PROBLEM_NAME;
+  string name = test_problem_name;
   for (auto s : files) {
     if (s.find(name) != 0) continue;
     result.emplace(s);
@@ -459,7 +462,7 @@ bool _run_tests() {
   _test_in_progress = true;
   set<string> files = _filter_files(_list_files("."));
 
-  string name = PROBLEM_NAME;
+  string name = test_problem_name;
 
   vector<tuple<int, string, string>> cases;
   string last = _read_last_input();
@@ -539,10 +542,9 @@ bool _run_tests() {
 void _random_test() {
   assert(_generate_random_test);
   assert(_custom_solution_checker or _solve_brute);
-  string problem_name = PROBLEM_NAME;
-  string input_file_name = problem_name + ".rndinput";
-  string expected_output = problem_name + ".rndoutput";
-  string actual_output = problem_name + ".output";
+  string input_file_name = test_problem_name + ".rndinput";
+  string expected_output = test_problem_name + ".rndoutput";
+  string actual_output = test_problem_name + ".output";
   for (int tc = 0;; tc++) {
     {
       ofstream in(input_file_name);
@@ -581,11 +583,11 @@ void _random_test() {
 
     // found new failed test case
     int i = 1;
-    string name_in = problem_name + ".in" + to_string(i);
-    string name_out = problem_name + ".out" + to_string(i);
+    string name_in = test_problem_name + ".in" + to_string(i);
+    string name_out = test_problem_name + ".out" + to_string(i);
     while (1) {
-      name_in = problem_name + ".in" + to_string(i);
-      name_out = problem_name + ".out" + to_string(i);
+      name_in = test_problem_name + ".in" + to_string(i);
+      name_out = test_problem_name + ".out" + to_string(i);
       if (not _file_exist(name_in) and not _file_exist(name_out)) {
         _copy_content(input_file_name, name_in);
         if (_solve_brute) {
@@ -627,6 +629,17 @@ void maybe_run_tests(istream& in, ostream& out) {
   } else {
     solve(in, out);
   }
+}
+
+void test_init(int argc, char **argv) {
+  if (argc > 0) {
+    string s(argv[0]);
+    auto p = s.rfind(kPathSeparator);
+    string name = s;
+    if (p + 1 < s.size()) name = s.substr(p + 1);
+    test_problem_name = name;
+  }
+}
 }
 #pragma clang diagnostic pop
 #endif  // TESTUTILS_H

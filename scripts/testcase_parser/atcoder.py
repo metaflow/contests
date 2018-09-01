@@ -15,7 +15,7 @@ host = url.netloc
 if not host.endswith('atcoder.jp'):
     exit(1)
 
-name = url.path[-1:] # /tasks/arc079_d
+name = url.path[-1:] # /tasks/arc079_d -> d
 print("name", name)
 with open(path, 'r') as myfile:
     info = json.loads(myfile.read().replace('\n', ''))
@@ -23,12 +23,10 @@ with open(path, 'r') as myfile:
 soup = BeautifulSoup(info['content'], 'lxml')
 divs = soup.find(id='task-statement') \
            .find('span', class_='lang-en') \
-           .find('div', class_='io-style') \
-           .find_next_siblings('div', class_='part')
+           .find_all('div', class_='div-sample-copy')
 parts = []
 for d in divs:
-    for p in d.find_all('pre'):
-        parts.append(p.string)
+    parts.append(d.find_next_sibling('pre').string)
 
 cases = zip(parts[0:][::2], parts[1:][::2])
 

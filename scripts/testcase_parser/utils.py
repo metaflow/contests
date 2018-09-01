@@ -5,42 +5,17 @@ from os.path import expanduser
 
 isWin = platform.system() == "Windows"
 
-if isWin:
-    import msvcrt
-
-
-    def getch():
-        return msvcrt.getch()
-else:
-    import tty
-    import termios
-    import sys
-
-
-    def getch():
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
-
-
 def save_cases(name, cases):
-    if os.path.exists(name + '.in') or \
-            os.path.exists(name + '.out'):
-        print('{0}.in or {0}.out exists override?'.format(name))
-        input_char = getch()
-        print(input_char.decode('utf-8'))
-        if input_char.upper() != b'Y':
-            print('cancelled')
-            return False
     for i, c in enumerate(cases):
-        with open('{}.in{}'.format(name, i + 1 if i > 0 else ''), 'w') as f:
+        suffix = '' if i == 0 else str(i + 1)
+        in_file = '{}.in{}'.format(name, suffix)
+        out_file = '{}.out{}'.format(name, suffix)
+        if os.path.exists(in_file) or os.path.exists(out_file):
+            print('{} or {} already exists, skipping'.format(in_file, out_file))
+            continue
+        with open(in_file, 'w') as f:
             f.write(c[0])
-        with open('{}.out{}'.format(name, i + 1 if i > 0 else ''), 'w') as f:
+        with open(out_file, 'w') as f:
             f.write(c[1])
     return True
 
