@@ -43,7 +43,14 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  l n; string a, b; in >> n >> a >> b;
+  l z = 0;
+  F(i, 0, n) {
+    if (a[i] == b[i]) continue;
+    z++;
+    if (i + 1 < n && a[i] == b[i + 1] && a[i + 1] == b[i]) i++;
+  }
+  out << z << lf;
 }
 
 int main(int argc, char **argv) {

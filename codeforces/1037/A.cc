@@ -43,7 +43,15 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  l n; in >> n;
+  l z = 0;
+  l k = 1;
+  while (n > 0) {
+    n -= k;
+    z++;
+    k *= 2;
+  }
+  out << z << lf;
 }
 
 int main(int argc, char **argv) {

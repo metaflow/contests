@@ -43,7 +43,17 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  l n, s; in >> n >> s;
+  vl v(n); F(i, 0, n) in >> v[i];
+  sort(all(v));
+  l k = n / 2;
+  l z = 0;
+  if (v[k] > s) {
+    F(i, 0, k + 1) z += max(l(0), v[i] - s);
+  } else {
+    F(i, k, n) z += max(l(0), s - v[i]);
+  }
+  out << z << lf;
 }
 
 int main(int argc, char **argv) {
