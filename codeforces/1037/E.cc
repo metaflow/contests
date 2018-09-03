@@ -20,6 +20,7 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <limits>
 #include <numeric>
+#include <queue>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -51,27 +52,17 @@ struct Edge {
   // l cost;
 };
 
-l MAXC = 1000;
 
 struct Graph {
   l v, e; // number of vertices and edges
   vector<vector<Edge>> adj;
-  vvl counter;
-  l k;
   l good;
 
-  Graph(l n, l k): v(n), e(0), k(k), good(0) {
+  Graph(l n): v(n), e(0), good(0) {
     adj.resize(v);
-    counter.resize(v, vl(MAXC));
   }
 
   l add_node() { adj.resize(++v); return v - 1; }
-
-  void add_simple(l a, l b) { // for tree-like
-    Edge ab; ab.to = b;
-    adj[a].emplace_back(ab);
-    e++;
-  }
 
   void add_undirected(l a, l b) {
     Edge ab; ab.id = e; ab.from = a; ab.to = b;
@@ -79,50 +70,76 @@ struct Graph {
     Edge ba; ba.id = e; ba.from = b; ba.to = a;
     adj[b].emplace_back(ba);
     e++;
-    F(i, 0, MAXC - 1) if (counter[a][i] == k) inc(b, i + 1);
-    F(i, 0, MAXC - 1) if (counter[b][i] == k) inc(a, i + 1);
-    inc(a, 0);
-    inc(b, 0);
   }
-
-  void inc(l a, int j) {
-    if (counter[a][j] == k) return;
-    counter[a][j]++;
-    if (counter[a][j] != k) return;
-    if (j + 1 == MAXC) {
-      good++;
-    } else {
-      for (auto edge : adj[a]) inc(edge.to, j + 1);
-    }
-  }
-
-  void add_directed(l a, l b) {
-    Edge ab; ab.id = e; ab.from = a; ab.to = b;
-    adj[a].emplace_back(ab);
-    e++;
-  }
-
-  //  void add_flow(l a, l b, l w, l cost) {
-  // Edge ab; ab.id = e; ab.from = a; ab.to = b; ab.capacity = w; ab.cost = cost;
-  // ab.opposite = adj[b].size();
-  // Edge ba; ba.id = e; ba.from = b; ba.to = a; ba.capacity = 0; ba.cost = 0;
-  // e++;
-  // ba.opposite = adj[a].size();
-  // adj[a].emplace_back(ab);
-  // adj[b].emplace_back(ba);
-  // }
 };
 
 void solve(istream& in, ostream& out) {
   l n, m, k; in >> n >> m >> k;
-  MAXC = e5 / n;
-  L(MAXC);
-  Graph g(n, k);
+  Graph g(n);
+  vll edges(m);
+  vl c(n);
   F(i, 0, m) {
     l a, b; in >> a >> b; a--; b--;
     g.add_undirected(a, b);
-    out << g.good << lf;
+    edges[i].first = a; edges[i].second = b;
+    c[a]++; c[b]++;
   }
+  l z = n;
+  vb visited(g.v);
+  {
+    queue<l> q;
+    F(i, 0, n) {
+      if (c[i] >= k) continue;
+      q.emplace(i);
+      visited[i] = true;
+      z--;
+    }
+    while (not q.empty()) {
+      l a = q.front(); q.pop();
+      for (auto e : g.adj[a]) {
+        if (visited[e.to]) continue;
+        c[e.to]--;
+        if (c[e.to] < k) {
+          q.emplace(e.to);
+          visited[e.to] = true;
+          z--;
+        }
+      }
+    }
+  }
+  vl answer(m);
+  B(i, 0, m) {
+    answer[i] = z;
+    l x, b; tie(x, b) = edges[i];
+    queue<l> q;
+    if (visited[x] || visited[b]) continue;
+    c[x]--;
+    if (c[x] < k) {
+      q.emplace(x);
+      visited[x] = true;
+      z--;
+    }
+    c[b]--;
+    if (c[b] < k) {
+      q.emplace(b);
+      visited[b] = true;
+      z--;
+    }
+    while (not q.empty()) {
+      l a = q.front(); q.pop();
+      for (auto e : g.adj[a]) {
+        if (visited[e.to] || e.id >= i) continue;
+        c[e.to]--;
+        if (c[e.to] < k) {
+          q.emplace(e.to);
+          visited[e.to] = true;
+          z--;
+        }
+      }
+    }
+  }
+  // TODO: if tests are passed remove .testsinfo file
+  F(i, 0, m) out << answer[i] << lf;
 }
 
 int main(int argc, char **argv) {
