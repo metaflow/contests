@@ -138,7 +138,6 @@ void solve(istream& in, ostream& out) {
       }
     }
   }
-  // TODO: if tests are passed remove .testsinfo file
   F(i, 0, m) out << answer[i] << lf;
 }
 

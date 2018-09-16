@@ -20,7 +20,7 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <limits>
 #include <numeric>
-#include <queue> // TODO: update template
+#include <queue>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -32,7 +32,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = 3.1415926;
+const double EPS = 1e-10; static constexpr auto PI = M_PI;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -133,6 +133,7 @@ void solve(istream& in, ostream& out) {
 
 int main(int argc, char **argv) {
   ios_base::sync_with_stdio(false); cin.tie(0);
+  cerr << PI << endl;
   cout << fixed << setprecision(15);
 #if defined(LOCAL)
   tst::test_init(argc, argv);

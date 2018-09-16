@@ -77,9 +77,7 @@ int main(int argc, char** argv) {
   // _solve_brute = solve_brute;
   // _player_b = player_b;
   // _custom_solution_checker = solution_checker;
-  // TODO: infer binary name from args instead of problem name
-  F(i, 0, argc) cerr << "arg " << i << ' ' << argv[i] << endl;
-  maybe_run_tests(cin, cout);
+  tst::maybe_run_tests(cin, cout);
 #else
   solve(cin, cout);
 #endif

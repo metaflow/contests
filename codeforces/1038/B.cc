@@ -87,7 +87,6 @@ l gcd(l a, l b) {
   return a;
 }
 
-// TODO: update snippet
 l lcm(l a, l b) { return a / (gcd(a, b)) * b; }
 
 void solve(istream& in, ostream& out) {

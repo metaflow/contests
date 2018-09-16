@@ -9,8 +9,19 @@ const double _max_double_error = 1e-9;
 #define L(x, ...) (x)
 #define I(x, ...) (x)
 #define C(x, ...) ;
-#include <bits/stdc++.h>
 #endif
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <math.h>
+#include <limits>
+#include <numeric>
+#include <queue>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -22,7 +33,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = acos(-1);
+const double EPS = 1e-10;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -110,12 +121,11 @@ vvl combinations(l n, l mod) {
   return c;
 }
 
-// TODO: define MOD
 // l on the ring of MOD, put l arg to the right: lm = lm + l
 struct lm {
   l raw;
   lm(): raw(0) {}
-  lm(l x): raw(x) {}
+  explicit lm(l x): raw(x) {}
   lm(lm const& x): raw(x.raw) {}
   lm(lm&& x) { swap(*this, x); }
   friend void swap(lm& a, lm& b) { swap(a.raw, b.raw); }
@@ -129,10 +139,18 @@ struct lm {
   lm operator * (const lm x) { lm z(*this); z *= x; return z; }
   void operator /= (const lm x) { raw = cong(raw * inverse_mod(x.raw, MOD), MOD); }
   lm operator / (const lm x) { lm z(*this); z /= x; return z; }
+  lm pow(l exp) const {
+    lm r(1);
+    lm base(*this);
+    while (exp) {
+      if (exp % 2) r *= base;
+      base *= base;
+      exp /= 2;
+    }
+    return r;
+  }
 };
 using vlm = vector<lm>;
-
-
 
 void solve(istream& cin, ostream& cout) {
   l ha, hl, ba, bl; cin >> ha >> hl >> ba >> bl;

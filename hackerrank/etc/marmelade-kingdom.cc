@@ -35,7 +35,7 @@ const l INF = numeric_limits<l>::max();
 const double EPS = 1e-10; static constexpr auto PI = 3.1415926;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
-using sl = unordered_set<l>; // TODO(template);
+using sl = unordered_set<l>;
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)

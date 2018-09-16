@@ -16,7 +16,7 @@ const double _max_double_error = 1e-9;
 #include <map>
 #include <unordered_map>
 #include <math.h>
-#include <queue> // TODO: update template
+#include <queue>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -38,7 +38,6 @@ const char lf = '\n';
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 const l MOD = e9 + 7;
-// TODO: what with "readlink" on mac?
 void solve(istream& in, ostream& out) {
   l tcc; in >> tcc;
   F(tc, 1, tcc + 1) {
@@ -86,7 +85,7 @@ int main() {
   // _solve_brute = solve_brute;
   // _player_b = player_b;
   // _custom_solution_checker = solution_checker;
-  maybe_run_tests(cin, cout);
+  tst::maybe_run_tests(cin, cout);
 #else
   solve(cin, cout);
 #endif

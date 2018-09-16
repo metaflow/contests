@@ -32,7 +32,7 @@ using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = 3.1415926; // TODO: update template
+const double EPS = 1e-10; static constexpr auto PI = 3.1415926;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)

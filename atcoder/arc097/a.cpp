@@ -1,5 +1,4 @@
 #if defined(LOCAL)
-#define PROBLEM_NAME "a"
 const double _max_double_error = 1e-9;
 #include "testutils.h"
 #define L(x...) (debug(x, #x))
@@ -9,26 +8,56 @@ const double _max_double_error = 1e-9;
 #define L(x, ...) (x)
 #define I(x, ...) (x)
 #define C(x, ...) ;
-#include <bits/stdc++.h>
 #endif
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <math.h>
+#include <limits>
+#include <numeric>
+#include <queue>
+#include <memory>
 
 using namespace std;
-using vi = vector<int>; using vvi = vector<vi>;
-using ii = pair<int,int>; using vii = vector<ii>;
-using l = long long; using vl = vector<l>; using vvl = vector<vl>;
+using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
+using ii = pair<int,int>; using lu = unsigned long long; using l = long long;
+using vs = vector<string>; using vii = vector<ii>;
+using vl = vector<l>; using vvl = vector<vl>; using vvvl = vector<vvl>;
 using ll = pair<l,l>; using vll = vector<ll>; using vvll = vector<vll>;
-using lu = unsigned long long;
 using vb = vector<bool>; using vvb = vector<vb>;
 using vd = vector<double>; using vvd = vector<vd>;
-using mll = unordered_map<l, l>;
+using mll = unordered_map<l, l>; using sl = unordered_set<l>;
 const l INF = numeric_limits<l>::max();
-const double EPS = 1e-10; static constexpr auto PI = acos(-1);
+const double EPS = 1e-10; const double PI = M_PI;
 const l e0=1, e3=1000, e5=100000, e6=10*e5, e7=10*e6, e8=10*e7, e9=10*e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a,b,c) for (l a = l(b); a < l(c); a++)
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
+#define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
+#define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
+void solve(istream& in, ostream& out);
+int main(int argc, char **argv) {
+  ios_base::sync_with_stdio(false); cin.tie(0);
+  cout << fixed << setprecision(15);
+#if defined(LOCAL)
+  tst::test_init(argc, argv);
+  // _generate_random_test = generate_random;
+  // _solve_brute = solve_brute;
+  // _player_b = player_b;
+  // _custom_solution_checker = solution_checker;
+  tst::maybe_run_tests(cin, cout);
+#else
+  solve(cin, cout);
+#endif
+}
+const l MOD = e9 + 7; // end of template
 struct node;
 using pnode = shared_ptr<node>;
 string ans;
@@ -61,9 +90,9 @@ vl stovl(string const& s) {
   return v;
 }
 
-void sort_suffix_array(vl& sa, vl& rank, l k) {
+oid sort_suffix_array(vl& sa, vl& rank, l k) {
   l n = sa.size();
-  vl counts(max(n, (l)300));
+  vl counts(max(n + 1, (l)300));
   F(i, 0, n) {
     l p = 0;
     if (i + k < n) p = rank[i + k];
@@ -97,7 +126,7 @@ vl build_suffix_array(string const& s) {
     sort_suffix_array(sa, rank, k);
     sort_suffix_array(sa, rank, 0);
     vl updated_rank(rank.size());
-    l r = 0;
+    l r = 1;
     updated_rank[sa[0]] = r;
     F(i, 1, n) {
       if (rank[sa[i]] != rank[sa[i - 1]] ||
@@ -127,12 +156,10 @@ vl build_lcp(string &s, vl &sa) {
   return lcp;
 }
 
-void solve(istream& cin, ostream& cout) {
-  string s; cin >> s;
+void solve(istream& in, ostream& out) {
+  string s; in >> s;
   l n = s.size();
-  // TODO: make SA builder treat last char as lowest
-  s += "@";
-  l k; cin >> k;
+  l k; in >> k;
   auto sa = build_suffix_array(s);
   auto lcp = build_lcp(s, sa);
   F(i, 0, sa.size()) {
@@ -140,23 +167,9 @@ void solve(istream& cin, ostream& cout) {
     l x = max(l(0), n - p - lcp[i]);
     if (I(x, k) >= k) {
       I("out", p, lcp[i] + k - 1);
-      cout << s.substr(p, lcp[i] + k) << lf;
+      out << s.substr(p, lcp[i] + k) << lf;
       break;
     }
     k -= x;
   }
-}
-
-int main() {
-  ios_base::sync_with_stdio(false); cin.tie(0);
-  cout << fixed << setprecision(15);
-#if defined(LOCAL)
-  // _generate_random_test = generate_random;
-  // _solve_brute = solve_brute;
-  // _player_b = player_b;
-  // _custom_solution_checker = solution_checker;
-  maybe_run_tests(cin, cout);
-#else
-  solve(cin, cout);
-#endif
 }

@@ -134,10 +134,10 @@ struct lm {
   lm operator * (const lm x) { lm z(*this); z *= x; return z; }
   void operator /= (const lm x) { raw = cong(raw * inverse_mod(x.raw, MOD), MOD); }
   lm operator / (const lm x) { lm z(*this); z /= x; return z; }
+  void operator ++ () { raw = cong(raw + 1, MOD); }
+  void operator -- () { raw = cong(raw - 1, MOD); }
 };
 using vlm = vector<lm>;
-// TODO: add to template
-// TODO: add ++ --
 ostream& operator << (ostream& s, const lm& p) {
   return s << p.raw;
 }
@@ -146,7 +146,7 @@ void solve(istream& in, ostream& out) {
   l n; in >> n;
   vl d(10);
   F(i, 0, n) {
-    l x; in >> x; d[x] += 1;
+    l x; in >> x; d[x]++;
   }
   vlm f(n + 1, 1);
   F(i, 1, n + 1) f[i] = f[i - 1] * i;
@@ -177,15 +177,16 @@ void solve(istream& in, ostream& out) {
   out << z.raw << lf;
 }
 
-int main() {
+int main(int argc, char **argv) {
   ios_base::sync_with_stdio(false); cin.tie(0);
   cout << fixed << setprecision(15);
 #if defined(LOCAL)
+  tst::test_init(argc, argv);
   // _generate_random_test = generate_random;
   // _solve_brute = solve_brute;
   // _player_b = player_b;
   // _custom_solution_checker = solution_checker;
-  maybe_run_tests(cin, cout);
+  tst::maybe_run_tests(cin, cout);
 #else
   solve(cin, cout);
 #endif

@@ -60,7 +60,6 @@ double binary_search_lower_double(double a, double b, function<bool(double)> f) 
   return a;
 }
 
-// TODO: make problem parsers cross platform
 void solve(istream& cin, ostream& cout) {
   l n; cin >> n;
   vl v(n);

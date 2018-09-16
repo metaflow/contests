@@ -18,15 +18,17 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
 
-void solve(istream& in, ostream& out);
-function<void(istream& hidden_state, ostream& log,
-              istream& solution_out, ostream& solution_in)> _player_b;
-function<bool(long long /* size */, ostream& /* out */)> _generate_random_test;
-function<void(std::istream& /* in */, std::ostream& /* out */)> _solve_brute;
-function<bool(istream& /* input */,
-              istream& /* expected */,
-              istream& /* actual */,
-              ostream& /* log */)> _custom_solution_checker;
+void solve(std::istream& in, std::ostream& out);
+std::function<void(std::istream& hidden_state,
+                   std::ostream& log,
+                   std::istream& solution_out,
+                   std::ostream& solution_in)> _player_b;
+std::function<bool(long long /* size */, std::ostream& /* out */)> _generate_random_test;
+std::function<void(std::istream& /* in */, std::ostream& /* out */)> _solve_brute;
+std::function<bool(std::istream& /* input */,
+                   std::istream& /* expected */,
+                   std::istream& /* actual */,
+                   std::ostream& /* log */)> _custom_solution_checker;
 namespace tst {
 using namespace std;
 
@@ -264,7 +266,7 @@ void _write_last_input(string s) {
   string name = test_problem_name;
   name += ".testinfo";
   if (s.empty()) {
-    remove(test_problem_name.c_str());
+    remove(name.c_str());
   } else {
     ofstream f(name);
     f << s;
