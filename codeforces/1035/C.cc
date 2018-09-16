@@ -20,7 +20,6 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <limits>
 #include <numeric>
-#include <queue>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -44,7 +43,20 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  string s; in >> s;
+  l n = s.size();
+  l z = 1;
+  l r = 0;
+  F(i, 0, 2 * n) {
+    l j = i % n;
+    l k = (i + n - 1) % n;
+    if (s[j] != s[k]) {
+      z = max(z, ++r);
+    } else {
+      r = 1;
+    }
+  }
+  out << min(n, z) << lf;
 }
 
 int main(int argc, char **argv) {

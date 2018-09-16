@@ -20,7 +20,6 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <limits>
 #include <numeric>
-#include <queue>
 
 using namespace std;
 using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
@@ -44,7 +43,12 @@ const char lf = '\n';
 const l MOD = e9 + 7; // end of template
 
 void solve(istream& in, ostream& out) {
-
+  l n; in >> n; string s; in >> s;
+  vl c(26);
+  F(i, 0, n) c[s[i] - 'a']++;
+  l m = 0;
+  for (auto x : c) m = max(m, x);
+  out << ((m > 1 || n == 1) ? "Yes" : "No") << lf;
 }
 
 int main(int argc, char **argv) {
