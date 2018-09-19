@@ -27,7 +27,7 @@ using ii = pair<int,int>; using lu = unsigned long long; using l = long long;
 using vs = vector<string>; using vii = vector<ii>;
 using vl = vector<l>; using vvl = vector<vl>; using vvvl = vector<vvl>;
 using ll = pair<l,l>; using vll = vector<ll>; using vvll = vector<vll>;
-using vb = vector<bool>; using vvb = vector<vb>;
+using vb = vector<bool>; using vvb = vector<vb>; using vvvb = vector<vvb>;
 using vd = vector<double>; using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 const l INF = numeric_limits<l>::max();
@@ -42,81 +42,180 @@ const char lf = '\n';
 
 const l MOD = e9 + 7; // end of template
 
-const l MAX_PRIME = 50000;
-// returns v[i] = smallest prime divisor of i or 1
-vl sieve_primes(vl& primes) {
-  vl next_div(MAX_PRIME, 1);
-  for (l i = 2; i < MAX_PRIME; i++) {
-    if (next_div[i] != 1) continue;
-    primes.emplace_back(i);
-    for (l j = i; j < MAX_PRIME; j += i) if (next_div[j] == 1) next_div[j] = i;
-  }
-  return next_div;
+l gcd(l a, l b) {
+  while (b) { a %= b; swap(a, b); }
+  return a;
 }
 
-bool is_prime(l n, vl const& primes) {
-  auto p = primes.begin();
-  while (p != primes.end() and ((*p) * (*p)) <= n) {
-    if (n % *p == 0) return n == *p;
-    p++;
-  }
-  return true;
+l lcm(l a, l b) { return a / (gcd(a, b)) * b; }
+
+l sign(l n) {
+  if (n < 0) return -1;
+  if (n == 0) return 0;
+  return 1;
 }
 
-// in asc order
-vl factorize_to_primes(l n, vl& primes, vl& next_div) {
-  auto p = primes.begin();
-  vl result;
-  while (n >= MAX_PRIME and p != primes.end()) {
-    while (n % *p == 0) { result.emplace_back(*p); n /= *p; }
-    p++;
-  }
-  if (n >= MAX_PRIME) {
-    result.emplace_back(n);
-    n = 1;
-  }
-  while (n != 1) {
-    result.emplace_back(next_div[n]);
-    n /= next_div[n];
-  }
-  return result;
+// conruent modulo, works for negative
+l cong(l x, l mod) {
+  return (x % mod + mod) % mod;
 }
 
-bool dfs(l a, l b, vector<vector<unordered_set<l>>>& m, vvb& visited) {
-  if (!visited[a][b]) {
-    visited[a][b] = true;
-    F(j, a, b + 1) {
-      bool ok = false;
-      for (auto x : m[j][j]) {
-        if (a <= j - 1) {
-          if (!dfs(a, j - 1, m, visited)) break;
-          if (!m[a][j - 1].count(x)) continue;
-        }
-        if (j + 1 <= b) {
-          if (!dfs(j + 1, b, m, visited)) break;
-          if (!m[j + 1][b].count(x)) continue;
-        }
-        for (auto y : m[j][j]) m[a][b].emplace(y);
-        break;
+// (a * b) % mod, safe for l near max
+l mult_mod(l a, l b, l mod) {
+  l x = 0;
+  while (b) {
+    if (b % 2) x = (x + a) % mod;
+    a = (a * 2) % mod;
+    b /= 2;
+  }
+  return x;
+}
+
+// (base^power) % mod, safe for l near max
+l pow_mod(l base, l power, l mod) {
+  l r = 1;
+  while (power) {
+    if (power % 2) r = mult_mod(r, base, mod);
+    base = mult_mod(base, base, mod);
+    power /= 2;
+  }
+  return r;
+}
+
+l divup(l a, l b) { // ceil div
+  return (a + b - 1) / b;
+}
+
+// return gcd(a, b) and set x, y: a * x + b * y = gcd(a, b)
+l extended_euclid(l a, l b, l& x, l& y) {
+  if (b == 0) { x = 1; y = 0; return a; }
+  l d = extended_euclid(b, a % b, x, y);
+  l t = y;
+  y = x - (a / b) * y;
+  x = t;
+  return d;
+}
+
+// return b: a * b = 1 (mod n)
+l inverse_mod(l a, l n) {
+  l x, y;
+  l d = extended_euclid(a, n, x, y);
+  if (d != 1) return 0;
+  return cong(x, n);
+}
+
+// single combintions k from n
+l nCr(l n, l k, l mod) {
+  l a = 1;
+  for (l i = n; i > n - k; i--) a = mult_mod(a, i, mod);
+  l b = 1;
+  F(i, 1, k + 1) b = mult_mod(b, i, mod);
+  b = inverse_mod(b, mod);
+  return mult_mod(a, b, mod);
+}
+
+// precompute all combinations up to (n n)
+vvl combinations(l n, l mod) {
+  vvl c(n + 1, vl(n + 1));
+  F(i, 0, n + 1) {
+    c[i][0] = 1;
+    F(j, 1, i + 1) {
+      c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % mod;
+    }
+  }
+  return c;
+}
+
+// l on the ring of MOD, put l arg to the right: lm = lm + l
+struct lm {
+  l raw;
+  lm(): raw(0) {}
+  lm(l x): raw(x) {}
+  lm(lm const& x): raw(x.raw) {}
+  lm(lm&& x) { swap(*this, x); }
+  friend void swap(lm& a, lm& b) { swap(a.raw, b.raw); }
+  lm& operator = (l x) { raw = x; return *this; }
+  lm& operator = (lm x) { swap(*this, x); return *this; }
+  void operator += (const lm x) { raw = cong(raw + x.raw, MOD); }
+  lm operator + (const lm x) { lm z(*this); z += x; return z; }
+  void operator -= (const lm x) { raw = cong(raw - x.raw, MOD); }
+  lm operator - (const lm x) { lm z(*this); z -= x; return z; }
+  void operator *= (const lm x) { raw = cong(raw * x.raw, MOD); }
+  lm operator * (const lm x) { lm z(*this); z *= x; return z; }
+  void operator /= (const lm x) { raw = cong(raw * inverse_mod(x.raw, MOD), MOD); }
+  lm operator / (const lm x) { lm z(*this); z /= x; return z; }
+  lm pow(l exp) const {
+    lm r(1);
+    lm base(*this);
+    while (exp) {
+      if (exp % 2) r *= base;
+      base *= base;
+      exp /= 2;
+    }
+    return r;
+  }
+};
+using vlm = vector<lm>;
+l n;
+
+void dfs(l k, l i, l d, vvvl& state, vvl& g, vvl& h);
+l dd(l k, l i, l d, vvvl& state, vvl& g, vvl& h) {
+  if (state[k][i][d] == -1) dfs(k, i, d, state, g, h);
+  return state[k][i][d];
+}
+
+void dfs(l k, l i, l d, vvvl& state, vvl& g, vvl& h) {
+  l& z = state[k][i][d];
+  z = 0;
+  if (d == 0) {
+    // right
+    for (auto p : g[i]) {
+      if (p > i + k) break;
+      if (dd(k + i - p, p, 0, state, g, h) == 1 and
+          dd(p - i - 1, p, 1, state, g, h) == 1) {
+        z = 1;
+        return;
+      }
+    }
+  } else {
+    // left
+    for (auto p : h[i]) {
+      if (p < i - k) break;
+      if (dd(i - p - 1, p, 0, state, g, h) == 1 and
+          dd(k - i + p, p, 1, state, g, h) == 1) {
+        z = 1;
+        return;
       }
     }
   }
-  return !m[a][b].empty();
 }
 
 void solve(istream& in, ostream& out) {
-  vl primes;
-  auto next_div = sieve_primes(primes);
-  l n; in >> n;
+  in >> n;
   vl v(n); F(i, 0, n) in >> v[i];
-  vector<vector<unordered_set<l>>> m(n, vector<unordered_set<l>>(n));
-  vvb visited(n, vb(n));
-  F(i, 0, n) {
-    auto f = factorize_to_primes(v[i], primes, next_div);
-    for (auto x : f) m[i][i].emplace(x);
-    visited[i][i] = true;
+  vvl g(n), h(n); // to right / left
+  F(i, 0, n) F(j, i + 1, n) {
+    if (gcd(v[i], v[j]) < 2) continue;
+    g[i].emplace_back(j);
+    h[j].emplace_back(i);
   }
-  out << (dfs(0, n - 1, m, visited) ? "Yes" : "No") << lf;
+  F(i, 0, n) reverse(all(I(h[i])));
+  F(i, 0, n) {
+    if (g[i].empty() and h[i].empty()) {
+      out << "No" << lf;
+      return;
+    }
+  }
+  vvvl state(n, vvl(n, vl(2, -1))); // [width - 1][pos][direction]
+  F(i, 0, n) state[0][i][0] = state[0][i][1] = 1;
+  F(i, 0, n) {
+    if (dd(i, i, 1, state, g, h) == 1 and
+        dd(n - i - 1, i, 0, state, g, h) == 1) {
+      out << "Yes" << lf;
+      return;
+    }
+  }
+  out << "No" << lf;
 }
 
 int main(int argc, char **argv) {

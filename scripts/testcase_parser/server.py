@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import urllib
+import time
 import urllib.request
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -61,6 +62,7 @@ def run():
     try:
         # kill another instance
         urllib.request.urlopen("http://localhost:4243/exit").read()
+        time.sleep(5)
     except:
         pass
     print('starting server...')
