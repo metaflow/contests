@@ -65,7 +65,7 @@ void solve(istream& in, ostream& out) {
   bool ok = true;
   F(i, 0, s.size()) {
     l a = s[i] - 'a', b = t[i] - 'a';
-    ok = (outgoing[a] == -1 or outgoing[a] == b) and
+    ok = ok and (outgoing[a] == -1 or outgoing[a] == b) and
       (incoming[b] == -1 or incoming[b] == a);
     outgoing[a] = b;
     incoming[b] = a;
