@@ -75,5 +75,39 @@ int main(int argc, char **argv) {
 const l MOD = e9 + 7; // end of template
 
 void solve(istream &in, ostream &out) {
-  in;
+  l n;
+  in >> n;
+  mll a, b;
+  F(i, 0, n / 2) {
+    l x, y;
+    in >> x >> y;
+    a[x]++;
+    b[y]++;
+  }
+  auto f = [&](mll &m) {
+    l x, y, v;
+    x = y = v = 0;
+    for (auto kv : m) {
+      if (kv.second > x) {
+        swap(x, y);
+        x = kv.second;
+        v = kv.first;
+        continue;
+      }
+      if (kv.second > y) {
+        y = kv.second;
+      }
+    }
+    return make_tuple(x, y, v);
+  };
+  l a1, a2, b1, b2, x, y;
+  tie(a1, a2, x) = f(a);
+  tie(b1, b2, y) = f(b);
+  if (x == y) {
+    if (a1 + b2 > a2 + b1)
+      swap(b1, b2);
+    else
+      swap(a1, a2);
+  }
+  out << n - a1 - b1 << lf;
 }
