@@ -195,7 +195,6 @@ struct lm {
   lm operator / (const lm x) { lm z(*this); z /= x; return z; }
 };
 using vlm = vector<lm>;
-// TODO: stream output of lm
 
 void solve(istream& in, ostream& out) {
   l n, m; in >> n >> m;
@@ -216,5 +215,5 @@ void solve(istream& in, ostream& out) {
     prev = i;
   }
   z *= nCr(n + k - 1, k, MOD);
-  out << z.raw << lf;
+  out << z << lf;
 }

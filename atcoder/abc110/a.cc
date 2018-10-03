@@ -41,7 +41,6 @@ const char lf = '\n';
 #define B(a,b,c) for (l a = l(c) - 1; a >= l(b); a--)
 #define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
-// TODO: fix parsing for atcoder beta https://beta.atcoder.jp/contests/abc110/tasks/abc110_a
 void solve(istream& in, ostream& out);
 int main(int argc, char **argv) {
   ios_base::sync_with_stdio(false); cin.tie(0);

@@ -11,6 +11,7 @@ import urllib.request
 script_dir = os.path.dirname(os.path.realpath(__file__))
 parsers = [
     ['python3', '%script_dir%/codeforces.py', '%url%', '%info%'],
+    ['python3', '%script_dir%/beta.atcoder.py', '%url%', '%info%'],
     ['python3', '%script_dir%/atcoder.py', '%url%', '%info%'],
     ['python3', '%script_dir%/csacademy.py', '%url%', '%info%'],
     ['python3', '%script_dir%/codechef.py', '%url%', '%info%'],
