@@ -43,7 +43,6 @@ using sl = unordered_set<l>;
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 const l MOD = e9 + 7; // end of template
-
 struct Edge {
   l to;
   l from;
@@ -93,74 +92,140 @@ struct Graph {
   // adj[b].emplace_back(ba);
   // }
 };
-
-
-
-void solve(istream& in, ostream& out) {
-  l n, k; in >> n >> k;
-  string s; in >> s;
-  Graph g(n);
-  Graph Q(n);
-  F(i, 0, k) {
-    l a, b; in >> a >> b; a--; b--;
-    g.add_directed(a, b);
-    Q.add_directed(b, a);
+struct LCA {  // require 'graph'
+  vvl up; // binary lift [i][j] jump of 2^i from j
+  vvl hash;
+  vl depth; // depth[root] = 0
+  LCA(Graph& g) {
+    depth.resize(g.v);
+    l k = 0;
+    while ((1 << k) <= g.v) k++;
+    up.resize(k, vl(g.v, -1));
+    hash.resize(k, vl(g.v, -1));
   }
-  l source, sink; in >> source >> sink; source--; sink--;
-  vb visited(Q.v);
-  queue<l> q;
-  q.emplace(sink);
-  visited[sink] = true;
-  while (not q.empty()) {
-    l a = q.front(); q.pop();
-    for (auto e : Q.adj[a]) {
-      if (visited[e.to]) continue;
-      visited[e.to] = true;
-      q.emplace(e.to);
+
+  void build_up(l a) {
+    F(i, 1, up.size()) {
+      l t = up[i - 1][up[i - 1][a]];
+      if (t == -1) break;
+      up[i][a] = t;
     }
   }
-  if (!visited[source]) {
+
+  l walk(l a, l d) {  // walks up d levels
+    l k = 0;
+    while (d > 0) {
+      if (d % 2) a = up[k][a];
+      d /= 2;
+      k++;
+    }
+    return a;
+  }
+
+  l lca(l a, l b) {
+    if (depth[a] < depth[b]) swap(a, b);
+    a = walk(a, depth[a] - depth[b]);
+    if (a == b) return a;
+    B(i, 0, up.size()) {
+      if (up[i][a] != up[i][b]) {
+        a = up[i][a];
+        b = up[i][b];
+      }
+    }
+    a = up[0][a];
+    return a;
+  }
+};
+
+void solve(istream& in, ostream& out) {
+  l n, m; in >> n >> m;
+  Graph g(n), r(n);
+  LCA lca(g);
+  string s;
+  in >> s;
+  F(i, 0, m) {
+    l a, b; in >> a >> b; a--; b--;
+    g.add_directed(a, b);
+    r.add_directed(b, a);
+  }
+  l source, sink; in >> source >> sink; source--; sink--;
+  vb visited(g.v);
+  {
+   queue<l> q;
+   q.emplace(sink);
+   visited[sink] = true;
+   while (not q.empty()) {
+     l a = q.front(); q.pop();
+     for (auto e : r.adj[a]) {
+       if (visited[e.to]) continue;
+       visited[e.to] = true;
+       q.emplace(e.to);
+     }
+   }
+  }
+  I(visited);
+  if (not visited[source]) {
     out << "No way" << lf;
     return;
   }
+  vl count(n);
   F(i, 0, n) {
-    l t = INF;
-    vl best;
+    lca.hash[0][i] = s[i] - 'a' + 1;
     for (auto e : g.adj[i]) {
-      if (!visited[e.to]) continue;
-      l x = s[e.to] - 'a';
-      if (x > t) continue;
-      if (x < t) best.clear();
-      t = x;
-      best.emplace_back(e.to);
+      if (visited[e.to]) count[i]++;
     }
-    g.adj[i].clear();
-    for (auto x : best) g.add_directed(i, x);
   }
-  string z;
-  sl from; from.emplace(source);
-  while (!from.empty()) {
-    for (auto x : from) {
-      z += s[x];
-      break;
-    }
-    char best = 'z';
-    sl next;
-    for (auto x : from) {
-      if (x == sink) {
-        out << z << lf;
-        return;
+  I(count);
+  Graph z(n);
+  {
+    queue<l> q;
+    q.emplace(sink);
+    while (not q.empty()) {
+      l a = q.front(); q.pop();
+      I(a);
+      l best = -1;
+      for (auto e : g.adj[a]) {
+        if (not visited[e.to]) continue;
+        if (best == -1) {
+          best = e.to;
+          continue;
+        }
+        l u = e.to, w = best;
+        B(k, 0, lca.up.size()) {
+          if (lca.up[k][u] == -1) continue;
+          if (lca.hash[k][u] == lca.hash[k][w]) {
+            u = lca.up[k][u];
+            w = lca.up[k][w];
+          }
+        }
+        if (s[u] < s[w]) best = e.to;
       }
-      for (auto e : g.adj[x]) {
-        auto c = s[e.to];
-        if (c > best) break;
-        if (c < best) next.clear();
-        best = c;
-        next.emplace(e.to);
+      I(best);
+      if (best != -1) {
+        z.add_directed(a, best);
+        lca.up[0][a] = best;
+        F(k, 1, lca.up.size()) {
+          l t = lca.up[k - 1][lca.up[k - 1][a]];
+          l h = lca.hash[k - 1][lca.up[k - 1][a]];
+          if (t == -1) break;
+          lca.up[k][a] = t;
+          lca.hash[k][a] = (h * 1000000 + lca.hash[k - 1][a]) % MOD;
+        }
+      }
+      for (auto e : r.adj[a]) {
+        if (not visited[e.to]) continue;
+        count[e.to]--;
+        if (count[e.to] == 0) q.emplace(e.to);
       }
     }
-    swap(next, from);
   }
+  l a = source;
+  while (true) {
+    out << s[a];
+    if (a == sink) break;
+    a = z.adj[a].back().to;
+  }
+  out << lf;
 }
 
 int main(int argc, char **argv) {
