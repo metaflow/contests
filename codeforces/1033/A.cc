@@ -46,7 +46,7 @@ using mll = unordered_map<l, l>;
 using sl = unordered_set<l>;
 const l INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
-const double PI = M_PI;
+// TODO: fix PI for codefoces g++.
 const l e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
         e8 = 10 * e7, e9 = 10 * e8;
 const char lf = '\n';
@@ -75,5 +75,9 @@ int main(int argc, char **argv) {
 const l MOD = e9 + 7; // end of template
 
 void solve(istream &in, ostream &out) {
-  l n; in >> n;
+  l n;
+  l ax, ay, bx, by, cx, cy;
+  in >> n >> ax >> ay >> bx >> by >> cx >> cy;
+  bool ok = ((bx < ax) == (cx < ax)) && ((by < ay) == (cy < ay));
+  out << (ok ? "YES" : "NO") << lf;
 }

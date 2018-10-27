@@ -75,5 +75,12 @@ int main(int argc, char **argv) {
 const l MOD = e9 + 7; // end of template
 
 void solve(istream &in, ostream &out) {
-  l n; in >> n;
+  l tcc; in >> tcc;
+  F(tc, 1, tcc + 1) {
+    l n, k; in >> n >> k; k--;
+    vl v(n); F(i, 0, n) in >> v[i];
+    sort(all(v), greater<l>());
+    while (k + 1 < n and v[k + 1] == v[k]) k++;
+    out << k + 1 << lf;
+  }
 }

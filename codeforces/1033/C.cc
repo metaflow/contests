@@ -46,7 +46,6 @@ using mll = unordered_map<l, l>;
 using sl = unordered_set<l>;
 const l INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
-const double PI = M_PI;
 const l e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
         e8 = 10 * e7, e9 = 10 * e8;
 const char lf = '\n';
@@ -76,4 +75,36 @@ const l MOD = e9 + 7; // end of template
 
 void solve(istream &in, ostream &out) {
   l n; in >> n;
+  vl v(n); F(i, 0, n) in >> v[i];
+  vl p(n + 1); F(i, 0, n) p[v[i]] = i;
+  vl z(n);
+  z[p[1]] = (n == 1) ? -1 : 1;
+  B(i, 2, n + 1) {
+    l x = p[i];
+    while (x - i >= 0) {
+      x -= i;
+      if (z[x] == -1) {
+        z[p[i]] = 1;
+        break;
+      }
+    }
+    if (z[p[i]] != 0) continue;
+    x = p[i];
+    while (x + i < n) {
+      x += i;
+      if (z[x] == -1) {
+        z[p[i]] = 1;
+        break;
+      }
+    }
+    if (z[p[i]] == 0) z[p[i]] = -1;
+  }
+  for (l x : z) {
+    if (x == 1) {
+      out << 'A';
+    } else {
+      out << 'B';
+    }
+  }
+  out << lf;
 }

@@ -75,5 +75,31 @@ int main(int argc, char **argv) {
 const l MOD = e9 + 7; // end of template
 
 void solve(istream &in, ostream &out) {
-  l n; in >> n;
+  l tcc;
+  in >> tcc;
+  F(tc, 1, tcc + 1) {
+    l n;
+    in >> n;
+    vl a(n), b(n);
+    F(i, 0, n) in >> a[i];
+    F(i, 0, n) in >> b[i];
+    bool ok = true;
+    F(i, 0, n - 2) {
+      l d = b[i] - a[i];
+      if (d < 0) {
+        ok = false;
+        break;
+      }
+      F(j, i + 1, i + 3) {
+        a[j] += (j - i + 1) * d;
+      }
+    }
+    F(i, n - 2, n) ok = ok and a[i] == b[i];
+    // TODO: fix parsing of codechef.
+    if (ok)
+      out << "TAK";
+    else
+      out << "NIE";
+    out << lf;
+  }
 }

@@ -9,12 +9,12 @@ const double _max_double_error = 1e-9;
 #define I(x, ...) (x)
 #define C(x, ...) ;
 #endif
+#include <math.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
-#include <math.h>
 #include <memory>
 #include <numeric>
 #include <queue>
@@ -44,10 +44,10 @@ using vd = vector<double>;
 using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 using sl = unordered_set<l>;
-const l INF = numeric_limits<l>::max();
+const l      INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
 const double PI = M_PI;
-const l e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
+const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
         e8 = 10 * e7, e9 = 10 * e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -57,7 +57,7 @@ const char lf = '\n';
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 void solve(istream &in, ostream &out);
-int main(int argc, char **argv) {
+int  main(int argc, char **argv) {
   ios_base::sync_with_stdio(false);
   cin.tie(0);
   cout << fixed << setprecision(15);
@@ -72,8 +72,43 @@ int main(int argc, char **argv) {
   solve(cin, cout);
 #endif
 }
-const l MOD = e9 + 7; // end of template
+const l MOD = e9 + 7;  // end of template
+
+l cost(const string &s) {
+  l z = 0;
+  l was = 0;
+  for (const char c : s) {
+    l d = -1;
+    switch (c) {
+    case 'j': case 'k': d = 1; break;
+    }
+    if (d == was) z += 2;
+    z += 2;
+    was = d;
+  }
+  return z;
+}
 
 void solve(istream &in, ostream &out) {
-  l n; in >> n;
+  l tcc;
+  in >> tcc;
+  F(tc, 0, tcc) {
+    l n;
+    in >> n;
+    unordered_map<string, l> ss;
+    l                        z(0);
+    F(i, 0, n) {
+      string s;
+      in >> s;
+      auto p = ss.find(s);
+      if (p == ss.end()) {
+        l t = cost(s);
+        ss[s] = t;
+        z += t;
+      } else {
+        z += p->second / 2;
+      }
+    }
+    out << z << lf;
+  }
 }

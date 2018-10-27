@@ -46,7 +46,6 @@ using mll = unordered_map<l, l>;
 using sl = unordered_set<l>;
 const l INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
-const double PI = M_PI;
 const l e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
         e8 = 10 * e7, e9 = 10 * e8;
 const char lf = '\n';
@@ -74,6 +73,56 @@ int main(int argc, char **argv) {
 }
 const l MOD = e9 + 7; // end of template
 
+const l MAX_PRIME = 500000;
+// returns v[i] = smallest prime divisor of i or 1
+vl sieve_primes(vl& primes) {
+  vl next_div(MAX_PRIME, 1);
+  for (l i = 2; i < MAX_PRIME; i++) {
+    if (next_div[i] != 1) continue;
+    primes.emplace_back(i);
+    for (l j = i; j < MAX_PRIME; j += i) if (next_div[j] == 1) next_div[j] = i;
+  }
+  return next_div;
+}
+
+bool is_prime(l n, vl const& primes) {
+  auto p = primes.begin();
+  while (p != primes.end() and ((*p) * (*p)) <= n) {
+    if (n % *p == 0) return n == *p;
+    p++;
+  }
+  return true;
+}
+
+// in asc order
+vl factorize_to_primes(l n, vl& primes, vl& next_div) {
+  auto p = primes.begin();
+  vl result;
+  while (n >= MAX_PRIME and p != primes.end()) {
+    while (n % *p == 0) { result.emplace_back(*p); n /= *p; }
+    p++;
+  }
+  if (n >= MAX_PRIME) {
+    result.emplace_back(n);
+    n = 1;
+  }
+  while (n != 1) {
+    result.emplace_back(next_div[n]);
+    n /= next_div[n];
+  }
+  return result;
+}
 void solve(istream &in, ostream &out) {
-  l n; in >> n;
+  l tcc;
+  in >> tcc;
+  vl primes;
+  auto next_div = sieve_primes(primes);
+  F(tc, 0, tcc) {
+    l a, b; in >> a >> b;
+    if ((a - b > 1) or not is_prime(a + b, primes)) {
+      out << "NO" << lf;
+    } else {
+      out << "YES" << lf;
+    }
+  }
 }

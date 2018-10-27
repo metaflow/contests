@@ -74,6 +74,90 @@ int main(int argc, char **argv) {
 }
 const l MOD = e9 + 7; // end of template
 
+struct dot {
+  l x, y;
+};
+
+void mark(l from, l to, l n, const vl &g, vb &pick) {
+  if (n == 0)
+    return;
+  if (n % 2) {
+    pick[from] = true;
+    mark(from + 1, to, (n - g[from]) / 2, g, pick);
+  } else {
+    mark(from + 1, to, n / 2, g, pick);
+  }
+}
+
 void solve(istream &in, ostream &out) {
-  l n; in >> n;
+  l n;
+  in >> n;
+  vector<dot> v(n);
+  F(i, 0, n) in >> v[i].x >> v[i].y;
+  vl s(n);
+  F(i, 0, n) s[i] = abs(v[i].x) + abs(v[i].y);
+  F(i, 0, n - 1) if ((s[i] + s[i + 1]) % 2) {
+    out << -1 << lf;
+    return;
+  }
+  vl d(31);
+  if (s[0] % 2 == 0) d.emplace_back(0);
+  d[0] = 1;
+  {
+    l t = 0;
+    F(i, 1 - s[0] % 2, d.size()) { d[i] = 1 << t++; }
+  }
+  const string directions = "RLUD";
+  out << d.size() << lf;
+  F(i, 0, d.size()) {
+    if (i)
+      out << ' ';
+    out << d[i];
+  }
+  out << lf;
+  F(i, 0, n) {
+    l p = 1;
+    vl g(d.size());
+    l r = s[i];
+    B(j, 0, d.size()) {
+      g[j] = p;
+      r = r - d[j];
+      if (r < 0) {
+        p = -p;
+        r = -r;
+      }
+    }
+    C(r == 0);
+    vb marky(d.size());
+    l y = abs(v[i].y);
+    if (s[i] % 2 == 0) {
+      if (y % 2) {
+        if (g[1] == -1) swap(g[0], g[1]);
+        mark(1, d.size(), y, g, marky);
+      } else {
+        mark(2, d.size(), y / 2, g, marky);
+      }
+    } else {
+      mark(0, d.size(), abs(v[i].y), g, marky);
+    }
+    l sx(0), sy(0);
+    F(j, 0, d.size()) {
+      if (marky[j]) {
+        l t = g[j];
+        if (v[i].y < 0)
+          t = -t;
+        out << ((t > 0) ? "U" : "D");
+        sy += d[j] * t;
+      } else {
+        l t = g[j];
+        if (v[i].x < 0)
+          t = -t;
+        out << ((t > 0) ? "R" : "L");
+        sx += d[j] * t;
+      }
+    }
+    out << lf;
+    C(sx == v[i].x);
+    C(sy == v[i].y);
+  }
 }
