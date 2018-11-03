@@ -74,56 +74,12 @@ int main(int argc, char **argv) {
 }
 const l MOD = e9 + 7; // end of template
 
-struct Edge {
-  l to;
-  l from;
-  l id;
-  // l opposite; // for flow, index in 'to'
-  // l capacity; // for flow
-  // l cost;
-};
-
-struct Graph {
-  l v, e; // number of vertices and edges
-  vector<vector<Edge>> adj;
-
-  Graph(l n): v(n), e(0) {
-    adj.resize(v);
-  }
-
-  l add_node() { adj.resize(++v); return v - 1; }
-
-  void add_simple(l a, l b) { // for tree-like
-    Edge ab; ab.to = b;
-    adj[a].emplace_back(ab);
-    e++;
-  }
-
-  void add_undirected(l a, l b) {
-    Edge ab; ab.id = e; ab.from = a; ab.to = b;
-    adj[a].emplace_back(ab);
-    Edge ba; ba.id = e; ba.from = b; ba.to = a;
-    adj[b].emplace_back(ba);
-    e++;
-  }
-
-  void add_directed(l a, l b) {
-    Edge ab; ab.id = e; ab.from = a; ab.to = b;
-    adj[a].emplace_back(ab);
-    e++;
-  }
-
-  //  void add_flow(l a, l b, l w, l cost) {
-  // Edge ab; ab.id = e; ab.from = a; ab.to = b; ab.capacity = w; ab.cost = cost;
-  // ab.opposite = adj[b].size();
-  // Edge ba; ba.id = e; ba.from = b; ba.to = a; ba.capacity = 0; ba.cost = 0;
-  // e++;
-  // ba.opposite = adj[a].size();
-  // adj[a].emplace_back(ab);
-  // adj[b].emplace_back(ba);
-  // }
-};
-
 void solve(istream &in, ostream &out) {
-  l n; in >> n;
+  l tcc; in >> tcc;
+  while (tcc--) {
+    l n, k; in >> n >> k;
+    vl v(n); F(i, 0, n) in >> v[i];
+    for (l x : v) if (x > 1) k--;
+    if (k >= 0) out << "YES" << lf; else out << "NO" << lf;
+  }
 }
