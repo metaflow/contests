@@ -9,12 +9,12 @@ const double _max_double_error = 1e-9;
 #define I(x, ...) (x)
 #define C(x, ...) ;
 #endif
+#include <math.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
-#include <math.h>
 #include <memory>
 #include <numeric>
 #include <queue>
@@ -44,9 +44,9 @@ using vd = vector<double>;
 using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 using sl = unordered_set<l>;
-const l INF = numeric_limits<l>::max();
+const l      INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
-const l e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
+const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
         e8 = 10 * e7, e9 = 10 * e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -56,7 +56,7 @@ const char lf = '\n';
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 void solve(istream &in, ostream &out);
-int main(int argc, char **argv) {
+int  main(int argc, char **argv) {
   ios_base::sync_with_stdio(false);
   cin.tie(0);
   cout << fixed << setprecision(15);
@@ -71,19 +71,17 @@ int main(int argc, char **argv) {
   solve(cin, cout);
 #endif
 }
-const l MOD = 998244353; // end of template
+const l MOD = 998244353;  // end of template
 
 const l MAX_PRIME = 1259923;
 // returns v[i] = smallest prime divisor of i or 1
 vl sieve_primes(vl &primes) {
   vl next_div(MAX_PRIME, 1);
   for (l i = 2; i < MAX_PRIME; i++) {
-    if (next_div[i] != 1)
-      continue;
+    if (next_div[i] != 1) continue;
     primes.emplace_back(i);
     for (l j = i; j < MAX_PRIME; j += i)
-      if (next_div[j] == 1)
-        next_div[j] = i;
+      if (next_div[j] == 1) next_div[j] = i;
   }
   return next_div;
 }
@@ -91,8 +89,7 @@ vl sieve_primes(vl &primes) {
 bool is_prime(l n, vl const &primes) {
   auto p = primes.begin();
   while (p != primes.end() and ((*p) * (*p)) <= n) {
-    if (n % *p == 0)
-      return n == *p;
+    if (n % *p == 0) return n == *p;
     p++;
   }
   return true;
@@ -101,7 +98,7 @@ bool is_prime(l n, vl const &primes) {
 // in asc order
 vl factorize_to_primes(l n, vl &primes, vl &next_div) {
   auto p = primes.begin();
-  vl result;
+  vl   result;
   while (n >= MAX_PRIME and p != primes.end()) {
     while (n % *p == 0) {
       result.emplace_back(*p);
@@ -130,10 +127,8 @@ l gcd(l a, l b) {
 l lcm(l a, l b) { return a / (gcd(a, b)) * b; }
 
 l sign(l n) {
-  if (n < 0)
-    return -1;
-  if (n == 0)
-    return 0;
+  if (n < 0) return -1;
+  if (n == 0) return 0;
   return 1;
 }
 
@@ -144,8 +139,7 @@ l cong(l x, l mod) { return (x % mod + mod) % mod; }
 l mult_mod(l a, l b, l mod) {
   l x = 0;
   while (b) {
-    if (b % 2)
-      x = (x + a) % mod;
+    if (b % 2) x = (x + a) % mod;
     a = (a * 2) % mod;
     b /= 2;
   }
@@ -156,15 +150,14 @@ l mult_mod(l a, l b, l mod) {
 l pow_mod(l base, l power, l mod) {
   l r = 1;
   while (power) {
-    if (power % 2)
-      r = mult_mod(r, base, mod);
+    if (power % 2) r = mult_mod(r, base, mod);
     base = mult_mod(base, base, mod);
     power /= 2;
   }
   return r;
 }
 
-l divup(l a, l b) { // ceil div
+l divup(l a, l b) {  // ceil div
   return (a + b - 1) / b;
 }
 
@@ -186,16 +179,14 @@ l extended_euclid(l a, l b, l &x, l &y) {
 l inverse_mod(l a, l n) {
   l x, y;
   l d = extended_euclid(a, n, x, y);
-  if (d != 1)
-    return 0;
+  if (d != 1) return 0;
   return cong(x, n);
 }
 
 // single combintions k from n
 l nCr(l n, l k, l mod) {
   l a = 1;
-  for (l i = n; i > n - k; i--)
-    a = mult_mod(a, i, mod);
+  for (l i = n; i > n - k; i--) a = mult_mod(a, i, mod);
   l b = 1;
   F(i, 1, k + 1) b = mult_mod(b, i, mod);
   b = inverse_mod(b, mod);
@@ -220,7 +211,7 @@ struct lm {
   lm(lm const &x) : raw(x.raw) {}
   lm(lm &&x) { swap(*this, x); }
   friend void swap(lm &a, lm &b) { swap(a.raw, b.raw); }
-  lm &operator=(l x) {
+  lm &        operator=(l x) {
     raw = x;
     return *this;
   }
@@ -229,19 +220,19 @@ struct lm {
     return *this;
   }
   void operator+=(const lm x) { raw = cong(raw + x.raw, MOD); }
-  lm operator+(const lm x) {
+  lm   operator+(const lm x) {
     lm z(*this);
     z += x;
     return z;
   }
   void operator-=(const lm x) { raw = cong(raw - x.raw, MOD); }
-  lm operator-(const lm x) {
+  lm   operator-(const lm x) {
     lm z(*this);
     z -= x;
     return z;
   }
   void operator*=(const lm x) { raw = cong(raw * x.raw, MOD); }
-  lm operator*(const lm x) {
+  lm   operator*(const lm x) {
     lm z(*this);
     z *= x;
     return z;
@@ -251,7 +242,7 @@ struct lm {
   }
   void operator++() { raw = cong(raw + 1, MOD); }
   void operator--() { raw = cong(raw - 1, MOD); }
-  lm operator/(const lm x) {
+  lm   operator/(const lm x) {
     lm z(*this);
     z /= x;
     return z;
@@ -282,8 +273,7 @@ double binary_search_lower_double(double a, double b,
   while (diff > EPS) {
     diff /= 2;
     double m = a + diff;
-    if (!f(m))
-      a = m;
+    if (!f(m)) a = m;
   }
   return a;
 }
@@ -292,11 +282,10 @@ void solve(istream &in, ostream &out) {
   l n;
   in >> n;
   mll counts;
-  vl trees;
+  vl  trees;
   F(i, 0, n) {
     l x;
     in >> x;
-    // TODO: clang-format options
     l t =
         binary_search_lower(1, 37606, [&](l a) { return a * a * a * a >= x; });
     if (t * t * t * t == x) {
@@ -317,8 +306,7 @@ void solve(istream &in, ostream &out) {
   }
   F(i, 0, trees.size()) {
     F(j, i + 1, trees.size()) {
-      if (trees[i] == trees[j])
-        continue;
+      if (trees[i] == trees[j]) continue;
       l g = gcd(trees[i], trees[j]);
       if (g > 1) {
         counts[g] += 0;
@@ -345,8 +333,7 @@ void solve(istream &in, ostream &out) {
     }
   }
   lm z = 1;
-  for (auto kv : counts)
-    z *= (1 + kv.second);
+  for (auto kv : counts) z *= (1 + kv.second);
   for (auto kv : unique) {
     z *= kv.second + 1;
     z *= kv.second + 1;

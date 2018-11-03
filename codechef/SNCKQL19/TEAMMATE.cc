@@ -217,7 +217,6 @@ struct lm {
       if (exp % 2)
         r *= base;
       base *= base;
-      // TODO: fix template
       exp /= 2;
     }
     return r;

@@ -95,7 +95,6 @@ void solve(istream &in, ostream &out) {
       }
     }
     F(i, n - 2, n) ok = ok and a[i] == b[i];
-    // TODO: fix parsing of codechef.
     if (ok)
       out << "TAK";
     else

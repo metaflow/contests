@@ -184,7 +184,6 @@ void solve(istream &in, ostream &out) {
     L(idx[p], idx[i]);
     d--;
   }
-  // TODO: use age as snippet bfs.
   vl age(g.v);
   queue<l> q;
   q.emplace(0);
