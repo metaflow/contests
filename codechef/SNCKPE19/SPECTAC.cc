@@ -79,6 +79,7 @@ l dfs(vvvl& dp, l a, l m, l k) {
   if (z != -1) return z;
   if (m == 0 and k == 0) return z = 1;
   if (a == n) return z = 0;
+
 }
 
 void solve(istream &in, ostream &out) {
