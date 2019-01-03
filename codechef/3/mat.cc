@@ -9,12 +9,12 @@ const double _max_double_error = 1e-9;
 #define I(x, ...) (x)
 #define C(x, ...) ;
 #endif
-#include <math.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
+#include <math.h>
 #include <memory>
 #include <numeric>
 #include <queue>
@@ -35,32 +35,30 @@ using vii = vector<ii>;
 using vl = vector<l>;
 using vvl = vector<vl>;
 using vvvl = vector<vvl>;
-using vvvvl = vector<vvl>;
 using ll = pair<l, l>;
 using vll = vector<ll>;
 using vvll = vector<vll>;
 using vb = vector<bool>;
 using vvb = vector<vb>;
-using vvvb = vector<vvb>; // TODO: update template
+using vvvb = vector<vvb>;
 using vd = vector<double>;
 using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 using sl = unordered_set<l>;
-const l      INF = numeric_limits<l>::max();
+const l INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
 const double PI = 3.14159265358979323846;
-const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
+const l e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
         e8 = 10 * e7, e9 = 10 * e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a, b, c) for (l a = l(b); a < l(c); a++)
 #define B(a, b, c) for (l a = l(c) - 1; a >= l(b); a--)
-// TODO: remove these macro
 #define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
-void solve(istream& in, ostream& out);
-int  main(int argc, char** argv) {
+void solve(istream &in, ostream &out);
+int main(int argc, char **argv) {
   ios_base::sync_with_stdio(false);
   cin.tie(0);
   cout << fixed << setprecision(15);
@@ -75,25 +73,10 @@ int  main(int argc, char** argv) {
   solve(cin, cout);
 #endif
 }
-const l MOD = e9 + 7;  // end of template
-const l MAX = 101;
-
-l dfs(l k, l sum, l p, vl& v, vvvl& dp) {
-  if (k == 0) return (sum == 0) ? 1 : 0;
-  if (p >= v.size()) return 0;
-  l& z = dp[k][sum][p];
-  if (z == -1) {
-    z = dfs(k, sum, p + 1, v, dp);
-    if (z == 0 and v[p] <= sum) z = dfs(k - 1, sum - v[p], p + 1, v, dp);
-  }
-  return z;
-}
+const l MOD = e9 + 7; // end of template
 
 l gcd(l a, l b) {
-  while (b) {
-    a %= b;
-    swap(a, b);
-  }
+  while (b) { a %= b; swap(a, b); }
   return a;
 }
 
@@ -106,7 +89,9 @@ l sign(l n) {
 }
 
 // conruent modulo, works for negative
-l cong(l x, l mod) { return (x % mod + mod) % mod; }
+l cong(l x, l mod) {
+  return (x % mod + mod) % mod;
+}
 
 // (a * b) % mod, safe for l near max
 l mult_mod(l a, l b, l mod) {
@@ -130,17 +115,13 @@ l pow_mod(l base, l power, l mod) {
   return r;
 }
 
-l divup(l a, l b) {  // ceil div
+l divup(l a, l b) { // ceil div
   return (a + b - 1) / b;
 }
 
 // return gcd(a, b) and set x, y: a * x + b * y = gcd(a, b)
 l extended_euclid(l a, l b, l& x, l& y) {
-  if (b == 0) {
-    x = 1;
-    y = 0;
-    return a;
-  }
+  if (b == 0) { x = 1; y = 0; return a; }
   l d = extended_euclid(b, a % b, x, y);
   l t = y;
   y = x - (a / b) * y;
@@ -171,7 +152,9 @@ vvl combinations(l n, l mod) {
   vvl c(n + 1, vl(n + 1));
   F(i, 0, n + 1) {
     c[i][0] = 1;
-    F(j, 1, i + 1) { c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % mod; }
+    F(j, 1, i + 1) {
+      c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % mod;
+    }
   }
   return c;
 }
@@ -179,50 +162,23 @@ vvl combinations(l n, l mod) {
 // l on the ring of MOD
 struct lm {
   l raw;
-  lm() : raw(0) {}
-  lm(l x) : raw(x) {}
-  lm(lm const& x) : raw(x.raw) {}
+  lm(): raw(0) {}
+  lm(l x): raw(x) {}
+  lm(lm const& x): raw(x.raw) {}
   lm(lm&& x) { swap(*this, x); }
   friend void swap(lm& a, lm& b) { swap(a.raw, b.raw); }
-  lm&         operator=(l x) {
-    raw = x;
-    return *this;
-  }
-  lm& operator=(lm x) {
-    swap(*this, x);
-    return *this;
-  }
-  void operator+=(const lm x) { raw = cong(raw + x.raw, MOD); }
-  lm   operator+(const lm x) {
-    lm z(*this);
-    z += x;
-    return z;
-  }
-  void operator-=(const lm x) { raw = cong(raw - x.raw, MOD); }
-  lm   operator-(const lm x) {
-    lm z(*this);
-    z -= x;
-    return z;
-  }
-  void operator*=(const lm x) { raw = cong(raw * x.raw, MOD); }
-  lm   operator*(const lm x) {
-    lm z(*this);
-    z *= x;
-    return z;
-  }
-  void operator/=(const lm x) {
-    raw = cong(raw * inverse_mod(x.raw, MOD), MOD);
-  }
-  void operator++() { raw = cong(raw + 1, MOD); }
-  void operator--() { raw = cong(raw - 1, MOD); }
-  // TODO: update template
-  bool operator==(const lm x) { return raw == x.raw; }
-  bool operator!=(const lm x) { return raw != x.raw; }
-  lm   operator/(const lm x) {
-    lm z(*this);
-    z /= x;
-    return z;
-  }
+  lm& operator = (l x) { raw = x; return *this; }
+  lm& operator = (lm x) { swap(*this, x); return *this; }
+  void operator += (const lm x) { raw = cong(raw + x.raw, MOD); }
+  lm operator + (const lm x) { lm z(*this); z += x; return z; }
+  void operator -= (const lm x) { raw = cong(raw - x.raw, MOD); }
+  lm operator - (const lm x) { lm z(*this); z -= x; return z; }
+  void operator *= (const lm x) { raw = cong(raw * x.raw, MOD); }
+  lm operator * (const lm x) { lm z(*this); z *= x; return z; }
+  void operator /= (const lm x) { raw = cong(raw * inverse_mod(x.raw, MOD), MOD); }
+  void operator ++ () { raw = cong(raw + 1, MOD); }
+  void operator -- () { raw = cong(raw - 1, MOD); }
+  lm operator / (const lm x) { lm z(*this); z /= x; return z; }
   lm pow(l exp) const {
     lm r(1);
     lm base(*this);
@@ -237,42 +193,38 @@ struct lm {
 using vlm = vector<lm>;
 using vvlm = vector<vlm>;
 using vvvlm = vector<vvlm>;
-ostream& operator<<(ostream& s, const lm& p) { return s << p.raw; }
+ostream& operator << (ostream& s, const lm& p) {
+  return s << p.raw;
+}
 
-void solve(istream& in, ostream& out) {
-  l n;
-  in >> n;
-  vl v(n);
-  F(i, 0, n) in >> v[i];
-  mll m;
-  for (l x : v) m[x]++;
-  l s = accumulate(all(v), l(0)); // TODO: func? alias to acc
-  if (m.size() < 3) {
-    cout << n << lf;
-    return;
-  }
-  vvlm sk(n + 1, vlm(s + 1));
-  sk[0][0] = 1;
-  for (auto x : v) {
-    B(k, 0, n) {
-      F(i, 0, s + 1 - x) { // i + x < s + 1
-        sk[k + 1][i + x] += sk[k][i];
-      }
+lm f(l d, l n, l k, vvvlm& dp, vvvb& visited) {
+  C(k <= n);
+  auto& z = dp[d][n][k];
+  if (visited[d][n][k]) return z;
+  visited[d][n][k] = true;
+  if (d == 1) return z = 1;
+  C(d > 1);
+  lm fact = 1;
+  lm q = 1;
+  F(j, 0, k) {
+    lm t = 0;
+    F(i, 0, k - j + 1) {
+      if (i > n - k) break;
+      C(i + j <= k);
+      t += f(d - 1, n - k, i, dp, visited);
     }
+    t *= f(d - 1, k, j, dp, visited);
+    z += t;
   }
-  l     z = 1;
-  vlm fact(n + 1);
-  fact[0] = 1;
-  F(i, 1, n + 1) fact[i] = fact[i - 1] * i;
-  for (auto xy : m) {
-    l x, y;
-    tie(x, y) = xy;
-    F(k, z + 1, y + 1) {
-      l sum = k * x;
-      lm t = fact[y] / fact[k] / fact[y - k]; // C(y, k)
-      if (t != sk[k][sum]) break;
-      z = max(z, k);
-    }
-  }
+  return z;
+}
+
+void solve(istream &in, ostream &out) {
+  l n, m; in >> n >> m;
+  l a = max(m, n) + 1;
+  vvvlm dp(a, vvlm(a, vlm(a)));
+  vvvb visited(a, vvb(a, vb(a)));
+  lm z = 0;
+  F(i, 0, n + 1) z += f(m, n, i, dp, visited);
   out << z << lf;
 }
