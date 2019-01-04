@@ -18,13 +18,13 @@ with open(path, 'r') as myfile:
     info = json.loads(myfile.read().replace('\n', ''))
 soup = BeautifulSoup(info['content'], 'lxml')
 
-pre = soup.find('pre')
-# print(pre.prettify())
-b = pre.find('b')
-cases = [[
-    str(pre.find('b').next_sibling.string).strip(),
-    str(pre.find_all('b')[1].next_sibling.string).strip()
-]]
-# print(cases)
+h3 = soup.find_all('h3')
+cases = []
+input = ""
+for h in h3:
+    if h.string == 'Example Input':
+        input = h.next_sibling.string
+    if h.string == 'Example Output':
+        cases.append([input, h.next_sibling.string])
 if utils.save_cases(name, cases):
     utils.open_problem(name)

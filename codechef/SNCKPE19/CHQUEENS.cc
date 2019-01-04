@@ -74,6 +74,11 @@ int  main(int argc, char **argv) {
 }
 const l MOD = e9 + 7;  // end of template
 
+l f(l k) {
+  C(k >= 0);
+  return k * (k - 1);
+}
+
 void solve(istream &in, ostream &out) {
   l tcc;
   in >> tcc;
@@ -82,66 +87,30 @@ void solve(istream &in, ostream &out) {
     in >> n >> m >> x >> y;
     x--;
     y--;
-    l z = (n * m - 1) * (n * m - 2);
-    L(z);
-    F(i, 0, n) F(j, 0, m) {
-      if (i == x && j == y) continue;
-      l dv;
-      if (i == x) {
-        if (y < j) dv = m - y - 2;
-        if (y > j) dv = y - 1;
+    l z = f(n * m - 1);
+    // rows
+    z -= (n - 1) * f(m);
+    z -= f(y) + f(m - y - 1);
+    // cols
+    z -= (m - 1) * f(n);
+    z -= f(x) + f(n - x - 1);
+    // d1
+    F(k, 0, n + m - 1) {
+      if (k == x + y) {
+        z -= f(min(k, n - 1) - max(k + 1 - y, l(0)) + 1);
+        z -= f(min(k-1-y, n - 1) - max(k + 1 - m, l(0)) + 1);
       } else {
-        dv = m - 1;
+        z -= f(min(k, n - 1) - max(k + 1 - m, l(0)) + 1);
       }
-      l dh;
-      if (j == y) {
-        if (x < i) dh = n - x - 2;
-        if (x > i) dh = x - 1;
+    }
+    // d2
+    F(k, 1 - n, m) {
+      if (k == y - x) {
+        z -= f(min(y-1-k, n - 1) - max(-k, l(0)) + 1);
+        z -= f(min(m-1-k, n - 1) - max(y+1-k, l(0)) + 1);
       } else {
-        dh = n - 1;
+        z -= f(min(m - 1 - k, n - 1) - max(- k, l(0)) + 1);
       }
-      l k = i + j;
-      l dd1, dd2;
-      if (x + y == k) {
-        l    t = 0;
-        bool take = false;
-        F(a, 0, n) {
-          l b = k - a;
-          if (b < 0 or b >= m) continue;
-          t++;
-          if (a == i) take = true;
-          if (a == x) {
-            if (take) break;
-            t = 1;
-          }
-        }
-        dd1 = t - 2;
-      } else {
-        l d1 = min(m - 1, k) - max(k + 1 - n, l(0)) + 1;
-        dd1 = d1 - 1;
-      }
-      k = i - j;
-      if (x - y == k) {
-        l    t = 0;
-        bool take = false;
-        F(a, 0, n) {
-          l b = a - k;
-          if (b < 0 or b >= m) continue;
-          t++;
-          if (a == i) take = true;
-          if (a == x) {
-            if (take) break;
-            t = 1;
-          }
-        }
-        dd2 = t - 2;
-      } else {
-        l d2 = min(m - 1, n - 1 - k) - max(-k, l(0)) + 1;
-        dd2 = d2 - 1;
-      }
-      l t = dv + dh + dd1 + dd2;
-      L(i, j, dv, dh, dd1, dd2, t);
-      z -= t;
     }
     out << z << lf;
   }
