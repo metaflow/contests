@@ -9,12 +9,12 @@ const double _max_double_error = 1e-9;
 #define I(x, ...) (x)
 #define C(x, ...) ;
 #endif
+#include <math.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
-#include <math.h>
 #include <memory>
 #include <numeric>
 #include <queue>
@@ -44,10 +44,10 @@ using vd = vector<double>;
 using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
 using sl = unordered_set<l>;
-const l INF = numeric_limits<l>::max();
+const l      INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
 const double PI = 3.14159265358979323846;
-const l e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
+const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
         e8 = 10 * e7, e9 = 10 * e8;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
@@ -57,7 +57,7 @@ const char lf = '\n';
 #define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 void solve(istream &in, ostream &out);
-int main(int argc, char **argv) {
+int  main(int argc, char **argv) {
   ios_base::sync_with_stdio(false);
   cin.tie(0);
   cout << fixed << setprecision(15);
@@ -72,59 +72,57 @@ int main(int argc, char **argv) {
   solve(cin, cout);
 #endif
 }
-const l MOD = e9 + 7; // end of template
+const l MOD = e9 + 7;  // end of template
 
-l dfs(l n, l k, vvl& dp) {
-  if (n == 0 and k == 0) return 1;
-  l& z = dp[n][k];
-  if (z == -1) {
-    z = 0;
-    F(i, 1, n + 1) {
-      l t = i * (i + 1) / 2;
-      if (t > k) break;
-      if (dfs(n - i, k - t, dp)) {
-        z = i;
-        break;
-      }
-    }
+vl ranks(vl v) {
+  l   n = v.size();
+  vll c(n);
+  F(i, 0, n) {
+    c[i].first = v[i];
+    c[i].second = i;
   }
-  return z;
-string get_string(l k, l& p, vl& v) {
-  string z;
-  F(i, 0, v[k]) {
-    z += '(';
-    if (p < v.size()) {
-      p++;
-      z += get_string(p - 1, p, v);
-    }
-    z += ')';
+  sort(all(c));
+  l  r = 0;
+  vl z(n);
+  F(i, 0, n) {
+    if (i > 0 and c[i].first != c[i - 1].first) r++;
+    z[c[i].second] = r;
   }
   return z;
 }
 
 void solve(istream &in, ostream &out) {
-  l tcc; in >> tcc;
-  vvl dp(101, vl(e5 + 1, -1));
-  F(tc, 0, tcc) {
-    l n, k; in >> n >> k;
-    if (n % 2) {
-      out << "impossible" << lf;
-      continue;
+  l n, m;
+  in >> n >> m;
+  vvl grid(n, vl(m));
+  F(i, 0, n) F(j, 0, m) in >> grid[i][j];
+  vvl rows(n, vl(m)), cols(n, vl(m));
+  vl  max_row(n), max_col(m);
+  F(r, 0, n) {
+    vl v(m);
+    F(c, 0, m) v[c] = grid[r][c];
+    auto q = ranks(v);
+    F(c, 0, m) {
+      rows[r][c] = q[c];
+      max_row[r] = max(max_row[r], q[c]);
     }
-    n /= 2;
-    vl z;
-    do {
-      l j = dfs(n, k, dp);
-      if (j == 0) break;
-      z.emplace_back(j);
-      n -= j;
-      k -= j * (j + 1) / 2;
-    } while (k > 0);
-    if (z.empty()) {
-      out << "impossible" << lf;
-      continue;
+  }
+  F(c, 0, m) {
+    vl v(n);
+    F(r, 0, n) v[r] = grid[r][c];
+    auto q = ranks(v);
+    F(r, 0, n) {
+      cols[r][c] = q[r];
+      max_col[c] = max(max_col[c], q[r]);
     }
-    l p = 1;
-    out << get_string(0, p, z) << lf;
+  }
+  F(r, 0, n) {
+    F(c, 0, m) {
+      if (c) out << ' ';
+      l low = max(rows[r][c], cols[r][c]);
+      l high = max(max_row[r] - rows[r][c], max_col[c] - cols[r][c]);
+      out << low + high + 1;
+    }
+    out << lf;
   }
 }

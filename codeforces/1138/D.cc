@@ -74,57 +74,53 @@ int main(int argc, char **argv) {
 }
 const l MOD = e9 + 7; // end of template
 
-l dfs(l n, l k, vvl& dp) {
-  if (n == 0 and k == 0) return 1;
-  l& z = dp[n][k];
-  if (z == -1) {
-    z = 0;
-    F(i, 1, n + 1) {
-      l t = i * (i + 1) / 2;
-      if (t > k) break;
-      if (dfs(n - i, k - t, dp)) {
-        z = i;
-        break;
-      }
-    }
+vl kmp_build_back(const string& p) {
+  vl b(p.size());
+  l j = -1;
+  for (size_t i = 0; i < p.size(); i++) {
+    b[i] = j;
+    while ((j > -1) and (p[j] != p[i])) j = b[j];
+    j++;
   }
-  return z;
-string get_string(l k, l& p, vl& v) {
-  string z;
-  F(i, 0, v[k]) {
-    z += '(';
-    if (p < v.size()) {
-      p++;
-      z += get_string(p - 1, p, v);
-    }
-    z += ')';
-  }
-  return z;
+  return b;
 }
 
-void solve(istream &in, ostream &out) {
-  l tcc; in >> tcc;
-  vvl dp(101, vl(e5 + 1, -1));
-  F(tc, 0, tcc) {
-    l n, k; in >> n >> k;
-    if (n % 2) {
-      out << "impossible" << lf;
-      continue;
+l kmp_search(const string& s, const string& p, const vl& b) {
+  l j = 0;
+  for (size_t i = 1; i < s.size(); i++) {
+    while (j > -1 && p[j] != s[i]) j = b[j];
+    j++;
+    if (j == l(p.size())) {
+      j = b[j];
     }
-    n /= 2;
-    vl z;
-    do {
-      l j = dfs(n, k, dp);
-      if (j == 0) break;
-      z.emplace_back(j);
-      n -= j;
-      k -= j * (j + 1) / 2;
-    } while (k > 0);
-    if (z.empty()) {
-      out << "impossible" << lf;
-      continue;
-    }
-    l p = 1;
-    out << get_string(0, p, z) << lf;
   }
+  return j;
+}
+
+
+void solve(istream &in, ostream &out) {
+  string s, t; in >> s >> t;
+  auto b = kmp_build_back(t);
+  l x = kmp_search(t, t, b);
+  string tail;
+  F(i, x, t.size()) tail += t[i];
+  vl cs(2), ct(2), cz(2);
+  for (auto c : s) cs[c - '0']++;
+  for (auto c : t) ct[c - '0']++;
+  for (auto c : tail) cz[c - '0']++;
+  L(tail, cz);
+  string z;
+  if (ct[0] <= cs[0] && ct[1] <= cs[1]) {
+    z = t;
+    cs[0] -= ct[0];
+    cs[1] -= ct[1];
+    while (cs[0] >= cz[0] and cs[1] >= cz[1]) {
+      z += tail;
+      cs[0] -= cz[0];
+      cs[1] -= cz[1];
+    }
+  }
+  F(i, 0, cs[0]) z+='0';
+  F(i, 0, cs[1]) z+='1';
+  out << z << lf;
 }

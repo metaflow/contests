@@ -74,57 +74,19 @@ int main(int argc, char **argv) {
 }
 const l MOD = e9 + 7; // end of template
 
-l dfs(l n, l k, vvl& dp) {
-  if (n == 0 and k == 0) return 1;
-  l& z = dp[n][k];
-  if (z == -1) {
-    z = 0;
-    F(i, 1, n + 1) {
-      l t = i * (i + 1) / 2;
-      if (t > k) break;
-      if (dfs(n - i, k - t, dp)) {
-        z = i;
-        break;
-      }
-    }
-  }
-  return z;
-string get_string(l k, l& p, vl& v) {
-  string z;
-  F(i, 0, v[k]) {
-    z += '(';
-    if (p < v.size()) {
-      p++;
-      z += get_string(p - 1, p, v);
-    }
-    z += ')';
-  }
-  return z;
-}
-
 void solve(istream &in, ostream &out) {
-  l tcc; in >> tcc;
-  vvl dp(101, vl(e5 + 1, -1));
-  F(tc, 0, tcc) {
-    l n, k; in >> n >> k;
-    if (n % 2) {
-      out << "impossible" << lf;
-      continue;
+  l n; in >> n;
+  vl v(n); F(i, 0, n) in >> v[i];
+  l prev_run = 0, run = 0, prev = 0;
+  l z = 0;
+  for (l x : v) {
+    if (x != prev) {
+      prev_run = run;
+      prev = x;
+      run = 0;
     }
-    n /= 2;
-    vl z;
-    do {
-      l j = dfs(n, k, dp);
-      if (j == 0) break;
-      z.emplace_back(j);
-      n -= j;
-      k -= j * (j + 1) / 2;
-    } while (k > 0);
-    if (z.empty()) {
-      out << "impossible" << lf;
-      continue;
-    }
-    l p = 1;
-    out << get_string(0, p, z) << lf;
+    run++;
+    z = max(z, 2 * min(run, prev_run));
   }
+  out << z << lf;
 }

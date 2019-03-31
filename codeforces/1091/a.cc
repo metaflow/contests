@@ -74,57 +74,8 @@ int main(int argc, char **argv) {
 }
 const l MOD = e9 + 7; // end of template
 
-l dfs(l n, l k, vvl& dp) {
-  if (n == 0 and k == 0) return 1;
-  l& z = dp[n][k];
-  if (z == -1) {
-    z = 0;
-    F(i, 1, n + 1) {
-      l t = i * (i + 1) / 2;
-      if (t > k) break;
-      if (dfs(n - i, k - t, dp)) {
-        z = i;
-        break;
-      }
-    }
-  }
-  return z;
-string get_string(l k, l& p, vl& v) {
-  string z;
-  F(i, 0, v[k]) {
-    z += '(';
-    if (p < v.size()) {
-      p++;
-      z += get_string(p - 1, p, v);
-    }
-    z += ')';
-  }
-  return z;
-}
-
 void solve(istream &in, ostream &out) {
-  l tcc; in >> tcc;
-  vvl dp(101, vl(e5 + 1, -1));
-  F(tc, 0, tcc) {
-    l n, k; in >> n >> k;
-    if (n % 2) {
-      out << "impossible" << lf;
-      continue;
-    }
-    n /= 2;
-    vl z;
-    do {
-      l j = dfs(n, k, dp);
-      if (j == 0) break;
-      z.emplace_back(j);
-      n -= j;
-      k -= j * (j + 1) / 2;
-    } while (k > 0);
-    if (z.empty()) {
-      out << "impossible" << lf;
-      continue;
-    }
-    l p = 1;
-    out << get_string(0, p, z) << lf;
-  }
+  l a, b, c; in >> a >> b >> c;
+  a = min(a, min(b - 1, c - 2));
+  out << a * 3 + 3 << lf;
 }
