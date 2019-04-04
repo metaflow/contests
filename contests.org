@@ -1,7 +1,10 @@
-** TODO add random and set headers
-** TODO add stubs for gen functions before 'main'
 ** TODO trie implementation?
-** kickstart problems
+** TODO kickstart problems
+** TODO look in todos in tmp/cj# on mac
+** DONE add random and set headers
+   CLOSED: [2019-03-31 Sun 21:16]
+** DONE add stubs for gen functions before 'main'
+   CLOSED: [2019-03-31 Sun 21:16]
 ** https://cstheory.wordpress.com/2008/03/07/superconcentrators-from-expanders/
  implement simplier prime factorization
  list to frq map function
