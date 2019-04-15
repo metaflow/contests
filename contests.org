@@ -1,3 +1,105 @@
 ** TODO add random and set headers
 ** TODO add stubs for gen functions before 'main'
 ** TODO trie implementation?
+** https://cstheory.wordpress.com/2008/03/07/superconcentrators-from-expanders/
+ implement simplier prime factorization
+ list to frq map function
+ https://cses.fi/book.html
+ Techniques
+ - Exchange elements - to sort the sequence
+ snackdown2019 elim
+ https://codeforces.com/blog/entry/18051
+ https://ioinformatics.org/journal/v12_2018_25_41.pdf
+ upsolve
+ - https://www.spoj.com/problems/RSORTING/
+ - goodbye 2018 CF read editorial
+ - https://atcoder.jp/contests/dp
+ - codeforces 1032
+ - https://beta.atcoder.jp/contests/dwacon5th-prelims
+ - https://projecteuler.net/problem=644
+ - https://csacademy.com/contest/virtual40468/task/manhattan-center/
+ - https://tenka1-2018.contest.atcoder.jp/tasks/tenka1_2018_e
+ - https://www.codechef.com/OCT18A/problems/CPCOMP
+ - https://beta.atcoder.jp/contests/abc103/tasks/abc103_d
+ - https://agc024.contest.atcoder.jp/tasks/agc024_d
+ - try https://blog.anudeep2011.com/mos-algorithm/
+ - http://codeforces.com/contest/855/problem/E
+ - TCO2017 2C 500
+   - check editorial
+ - http://arc078.contest.atcoder.jp/tasks/arc078_c
+   - check editorial
+   - check other solutions
+ - https://csacademy.com/contest/round-52
+   - check editorial
+ - https://code.google.com/codejam/contest/5314486/dashboard#s=p0
+ - http://codeforces.com/contest/811/problem/C
+ - http://arc075.contest.atcoder.jp/tasks/arc075_d
+ - https://contest.yandex.ru/algorithm2017/contest/4598/problems/A/
+ - https://contest.yandex.ru/algorithm2017/contest/4574/problems/B/
+ - https://csacademy.com/contest/round-34/task/point-in-kgon/
+ - http://rachitiitr.blogspot.ie/2017/06/wavelet-trees-wavelet-trees-editorial.html
+ - problems from float rounding
+   - https://www.topcoder.com/community/data-science/data-science-tutorials/representation-of-integers-and-reals-section-2/
+ Hacker’s Delight
+ tooling
+ - visualize graph from standard representations
+ - update codeforces task parser to output to A.in / A.out or separate files
+ - dcj compilation
+ - restore layout after gdb session
+ - test harness
+   - random generators
+   - interactive problems
+   - colored passed / failed
+   - create new test case
+ - server for chelper
+   - it will wait for chelper when received an input
+     - save file to temporary directory
+     - test override confirmation
+     - write url and full name of problem in problem file
+     - test under linux
+     - parser
+       - topcoder?
+       - usaco
+       - gcj
+       - icpclive
+ - open problem by url
+ debugger
+ - https://www-zeuthen.desy.de/unix/unixguide/infohtml/gdb/Pretty-Printing.html#Pretty-Printing
+ дневники дейкстра 
+ #define local
+ pre contest routine
+ Petr's post on BIT interval updates and queries
+ proper implementation of interval tree
+ force.py
+ - list of opened problems
+ - mark done of one of them
+ - filter problems with tutorials
+ hacks
+ on vacation
+ - bc, factor command line tools
+ - http://ideas.time.com/2012/04/25/why-floundering-is-good/
+ check 3rd solutions of 
+ - 10771 
+ - codejam round 3
+ notes for CP3
+ - chapter 3
+   - p 92 why sort by right endpoint? How does it helps ?
+   - problems
+     - Recursive Backtracking (Harder) - 416 - it's solvable by iteration through possible starts [0, 9] because we are looking for continuous sub-sequences only (like {7,6,5} but {7,6,4}). We can do it by backtracking too but that doesn't look natural for me. I would classify it as "two loops" or "binary operations" problem.
+     - Involving Sorting (Or The Input Is Already Sorted) - 12210 - A Match Making Problem: solution here is to find the difference (B-S) and minimum element in bachelor ages. We can go without any sorting / greedy here (+code)
+     - 196 - Spreadsheet - does not look like DP for me. You just need to "invent" data structure to handle references and that's all
+     - 10465 - Homer Simpson - solvable by simple loop (+code)
+ - chapter 4
+   - p. 134 ure are using "visited" array to mark explored and non-explored vertices. It's a bit confusing to read
+     - if (dfs_num[x] == UNVISITED) ...; if (visited[x]) ..
+   - p. 187 answer to 4.2.5.2 (data structure wit O(1) insert front/back) what about deque? 
+   - p 189 4.5.3.1 -we can do the SCC search on undirected graph too
+   - 10596 - problem has kinda weird test cases on OJ (i.e. when we check for connectivity we should only consider vertices that have edges _and_ expecting to see at least one component) - for me problem has low dacu because of that.
+ - chapter 5
+   - p. 220 problem 11344 we can do with modulo arithmetic instead of remembering div trails
+   - p 221 side note 15 "staying..." Is "winning"?
+ - chapter 6
+   - p. 262 it worth noting that sentinels _could_ be the same (a$b$) but we should check for sentinel in LCP calculation. This is needed for example in 11107 - Life Forms problem when we have a lot of strings to cross-match
+ - chapter 9
+   - p. 381 listing - second call should be RandomizedSelect(A, q + 1, r, k - q)
+ - visualization to max flow min cost?
