@@ -2,6 +2,7 @@
 #define _TESTUTILS_H
 
 #include "logging.h"
+#include "scope_guard.h"
 #include "rnd.h"
 #ifdef __GNUC__
 #include <dirent.h>
