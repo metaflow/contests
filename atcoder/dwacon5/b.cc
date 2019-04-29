@@ -76,7 +76,6 @@ const l MOD = e9 + 7; // end of template
 
 void solve(istream &in, ostream &out) {
   l n, k; in >> n >> k;
-  // TODO: fix compilation of discrete.
   vl v(n); F(i, 0, n) in >> v[i];
   vl sums(n * (n + 1) / 2);
   l p = 0;

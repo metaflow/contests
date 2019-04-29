@@ -1,6 +1,9 @@
 ** TODO trie implementation?
 ** TODO kickstart problems
 ** TODO look in todos in tmp/cj# on mac
+** TODO + start several different compilations at once
+normal -> sanitizer
+without LOCAL flag
 ** DONE add random and set headers
    CLOSED: [2019-03-31 Sun 21:16]
 ** DONE add stubs for gen functions before 'main'

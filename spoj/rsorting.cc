@@ -146,7 +146,6 @@ struct state {
 };
 
 void solve(istream &in, ostream &out) {
-  // TODO: add shift to L()?
   l tcc = 10;
   F(tc, 0, tcc) {
     l n;
@@ -219,7 +218,6 @@ void solve(istream &in, ostream &out) {
             z.b = b;
           }
         }
-        // TODO: add check for BIT add / get to the template
         if (p == b) {
           L("match");
           l t = I(dfs(a + 1, b + 1));

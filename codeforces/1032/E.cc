@@ -41,7 +41,7 @@ using vll = vector<ll>;
 using vvll = vector<vll>;
 using vb = vector<bool>;
 using vvb = vector<vb>;
-using vvvb = vector<vvb>; // TODO: update template
+using vvvb = vector<vvb>;
 using vd = vector<double>;
 using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
@@ -55,9 +55,6 @@ const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a, b, c) for (l a = l(b); a < l(c); a++)
 #define B(a, b, c) for (l a = l(c) - 1; a >= l(b); a--)
-// TODO: remove these macro
-#define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
-#define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 void solve(istream& in, ostream& out);
 int  main(int argc, char** argv) {
@@ -215,7 +212,6 @@ struct lm {
   }
   void operator++() { raw = cong(raw + 1, MOD); }
   void operator--() { raw = cong(raw - 1, MOD); }
-  // TODO: update template
   bool operator==(const lm x) { return raw == x.raw; }
   bool operator!=(const lm x) { return raw != x.raw; }
   lm   operator/(const lm x) {
@@ -238,6 +234,7 @@ using vlm = vector<lm>;
 using vvlm = vector<vlm>;
 using vvvlm = vector<vvlm>;
 ostream& operator<<(ostream& s, const lm& p) { return s << p.raw; }
+const l l0 = 0;
 
 void solve(istream& in, ostream& out) {
   l n;
@@ -246,7 +243,7 @@ void solve(istream& in, ostream& out) {
   F(i, 0, n) in >> v[i];
   mll m;
   for (l x : v) m[x]++;
-  l s = accumulate(all(v), l(0)); // TODO: func? alias to acc
+  l s = accumulate(all(v), l0);
   if (m.size() < 3) {
     cout << n << lf;
     return;

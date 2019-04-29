@@ -203,7 +203,6 @@ void solve(istream& in, ostream& out) {
   set<ll> right;
   F(i, 0, n) right.emplace(uu[i].x, i);
   priority_queue<l, vl, greater<l>> q;
-  // vb                                left(n); // TODO: needed?
   l                                 rc = 0;
   l                                 sr = 0, sl = 0;
   l                                 z = INF;

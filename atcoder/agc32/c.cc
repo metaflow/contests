@@ -26,7 +26,7 @@ const double _max_double_error = 1e-9;
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <stack> // TODO: template
+#include <stack>
 
 using namespace std;
 using vi = vector<int>;

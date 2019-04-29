@@ -22,7 +22,7 @@ const double _max_double_error = 1e-9;
 #include <queue>
 #include <random>
 #include <set>
-#include <functional> // TODO: template
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>

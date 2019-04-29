@@ -11,6 +11,9 @@ const double _max_double_error = 1e-9;
 #endif
 #include <math.h>
 #include <algorithm>
+#include <bitset>
+#include <chrono>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -20,12 +23,11 @@ const double _max_double_error = 1e-9;
 #include <queue>
 #include <random>
 #include <set>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <bitset>
-#include <chrono>
 
 using namespace std;
 using vi = vector<int>;
@@ -45,6 +47,7 @@ using vll = vector<ll>;
 using vvll = vector<vll>;
 using vb = vector<bool>;
 using vvb = vector<vb>;
+using vvvb = vector<vvb>;
 using vd = vector<double>;
 using vvd = vector<vd>;
 using mll = unordered_map<l, l>;
@@ -53,13 +56,11 @@ const l      INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
 const double PI = 3.14159265358979323846;
 const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
-        e8 = 10 * e7, e9 = 10 * e8;
+  e8 = 10 * e7, e9 = 10 * e8, l0 = 0, l1 = 1, l2 = 2;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a, b, c) for (l a = l(b); a < l(c); a++)
 #define B(a, b, c) for (l a = l(c) - 1; a >= l(b); a--)
-#define VVL(x, a, b, i) vvl x(a, vl(b, l(i)));
-#define VVVL(x, a, b, c, i) vvvl x(a, vvl(b, vl(c, l(i))));
 
 void solve(istream &in, ostream &out);
 void solve_brute(istream &, ostream &);

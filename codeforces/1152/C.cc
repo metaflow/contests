@@ -356,7 +356,6 @@ void solve(istream &in, ostream &out) {
   l    a, b;
   in >> a >> b;
   if (a > b) swap(a, b);
-  // TODO: remove
   if (a == b) {
     out << 0 << lf;
     return;
@@ -384,8 +383,7 @@ void solve(istream &in, ostream &out) {
       j--;
       v[j] = 0;
     }
-    // L(v);
-    // TODO: don't output L for random tests
+    L(v);
     l t = 1;
     F(i, 0, n) F(e, 0, v[i]) t *= fq[0][i];
     l k = t * divup(b, t) - b;
