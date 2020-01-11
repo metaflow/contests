@@ -12,7 +12,6 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <algorithm>
 #include <bitset>
-#include <cassert>
 #include <chrono>
 #include <functional>
 #include <iomanip>
@@ -84,8 +83,88 @@ int  main(int argc, char **argv) {
 #endif
 }
 const l MOD = e9 + 7;  // end of template
+// [1, n]
+struct BIT {
+  vl tree;
+  l max_p;
+  BIT(size_t n) {
+    max_p = n;
+    tree.resize(n + 1);
+  };
+  l get(l p) {  // sum of [1, p], O(log(max))
+    l sum = 0;
+    while (p) {
+      sum += tree[p];
+      p -= (p & -p);
+    }
+    return sum;
+  }
+  l get(l from, l to) {  // [from, to]
+    return get(to) - get(from - 1);
+  }
+  // O(log(max))
+  void add(l p, l value) {
+    while (p <= max_p) {
+      tree[p] += value;
+      p += (p & -p);
+    }
+  }
+  // find lowest index with given sum, -1 if not found O(log(max))
+  l find(l sum) {
+    l mask = max_p;
+    while (true) {
+      l lower = (mask & -mask);
+      if (lower == mask) break;
+      mask -= lower;
+    }
+    l p = 0;
+    l top = -1;
+    while (mask != 0) {
+      l m = p + mask;
+      if (m <= max_p) {
+        if (sum == tree[m]) top = m;
+        if (sum > tree[m]) {
+          p = m;
+          sum -= tree[m];
+        }
+      }
+      mask >>= 1;
+    }
+    if (sum != 0) return top;
+    return p;
+  }
+};
+
 
 void solve(istream &in, ostream &out) {
   l n;
   in >> n;
+  vl v(n);
+  F(i, 0, n) in >> v[i];
+  vll s(n);
+  F(i, 0, n) s[i] = {-v[i], i};
+  sort(all(s));
+  L(s);
+  l m; in >> m;
+  vector<tuple<l, l, l>> q(m);
+  F(i, 0, m) {
+    l a, b; in >> a >> b;
+    q[i] = {a, b, i};
+  }
+  sort(all(q));
+  l kk = 0;
+  BIT bit(n);
+  vl z(m);
+  for (auto j : q) {
+    l k = get<0>(j);
+    while (kk < k) {
+      bit.add(s[kk].second + 1, 1);
+      kk++;
+    }
+    l p = get<1>(j);
+    l i = bit.find(p);
+    L(k, p, i, v[i - 1]);
+    z[get<2>(j)] = v[i - 1];
+  }
+  F(i, 0, m) out << z[i] << lf;
 }

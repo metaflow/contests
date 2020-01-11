@@ -12,7 +12,6 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <algorithm>
 #include <bitset>
-#include <cassert>
 #include <chrono>
 #include <functional>
 #include <iomanip>
@@ -86,6 +85,44 @@ int  main(int argc, char **argv) {
 const l MOD = e9 + 7;  // end of template
 
 void solve(istream &in, ostream &out) {
-  l n;
-  in >> n;
+  l tcc; in >> tcc;
+  F(tc, 0, tcc) {
+    l n; in >> n;
+    vb used(n);
+    l p = 0;
+    l m = 0;
+    vl z(n);
+    bool ok = true;
+    F(i, 0, n) {
+      l x; in >> x;
+      if (x < 1 or x > n) {
+        ok = false;
+        continue;
+      }
+      if (x > m) {
+        m = x;
+        z[i] = x;
+        used[x - 1] = true;
+        continue;
+      }
+      while (p < n && used[p]) p++;
+      if (p >= m) {
+        ok = false;
+        continue;
+      }
+      z[i] = p + 1;
+      used[p] = true;
+    }
+    L(z);
+    if (not ok) {
+      out << -1 << lf;
+      continue;
+    } else {
+      F(i, 0, n) {
+        if (i) out << ' ';
+        out << z[i];
+      }
+      out << lf;
+    }
+  }
 }

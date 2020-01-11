@@ -12,7 +12,6 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <algorithm>
 #include <bitset>
-#include <cassert>
 #include <chrono>
 #include <functional>
 #include <iomanip>
@@ -85,7 +84,64 @@ int  main(int argc, char **argv) {
 }
 const l MOD = e9 + 7;  // end of template
 
+const l MAX_PRIME = e6;
+// returns v[i] = smallest prime divisor of i or 1
+vl sieve_primes(vl& primes) {
+  vl next_div(MAX_PRIME, 1);
+  for (l i = 2; i < MAX_PRIME; i++) {
+    if (next_div[i] != 1) continue;
+    primes.emplace_back(i);
+    for (l j = i; j < MAX_PRIME; j += i) if (next_div[j] == 1) next_div[j] = i;
+  }
+  return next_div;
+}
+
+bool is_prime(l n, vl const& primes) {
+  auto p = primes.begin();
+  while (p != primes.end() and ((*p) * (*p)) <= n) {
+    if (n % *p == 0) return n == *p;
+    p++;
+  }
+  return true;
+}
+
+// in asc order
+vl factorize_to_primes(l n, vl& primes, vl& next_div) {
+  auto p = primes.begin();
+  vl result;
+  while (n >= MAX_PRIME and p != primes.end()) {
+    while (n % *p == 0) { result.emplace_back(*p); n /= *p; }
+    p++;
+  }
+  if (n >= MAX_PRIME) {
+    result.emplace_back(n);
+    n = 1;
+  }
+  while (n != 1) {
+    result.emplace_back(next_div[n]);
+    n /= next_div[n];
+  }
+  return result;
+}
+
+// TODO: create variant that returns a map of prime -> counter
+
 void solve(istream &in, ostream &out) {
   l n;
   in >> n;
+  if (n == 1) {
+    out << 1 << lf;
+    return;
+  }
+  vl primes;
+  auto next_div = sieve_primes(primes);
+  auto ff = factorize_to_primes(n, primes, next_div);
+  bool co = false;
+  L(ff);
+  F(i, 1, ff.size()) if (ff[i] != ff[i - 1]) co = true;
+  if (co) {
+    out << 1 << lf;
+  } else {
+    out << ff.back() << lf;
+  }
 }

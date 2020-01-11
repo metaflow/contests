@@ -12,12 +12,12 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <algorithm>
 #include <bitset>
-#include <cassert>
 #include <chrono>
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <list>
 #include <map>
 #include <memory>
 #include <numeric>
@@ -57,7 +57,7 @@ const l      INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
 const double PI = 3.14159265358979323846;
 const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
-  e8 = 10 * e7, e9 = 10 * e8, l0 = 0, l1 = 1, l2 = 2;
+        e8 = 10 * e7, e9 = 10 * e8, l0 = 0, l1 = 1, l2 = 2;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a, b, c) for (l a = l(b); a < l(c); a++)
@@ -85,7 +85,73 @@ int  main(int argc, char **argv) {
 }
 const l MOD = e9 + 7;  // end of template
 
+l fh(l a, l b) {
+  if (a < b) swap(a, b);
+  return a * e6 + b;
+}
+
 void solve(istream &in, ostream &out) {
-  l n;
-  in >> n;
+  l tcc;
+  in >> tcc;
+  F(tc, 0, tcc) {
+    L("-----");
+    l n;
+    in >> n;
+    list<l>               v;
+    vl                    order;
+    vb                    used(n);
+    unordered_map<l, vll> m;
+    l                     a, b, c;
+    in >> a >> b >> c;
+    v.emplace_back(a);
+    v.emplace_back(b);
+    v.emplace_back(c);
+    v.emplace_back(a);
+    order.emplace_back(0);
+    used[0] = true;
+    F(i, 1, n - 2) {
+      in >> a >> b >> c;
+      L(a, b, c);
+      m[fh(a, b)].emplace_back(make_pair(c, i));
+      m[fh(a, c)].emplace_back(make_pair(b, i));
+      m[fh(b, c)].emplace_back(make_pair(a, i));
+    }
+    auto p = v.begin();
+    while (1) {
+      auto o = next(p);
+      if (o == v.end()) break;
+      L(*p, *o);
+      if (auto xx = m.find(fh(*p, *o)); xx != m.end()) {
+        for (auto x : xx->second) {
+          auto [y, e] = x;
+          if (used[e]) continue;
+          v.insert(o, y);
+          L("add", *p, *o, y, e);
+          order.emplace_back(e);
+          used[e] = true;
+          o = p;
+          break;
+        }
+      }
+      p = o;
+    }
+    p = v.begin();
+    bool first = true;
+    while (1) {
+      p = next(p);
+      if (p == v.end()) break;
+      if (!first) out << ' ';
+      first = false;
+      out << *p;
+    }
+    out << endl;
+    reverse(all(order));
+    first = true;
+    for (auto x : order) {
+      if (!first) out << ' ';
+      first = false;
+      out << x + 1;
+    }
+    out << endl;
+  }
 }

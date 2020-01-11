@@ -12,7 +12,6 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <algorithm>
 #include <bitset>
-#include <cassert>
 #include <chrono>
 #include <functional>
 #include <iomanip>
@@ -65,7 +64,7 @@ const char lf = '\n';
 
 void solve(istream &in, ostream &out);
 void solve_brute(istream &, ostream &);
-bool interactive_judge(istream &, istream &, ostream &);
+bool inter(istream &, istream &, ostream &);
 bool generate_random(l, ostream &);
 bool solution_checker(istream &, istream &, istream &, ostream &);
 int  main(int argc, char **argv) {
@@ -86,6 +85,20 @@ int  main(int argc, char **argv) {
 const l MOD = e9 + 7;  // end of template
 
 void solve(istream &in, ostream &out) {
-  l n;
-  in >> n;
+  l tcc; in >> tcc;
+  F(tc, 0, tcc) {
+    l n, p, k; in >> n >> p >> k;
+    vl v(n); F(i, 0, n) in >> v[i];
+    sort(all(v));
+    vl cost(n + 1);
+    F(i, 0, n) {
+      cost[i + 1] = cost[i] + v[i];
+      if (i - k + 1 >= 0) cost[i + 1] = cost[i - k + 1] + v[i];
+    }
+    l z = 0;
+    F(i, 0, n + 1) {
+      if (cost[i] <= p) z = i;
+    }
+    out << z << lf;
+  }
 }

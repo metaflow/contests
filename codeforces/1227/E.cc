@@ -12,7 +12,6 @@ const double _max_double_error = 1e-9;
 #include <math.h>
 #include <algorithm>
 #include <bitset>
-#include <cassert>
 #include <chrono>
 #include <functional>
 #include <iomanip>
@@ -86,6 +85,49 @@ int  main(int argc, char **argv) {
 const l MOD = e9 + 7;  // end of template
 
 void solve(istream &in, ostream &out) {
-  l n;
-  in >> n;
+  l n, m;
+  in >> n >> m;
+  vvl v(n, vl(m));
+  F(i, 0, n) {
+    string s; in >> s;
+    F(j, 0, m) v[i][j] = s[j] == 'X';
+  }
+  l ddx[4] = {-1, -1, +1, +1};
+  l ddy[4] = {-1, +1, -1, +1};
+  l dsx[4] = {0, 0, n - 1, n - 1};
+  l dsy[4] = {0, m - 1, 0, m - 1};
+  vvl w(n + 2, vl(m + 2, e7));
+  F(d, 0, 4) {
+    vvl a(n + 2, vl(m + 2, 0));
+    l x = dsx[d];
+    l dx = ddx[d];
+    l dy = ddy[d];
+    while (x >= 0 and x < n) {
+      l y = dsy[d];
+      while (y >= 0 and y < m) {
+        if (v[x][y]) {
+          a[x + 1][y + 1] = min(min(
+                                a[x + 1 + dx][y + 1 + dy],
+                                a[x + 1 + dx][y + 1]),
+                                a[x + 1][y + 1 + dy]) + 1;
+        }
+        y -= dy;
+      }
+      x -= dx;
+    }
+    F(i, 0, n + 2) F(j, 0, m + 2) w[i][j] = min(w[i][j], a[i][j]);
+  }
+  for (auto e : w) L(e);
+  l t = e7;
+  F(i, 0, n) {
+    F(j, 0, m) {
+      if (v[i][j] == 0) continue;
+      bool included = false;
+      F(x, i - 1, i + 2) F(y, j - 1, j + 2) {
+        if (w[i + 1][j + 1] < w[x + 1][y + 1]) included = true;
+      }
+      if (!included) t = min(t, w[i + 1][j + 1]);
+    }
+  }
+  out << t - 1 << lf;
 }

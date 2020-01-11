@@ -57,7 +57,7 @@ const l      INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
 const double PI = 3.14159265358979323846;
 const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
-  e8 = 10 * e7, e9 = 10 * e8, l0 = 0, l1 = 1, l2 = 2;
+        e8 = 10 * e7, e9 = 10 * e8, l0 = 0, l1 = 1, l2 = 2;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a, b, c) for (l a = l(b); a < l(c); a++)
@@ -88,4 +88,42 @@ const l MOD = e9 + 7;  // end of template
 void solve(istream &in, ostream &out) {
   l n;
   in >> n;
+  vvl v(n);
+  F(i, 0, n) {
+    l a;
+    in >> a;
+    F(j, 0, a) {
+      l x;
+      in >> x;
+      v[i].emplace_back(x);
+    }
+  }
+  vl down, up;
+  l  z = 0;
+  l t = 0;
+  F(i, 0, n) {
+    l    d = INF;
+    l    u = 0;
+    bool self = false;
+    for (l x : v[i]) {
+      if (x > d) self = true;
+      d = min(d, x);
+      u = max(u, x);
+    }
+    if (self) {
+      t++;
+    } else {
+      down.emplace_back(d);
+      up.emplace_back(u);
+    }
+  }
+  z += 2 * n * t - t * t;
+  sort(all(down));
+  L(down);
+  L(up);
+  for (l x : up) {
+    auto p = lower_bound(all(down), x);
+    z += distance(begin(down), p);
+  }
+  out << z << lf;
 }

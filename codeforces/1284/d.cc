@@ -57,7 +57,7 @@ const l      INF = numeric_limits<l>::max();
 const double EPS = 1e-10;
 const double PI = 3.14159265358979323846;
 const l      e0 = 1, e3 = 1000, e5 = 100000, e6 = 10 * e5, e7 = 10 * e6,
-  e8 = 10 * e7, e9 = 10 * e8, l0 = 0, l1 = 1, l2 = 2;
+        e8 = 10 * e7, e9 = 10 * e8, l0 = 0, l1 = 1, l2 = 2;
 const char lf = '\n';
 #define all(x) begin(x), end(x)
 #define F(a, b, c) for (l a = l(b); a < l(c); a++)
@@ -85,7 +85,56 @@ int  main(int argc, char **argv) {
 }
 const l MOD = e9 + 7;  // end of template
 
+struct S {
+  l from, to, idx;
+};
+
+bool f(vector<S> &a, vector<S> &b) {
+  l   n = b.size();
+  vll events(2 * n);
+  F(i, 0, n) {
+    events[2 * i] = make_pair(a[i].from, i);
+    events[2 * i + 1] = make_pair(a[i].to + 1, i);
+  }
+  sort(all(events));
+  vb                                          inset(n);
+  priority_queue<ll, vector<ll>>              heads;
+  priority_queue<ll, vector<ll>, greater<ll>> tails;
+  l                                           t = -1;
+  for (auto e : events) {
+    if (e.first != t) {
+      while (not heads.empty() and not inset[heads.top().second]) {
+        heads.pop();
+      }
+      while (not tails.empty() and not inset[tails.top().second]) {
+        tails.pop();
+      }
+      if (not heads.empty() and heads.top().first > tails.top().first) return false;
+      t = e.first;
+    }
+    l i = e.second;
+    if (inset[i]) {
+      inset[i] = false;
+    } else {
+      inset[i] = true;
+      heads.push({b[i].from, i});
+      tails.push({b[i].to, i});
+    }
+      }
+  return true;
+}
+
 void solve(istream &in, ostream &out) {
   l n;
   in >> n;
+  vector<S> a(n), b(n);
+  F(i, 0, n) {
+    in >> a[i].from >> a[i].to >> b[i].from >> b[i].to;
+    a[i].idx = b[i].idx = i;
+  }
+  if (f(a, b) and f(b, a)) {
+    out << "YES" << lf;
+  } else {
+    out << "NO" << lf;
+  }
 }
