@@ -1,0 +1,71 @@
+https://en.wikipedia.org/wiki/Brainfuck
+https://kvbc.github.io/bf-ide/
+for %loop = 2; %loop > 0; %loop-- {
+    read %a[10] subsctracting '0' each time
+    read %b[0] # space
+    read %b[5] subsctracting '0' each time
+    %matches = 5
+    for %off = 5; %off > 0; %off-- {
+        %x = 0
+        %c[5] = 0
+        # compare
+        if %b[0] %c[0]++
+        if %b[1] %c[1]++
+        ..
+        if %b[5] %c[5]++
+        if %a[0] %c[0]--
+        ..
+        if %a[5] %c[0]--
+        if %c[0] %x++
+        ..
+        if %c[5] %x++
+        if %x %matches--
+        # shift a left
+        %a[0] = 0
+        if %a[1] %a[0]++
+        %a[1] = 0
+        ..
+        if %a[9] %a[8]++
+        %a[9] = 0
+    }
+    %r = 49
+    if %matches == 0 %r--
+    out %r
+}
+
+# b = a
+# t = 0, b = 0
+# while a-- [ t++ b++ ]
+# while t-- [ a++ ]
+
+# a = 0
+# while a-- []
+
+# if x != 0 OP:
+# c = x
+# t = 0
+# while c-- [ t = 0; t++ ]
+# while t-- [ op ]
+
+# if x == 0 OP
+# c = x
+# t = 1
+# while c-- [ t = 0 ]
+# while t-- [ OP ]
+
+# '0' = 48
+# '1' = 49
+
+# a = a - 48
+
+# if a == b OP
+# %t1 = a
+# %t2 = b
+# while %t1-- [%t2--]
+# %s = 1
+# while %t2 [%t2=0; %s=0]
+# while %s-- [ OP; %s = 0 ]
+
+
+
+

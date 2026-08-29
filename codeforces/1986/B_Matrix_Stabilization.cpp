@@ -95,9 +95,12 @@ void solve(istream &in, ostream &out) {
     F(i, 0, rows) {
       F(j, 0, cols) {
         l m = 0;
-        F(d, 0, 4) {
-            l r = (d % 2) * (1 - 2 * (d / 2)) + i;
-            l c = ((d + 1) % 2) * (1 - 2 * (d / 2)) + j;
+        F(d, -2, 3) {
+          if (d==0) continue;
+            // l r = (d >> 1 & 1) * (1 - 2 * (d & 1)) + i;
+            // l c = (d >> 1 ^ 1) * (1 - 2 * (d & 1)) + j;
+            l r = (d&1) * d + i;
+            l c = (d&1^1) * d / 2 + j;
             if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
             m = max(m, v[r][c]);
         }
